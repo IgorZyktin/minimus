@@ -14,7 +14,7 @@ import re
 import string
 from collections import defaultdict
 from functools import cached_property, total_ordering
-from typing import Dict, List, Set, Callable
+from typing import List, Set, Callable
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -114,6 +114,7 @@ class HTML:
     def render_tag_graph(cls, tag: str, files: List['MarkdownFile']) -> dict:
         """Собрать граф для отображения тега.
         """
+        # FIXME
         directory = os.path.abspath(os.getcwd()).replace('\\', '/')
 
         graph = {
@@ -145,6 +146,7 @@ class HTML:
     def render_index_graph(cls, files: List['MarkdownFile']) -> dict:
         """Собрать граф для отображения стартовой страницы.
         """
+        # FIXME
         directory = os.path.abspath(os.getcwd()).replace('\\', '/')
 
         graph = {
@@ -175,25 +177,32 @@ class HTML:
                                files: List['MarkdownFile']) -> str:
         """Собрать текст метафайла из исходных данных.
         """
+        # FIXME
         template = string.Template(HTML_TEMPLATE)
-        content = template.safe_substitute({
-            'title': tag,
-            'nodes': json.dumps(cls.render_tag_graph(tag, files),
-                                ensure_ascii=False,
-                                indent=4)
-        })
+        nodes_as_string = json.dumps(
+            cls.render_tag_graph(tag, files),
+            ensure_ascii=False,
+            indent=4
+        )
+        content = template.safe_substitute(
+            {'title': tag, 'nodes': nodes_as_string}
+        )
         return content
 
     @classmethod
     def make_index_contents(cls, files: List['MarkdownFile']) -> str:
         """Собрать текст стартовой страницы из исходных данных.
         """
+        # FIXME
         template = string.Template(HTML_TEMPLATE)
+        nodes_as_string = json.dumps(
+            cls.render_index_graph(files),
+            ensure_ascii=False,
+            indent=4
+        )
         content = template.safe_substitute({
             'title': 'Стартовая страница',
-            'nodes': json.dumps(cls.render_index_graph(files),
-                                ensure_ascii=False,
-                                indent=4)
+            'nodes': nodes_as_string
         })
         return content
 
@@ -416,13 +425,7 @@ class MarkdownFile:
     def save(self) -> None:
         """Сохранить изменения.
         """
-        if not self.is_changed:
-            return
-
         FileProcessor.write_instance(self)
-
-
-Files = Dict[str, MarkdownFile]
 
 
 class FileProcessor:
@@ -430,17 +433,15 @@ class FileProcessor:
     """
 
     @classmethod
-    def get_files(cls) -> Files:
+    def get_files(cls) -> List[MarkdownFile]:
         """Получить перечень всех документов в каталоге.
 
         Пример вывода:
-        {
-            '2020-07-02_19-56_zettelkasten.md':
-                File(filename='2020-07-02_19-56_zettelkasten.md',
-                is_changed=False)
-        }
+        [
+            File(filename='2020-07-02_19-56_zettelkasten.md', is_changed=False)
+        ]
         """
-        files = {}
+        files = []
 
         for filename in os.listdir():
             filename = filename.lower()
@@ -448,7 +449,7 @@ class FileProcessor:
                 not filename.startswith('meta'),
                 filename.endswith('md'),
             ]):
-                files[filename] = MarkdownFile.from_filename(filename)
+                files.append(MarkdownFile.from_filename(filename))
 
         return files
 
@@ -470,22 +471,20 @@ class FileProcessor:
     def write(cls, filename: str, contents: str) -> None:
         """Сохранить некий текст под определённым именем на диск.
         """
-        if not contents:
-            return
-
-        with open(filename, mode='w', encoding='utf-8') as file:
-            file.write(contents)
-            announce('Сохранены изменения в файле "{}"'.format(filename))
+        if contents:
+            with open(filename, mode='w', encoding='utf-8') as file:
+                file.write(contents)
+                announce('Сохранены изменения в файле "{}"'.format(filename))
 
 
-def ensure_each_tag_has_metafile(files: Files) -> None:
+def ensure_each_tag_has_metafile(files: List[MarkdownFile]) -> None:
     """Удостовериться, что для каждого тега есть персональная страничка.
 
     Вместо проверки правильности, она просто каждый раз создаётся заново.
     """
     tags_to_files = defaultdict(list)
 
-    for file in files.values():
+    for file in files:
         for tag in file.tags:
             tags_to_files[tag].append(file)
 
@@ -501,10 +500,10 @@ def ensure_each_tag_has_metafile(files: Files) -> None:
         FileProcessor.write(tag_filename_html, contents)
 
 
-def ensure_each_tag_has_link(files: Files) -> None:
+def ensure_each_tag_has_link(files: List[MarkdownFile]) -> None:
     """Удостовериться, что каждый тег является ссылкой, а не текстом.
     """
-    for file in files.values():
+    for file in files:
         existing_contents = file.contents
         new_contents = Markdown.replace_tags_with_hrefs(
             content=existing_contents,
@@ -515,24 +514,27 @@ def ensure_each_tag_has_link(files: Files) -> None:
             file.contents = new_contents
 
 
-def ensure_index_exists(files: Files) -> None:
+def ensure_index_exists(files: List[MarkdownFile]) -> None:
     """Удостовериться, что у нас есть стартовая страница.
     """
-    contents = HTML.make_index_contents(list(files.values()))
+    contents = HTML.make_index_contents(files)
     FileProcessor.write('index.html', contents)
 
 
 def main():
     """Точка входа.
     """
+    announce('Анализируем каталог "{}"'.format(os.path.abspath(os.getcwd())))
+
     files = FileProcessor.get_files()
 
     ensure_each_tag_has_metafile(files)
     ensure_each_tag_has_link(files)
     ensure_index_exists(files)
 
-    for file in files.values():
-        file.save()
+    for file in files:
+        if file.is_changed:
+            file.save()
 
     if not files:
         announce('Не найдено файлов для обработки.')
