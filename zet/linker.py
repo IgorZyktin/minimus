@@ -16,38 +16,18 @@ from collections import defaultdict
 from functools import cached_property, total_ordering
 from typing import Dict, List, Set, Callable
 
-HTML_META_TEMPLATE = """
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>$title</title>
-    <link rel="stylesheet" href="styles.css" type="text/css">
-    <script src="jquery-3.5.1.min.js" type="application/javascript"></script>
-    <script src="arbor.js" type="application/javascript"></script>
-    <script src="rendering.js" type="application/javascript"></script>
-    <script src="main.js" type="application/javascript"></script>
-</head>
-<body>
-    <canvas id="viewport" width="1000" height="1000"></canvas>
-    <script type="application/javascript">
-        let main_data_block = $nodes;
-    </script>
-</body>
-</html>
-"""
-
-HTML_INDEX_TEMPLATE = """
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>$title</title>
-    <link rel="stylesheet" href="styles.css" type="text/css">
-    <script src="jquery-3.5.1.min.js" type="application/javascript"></script>
-    <script src="arbor.js" type="application/javascript"></script>
-    <script src="rendering.js" type="application/javascript"></script>
-    <script src="main.js" type="application/javascript"></script>
+    <link rel="stylesheet" href="lib/styles.css" type="text/css">
+    <script src="lib/jquery-3.5.1.min.js" 
+        type="application/javascript"></script>
+    <script src="lib/arbor.js" type="application/javascript"></script>
+    <script src="lib/rendering.js" type="application/javascript"></script>
+    <script src="lib/main.js" type="application/javascript"></script>
 </head>
 <body>
     <canvas id="viewport" width="1000" height="1000"></canvas>
@@ -195,7 +175,7 @@ class HTML:
                                files: List['MarkdownFile']) -> str:
         """Собрать текст метафайла из исходных данных.
         """
-        template = string.Template(HTML_META_TEMPLATE)
+        template = string.Template(HTML_TEMPLATE)
         content = template.safe_substitute({
             'title': tag,
             'nodes': json.dumps(cls.render_tag_graph(tag, files),
@@ -208,7 +188,7 @@ class HTML:
     def make_index_contents(cls, files: List['MarkdownFile']) -> str:
         """Собрать текст стартовой страницы из исходных данных.
         """
-        template = string.Template(HTML_INDEX_TEMPLATE)
+        template = string.Template(HTML_TEMPLATE)
         content = template.safe_substitute({
             'title': 'Стартовая страница',
             'nodes': json.dumps(cls.render_index_graph(files),
@@ -547,12 +527,12 @@ def main():
     """
     files = FileProcessor.get_files()
 
-    # ensure_each_tag_has_metafile(files)
-    # ensure_each_tag_has_link(files)
+    ensure_each_tag_has_metafile(files)
+    ensure_each_tag_has_link(files)
     ensure_index_exists(files)
 
-    # for file in files.values():
-    #     file.save()
+    for file in files.values():
+        file.save()
 
     if not files:
         announce('Не найдено файлов для обработки.')

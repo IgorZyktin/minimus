@@ -4,6 +4,7 @@
         let canvas = canvas_element.get(0)
         let ctx = canvas.getContext("2d");
         let particleSystem = null
+        let _mouseP
 
         let that = {
             init: function (system) {
@@ -16,11 +17,9 @@
             },
 
             resize: function () {
-                let w = $(window).width(),
-                    h = $(window).height();
-                canvas.width = w;
-                canvas.height = h
-                particleSystem.screenSize(w, h)
+                canvas.width = $(window).width();
+                canvas.height = $(window).height()
+                particleSystem.screenSize(canvas.width, canvas.height)
                 that.redraw()
             },
 
@@ -28,32 +27,14 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height)
 
                 particleSystem.eachEdge(function (edge, pt1, pt2) {
-                    ctx.strokeStyle = "rgba(0,0,0, 1.0)"
-                    ctx.lineWidth = 1 + 4 * edge.data.weight
-                    ctx.beginPath()
-                    ctx.moveTo(pt1.x, pt1.y)
-                    ctx.lineTo(pt2.x, pt2.y)
-                    ctx.stroke()
+                    drawEdge(ctx, edge, pt1, pt2)
                 })
 
                 particleSystem.eachNode(function (node, pt) {
-                    let w = ctx.measureText(node.data.label || "").width + 10
-                    let h = 25;
-                    let label = node.data.label
-
-                    if (node.data.bg_color) ctx.fillStyle = node.data.bg_color;
-                    else ctx.fillStyle = "#5a0000"
-
-                    roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, "#5a0000", 2)
-
-                    if (label) {
-                        ctx.font = "bold 16px Arial"
-                        ctx.textAlign = "center"
-                        ctx.fillStyle = "#d7d7d7"
-                        ctx.fillText(label || "", pt.x, pt.y + 5)
-                    }
+                    drawNode(ctx, node, pt)
                 })
             },
+
             _initMouseHandling: function () {
                 let selected = null;
                 let nearest = null;
@@ -62,7 +43,7 @@
                 let handler = {
                     moved: function (e) {
                         let pos = canvas_element.offset();
-                        let _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
+                        _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
                         nearest = particleSystem.nearest(_mouseP);
 
                         if (!nearest || !nearest.node) return false
@@ -70,12 +51,12 @@
                         return false
                     },
                     clicked: function (e) {
-                        var pos = $(canvas).offset();
+                        let pos = $(canvas).offset();
                         _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
                         nearest = dragged = particleSystem.nearest(_mouseP);
 
                         if (nearest && selected && nearest.node === selected.node) {
-                            var link = selected.node.data.link
+                            let link = selected.node.data.link
 
                             if (link !== undefined) {
                                 if (link.match(/^#/)) {
@@ -91,7 +72,6 @@
 
                         }
 
-
                         if (dragged && dragged.node !== null) dragged.node.fixed = true
 
                         $(canvas).unbind('mousemove', handler.moved);
@@ -101,16 +81,13 @@
                         return false
                     },
                     dragged: function (e) {
-                        var old_nearest = nearest && nearest.node._id
-                        var pos = $(canvas).offset();
-                        var s = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
+                        let pos = $(canvas).offset();
+                        let s = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
 
                         if (!nearest) return
                         if (dragged !== null && dragged.node !== null) {
-                            var p = particleSystem.fromScreen(s)
-                            dragged.node.p = p
+                            dragged.node.p = particleSystem.fromScreen(s)
                         }
-
                         return false
                     },
 
@@ -119,17 +96,14 @@
                         if (dragged.node !== null) dragged.node.fixed = false
                         dragged.node.tempMass = 1000
                         dragged = null;
-                        // selected = null
+
                         $(canvas).unbind('mousemove', handler.dragged)
                         $(window).unbind('mouseup', handler.dropped)
                         $(canvas).bind('mousemove', handler.moved);
                         _mouseP = null
                         return false
                     }
-
-
                 }
-
                 $(canvas).mousedown(handler.clicked);
                 $(canvas).mousemove(handler.moved);
 
@@ -139,7 +113,7 @@
     }
 
     $(document).ready(function () {
-        let sys = arbor.ParticleSystem(1000, 800, 0.5, 0.015)
+        let sys = arbor.ParticleSystem(1000, 800, 0.5, 0.02)
         sys.renderer = Renderer("#viewport")
 
         sys.graft({
