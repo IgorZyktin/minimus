@@ -645,6 +645,9 @@ def ensure_each_tag_has_link(files: List['TextFile']) -> None:
 def ensure_index_exists(files: List[TextFile]) -> None:
     """Удостовериться, что у нас есть стартовая страница.
     """
+    if not files:
+        return
+
     # markdown форма
     name = MarkdownSyntax.get_index_filename()
     contents = MarkdownSyntax.make_index_contents(files)
