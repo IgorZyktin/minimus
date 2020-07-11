@@ -9,7 +9,6 @@
     заменяя их ссылками на соответствующие метастраницы тегов.
 """
 import json
-import os
 import re
 import string
 import sys
@@ -42,6 +41,8 @@ class Config:
     bg_color_tag = '#04266c'
     bg_color_node = '#5a0000'
     protocol = 'file://'
+    current_directory = Path().absolute()
+    custom_directory = False
 
     HTML_TEMPLATE = """
     <!DOCTYPE html>
@@ -380,7 +381,7 @@ class HTMLSyntax:
     def get_local_dir() -> str:
         """Выдать локальную папку в читаемом для html формате.
         """
-        return os.path.abspath(os.getcwd()).replace('\\', '/')
+        return str(Config.current_directory.absolute()).replace('\\', '/')
 
     @classmethod
     def make_link(cls, text: str, protocol: Optional[str] = None) -> str:
@@ -686,16 +687,23 @@ def init():
         Syntax.announce('Сборка будет произведена со '
                         'стилем ссылок Local Explorer.')
 
-    current_directory = Path().absolute()
-    main(current_directory)
+    for i in range(len(sys.argv)):
+        if sys.argv[i] == '--directory':
+            Config.current_directory = Path(sys.argv[i + 1]).absolute()
+            Config.custom_directory = True
+            break
+
+    main()
 
 
-def main(current_directory: Path):
+def main():
     """Точка входа.
     """
-    Syntax.announce(f'Анализируем каталог "{current_directory}"')
+    Syntax.announce(f'Анализируем каталог "{Config.current_directory}"')
 
-    files = Filesystem.get_files_of_type(current_directory, 'md', TextFile)
+    files = Filesystem.get_files_of_type(
+        Config.current_directory, 'md', TextFile
+    )
     tags_to_files = map_tags_to_files(files)
 
     ensure_each_tag_has_metafile(tags_to_files)
@@ -704,7 +712,7 @@ def main(current_directory: Path):
 
     changed = []
     for file in files:
-        if file.is_changed and file.contents:
+        if (file.is_changed or Config.custom_directory) and file.contents:
             changed.append((file.filename, file.contents))
 
     for number, (filename, contents) in Syntax.numerate(changed):
