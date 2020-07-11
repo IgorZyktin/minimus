@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Union
 from unittest.mock import Mock
 
-from .linker import *
+from zet.linker import *
 
 REF_MD = r"""
 # Слон
@@ -23,7 +23,7 @@ REF_MD = r"""
 \#большой
 
 Живёт в Африке и Индии \#большой.
-"""
+""".strip()
 
 REF_MD_WITH_LINKS = r"""
 # Слон
@@ -37,7 +37,7 @@ REF_MD_WITH_LINKS = r"""
 [\#большой](./meta_bolshoy.md)
 
 Живёт в Африке и Индии [\#большой](./meta_bolshoy.md).
-"""
+""".strip()
 
 REF_METAFILE_MD = """
 ## Все вхождения тега "ultra"
@@ -45,7 +45,6 @@ REF_METAFILE_MD = """
 ---
 
 1 из 2. [Title 1](./a.txt)
-
 
 2 из 2. [Title 2](./b.txt)
 
@@ -65,6 +64,18 @@ class TestSyntax(unittest.TestCase):
         mock = Mock()
         f('a', 1, None, test='value', callback=mock)
         mock.assert_called_once_with('a, 1, None, test=value')
+
+    def test_to_json(self):
+        d = dict(a=1, b=2, c=None)
+        res = Syntax.to_json(d)
+        ref = """
+{
+    "a": 1,
+    "b": 2,
+    "c": null
+}
+        """.strip()
+        self.assertEqual(res, ref)
 
 
 class TestFilesystem(unittest.TestCase):
@@ -96,6 +107,8 @@ class TestFilesystem(unittest.TestCase):
             self.assertEqual(text, 'zzz')
         finally:
             os.remove(tmp.name)
+
+        self.assertFalse(Filesystem.write('test', ''))
 
     def test_get_files_of_type(self):
         class TFilesystem(Filesystem):
@@ -215,6 +228,53 @@ class TestMarkdownSyntax(unittest.TestCase):
 
 class TestHTMLSyntax(unittest.TestCase):
 
+    def setUp(self) -> None:
+        class HTMLTest(HTMLSyntax):
+            @staticmethod
+            def get_local_dir() -> str:
+                return 'dir'
+
+        self.inst = HTMLTest()
+
+    def test_make_link(self):
+        link = self.inst.make_link('text')
+        self.assertEqual(link, 'file://dir/text')
+
+    def test_get_local_dir(self):
+        link = HTMLSyntax.get_local_dir()
+        self.assertTrue('\\' not in link)
+
+    def test_render_tag_graph(self):
+        file_a = TextFile('a.txt', 'nothing')
+        file_b = TextFile('b.txt', 'nothing')
+        file_c = TextFile('c.txt', 'nothing')
+
+        file_a.title = 'Title a'
+        file_b.title = 'Title b'
+        file_c.title = 'Title c'
+
+        ref = {
+            'edges': {
+                'tag': {'a.txt': {'weight': 0.1},
+                        'b.txt': {'weight': 0.1},
+                        'c.txt': {'weight': 0.1}}},
+
+            'nodes': {'a.txt': {'bg_color': '#5a0000',
+                                'label': 'Title a',
+                                'link': 'file://dir/a.txt'},
+                      'b.txt': {'bg_color': '#5a0000',
+                                'label': 'Title b',
+                                'link': 'file://dir/b.txt'},
+                      'c.txt': {'bg_color': '#5a0000',
+                                'label': 'Title c',
+                                'link': 'file://dir/c.txt'},
+                      'tag': {'bg_color': '#04266c',
+                              'label': 'test',
+                              'link': 'file://dir/meta_test.md'}}}
+
+        res = self.inst.render_tag_graph('test', [file_a, file_b, file_c])
+        self.assertEqual(res, ref)
+
     def test_index_filename(self):
         self.assertEqual(HTMLSyntax.get_index_filename(), 'index.html')
 
@@ -244,5 +304,52 @@ class TestHTMLSyntax(unittest.TestCase):
         self.assertEqual(text, REF_MD_WITH_LINKS)
 
 
+class TestGraph(unittest.TestCase):
+
+    def test_node(self):
+        graph = Graph()
+        graph.add_node('a', 'label', 'color', 'link')
+        ref = {
+            'edges': {},
+            'nodes': {
+                'a': {
+                    'bg_color': 'color',
+                    'label': 'label',
+                    'link': 'link'
+                }
+            }
+        }
+        self.assertEqual(graph.as_dict(), ref)
+
+    def test_edge(self):
+        graph = Graph()
+        graph.add_edge('start', 'finish')
+        ref = {
+            'edges': {
+                'start': {
+                    'finish': {
+                        'weight': 0.1}}},
+            'nodes': {}
+        }
+        self.assertEqual(graph.as_dict(), ref)
+
+
+class TestFunctions(unittest.TestCase):
+    def test_map_tags_to_files(self):
+        file_1 = TextFile('a.txt', '# File 1\n\\#tag1\n\\#tag2')
+        file_2 = TextFile('b.txt', '# File 1\n\\#tag2\n\\#tag3')
+        file_3 = TextFile('c.txt', '# File 1\n\\#tag3\n\\#tag1')
+
+        mapped = map_tags_to_files([file_1, file_2, file_3])
+
+        ref = {
+            'tag1': [file_1, file_3],
+            'tag2': [file_1, file_2],
+            'tag3': [file_2, file_3],
+        }
+
+        self.assertEqual(mapped, ref)
+
+
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main()  # pragma: no cover

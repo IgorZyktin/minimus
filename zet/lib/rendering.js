@@ -62,10 +62,9 @@ function drawNode(ctx, node, pt) {
     let h = 25;
     let label = node.data.label
 
-    if (node.data.bg_color) ctx.fillStyle = node.data.bg_color;
-    else ctx.fillStyle = "#5a0000"
+    ctx.fillStyle = node.data.bg_color;
 
-    roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, "#5a0000", 2)
+    roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, node.data.bg_color, 2)
 
     if (label) {
         ctx.font = "bold 16px Arial"

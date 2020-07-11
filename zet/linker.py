@@ -12,6 +12,7 @@ import json
 import os
 import re
 import string
+import sys
 from collections import defaultdict
 from functools import total_ordering
 from pathlib import Path
@@ -21,39 +22,51 @@ from typing import (
 )
 
 __all__ = [
+    'Config',
+    'Graph',
     'Syntax',
     'TextFile',
     'Filesystem',
     'MarkdownSyntax',
     'HTMLSyntax',
+
+    'map_tags_to_files',
 ]
 
 T = TypeVar('T')
 
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-    <html lang="ru">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>$title</title>
-        <link rel="stylesheet" href="lib/styles.css" type="text/css">
-        <script src="lib/jquery-3.5.1.min.js" 
-            type="application/javascript"></script>
-        <script src="lib/arbor.js" 
-            type="application/javascript"></script>
-        <script src="lib/rendering.js" 
-            type="application/javascript"></script>
-        <script src="lib/main.js" 
-            type="application/javascript"></script>
-    </head>
-    <body>
-        <canvas id="viewport" width="1000" height="1000"></canvas>
-        <script type="application/javascript">
-            let main_data_block = $nodes;
-        </script>
-    </body>
-</html>
-"""
+
+class Config:
+    """Хранилище настроек.
+    """
+    bg_color_tag = '#04266c'
+    bg_color_node = '#5a0000'
+    protocol = 'file://'
+
+    HTML_TEMPLATE = """
+    <!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+            <title>$title</title>
+            <link rel="stylesheet" href="lib/styles.css" type="text/css">
+            <script src="lib/jquery-3.5.1.min.js" 
+                type="application/javascript"></script>
+            <script src="lib/arbor.js" 
+                type="application/javascript"></script>
+            <script src="lib/rendering.js" 
+                type="application/javascript"></script>
+            <script src="lib/main.js" 
+                type="application/javascript"></script>
+        </head>
+        <body>
+            <canvas id="viewport" width="1000" height="1000"></canvas>
+            <script type="application/javascript">
+                let main_data_block = $nodes;
+            </script>
+        </body>
+    </html>
+    """
 
 
 class Syntax:
@@ -139,6 +152,12 @@ class Syntax:
         for i, each in enumerate(collection, start=1):
             number = prefix.format(num=i, total=total)
             yield number, each
+
+    @staticmethod
+    def to_json(something: dict) -> str:
+        """Преобразовать словарь в JSON строку.
+        """
+        return json.dumps(something, ensure_ascii=False, indent=4)
 
 
 @total_ordering
@@ -289,13 +308,53 @@ class Filesystem:
         return contents
 
     @classmethod
-    def write(cls, filename: Union[str, Path], contents: str) -> None:
+    def write(cls, filename: Union[str, Path], contents: str) -> bool:
         """Сохранить некий текст под определённым именем на диск.
         """
         if contents:
             path = cls.cast_path(filename)
             with open(path, mode='w', encoding='utf-8') as file:
                 file.write(contents)
+                return True
+        return False
+
+
+class Graph:
+    """Представление графа.
+    """
+
+    def __init__(self):
+        """Инициализировать экземпляр.
+        """
+        self.nodes = {}
+        self.edges = {}
+
+    def add_node(self, name: str, label: str,
+                 bg_color: str, link: str) -> None:
+        """Добавить ноду в граф.
+        """
+        self.nodes[name] = {
+            'label': label,
+            'bg_color': bg_color,
+            'link': link,
+        }
+
+    def add_edge(self, node_start: str, node_finish: str,
+                 weight: float = 0.1) -> None:
+        """Добавить грань в граф.
+        """
+        if node_start not in self.edges:
+            self.edges[node_start] = {}
+
+        self.edges[node_start][node_finish] = {'weight': weight}
+
+    def as_dict(self) -> dict:
+        """Вернуть граф в форме словаря.
+        """
+        return {
+            'nodes': self.nodes,
+            'edges': self.edges,
+        }
 
 
 class HTMLSyntax:
@@ -324,9 +383,10 @@ class HTMLSyntax:
         return os.path.abspath(os.getcwd()).replace('\\', '/')
 
     @classmethod
-    def make_link(cls, text: str, protocol: str = 'localexplorer:') -> str:
+    def make_link(cls, text: str, protocol: Optional[str] = None) -> str:
         """Собрать ссылку для графа.
         """
+        protocol = protocol or Config.protocol
         directory = cls.get_local_dir()
         return protocol + directory + '/' + text
 
@@ -334,74 +394,53 @@ class HTMLSyntax:
     def render_tag_graph(cls, tag: str, files: List['TextFile']) -> dict:
         """Собрать граф для отображения тега.
         """
-        graph = {
-            'nodes': {
-                'tag': {
-                    'label': tag,
-                    'bg_color': '#04266c',
-                    'link': cls.make_link(MarkdownSyntax.get_tag_filename(tag))
-                },
-            },
-            'edges': {
-                'tag': {}
-            }
-        }
+        graph = Graph()
+
+        graph.add_node(
+            'tag', tag, Config.bg_color_tag,
+            link=cls.make_link(MarkdownSyntax.get_tag_filename(tag))
+        )
 
         for i, file in enumerate(files, start=1):
-            graph['nodes'][file.filename] = {
-                'label': file.title,
-                'link': cls.make_link(file.filename)
-            }
-            # noinspection PyTypeChecker
-            graph['edges']['tag'][file.filename] = {
-                'weight': 0.1
-            }
+            graph.add_node(
+                file.filename, file.title, Config.bg_color_node,
+                link=cls.make_link(file.filename)
+            )
+            graph.add_edge('tag', file.filename)
 
-        return graph
+        return graph.as_dict()
 
     @classmethod
     def render_index_graph(cls, files: List['TextFile']) -> dict:
         """Собрать граф для отображения стартовой страницы.
         """
-        graph = {
-            'nodes': {},
-            'edges': {}
-        }
+        graph = Graph()
 
         for file in files:
-            graph['nodes'][file.filename] = {
-                'label': file.title,
-                'link': cls.make_link(file.filename),
-            }
+            graph.add_node(
+                file.filename, file.title, Config.bg_color_node,
+                link=cls.make_link(file.filename)
+            )
+
             for tag in file.tags:
                 name = Syntax.transliterate(tag)
-                graph['nodes'][name] = {
-                    'label': tag,
-                    'link': cls.make_link(MarkdownSyntax.get_tag_filename(tag)),
-                    'bg_color': '#04266c'
-                }
+                graph.add_node(
+                    name, tag, Config.bg_color_tag,
+                    link=cls.make_link(MarkdownSyntax.get_tag_filename(tag))
+                )
+                graph.add_edge(file.filename, name)
 
-                if file.filename not in graph['edges']:
-                    graph['edges'][file.filename] = {name: {'weight': 0.1}}
-                else:
-                    graph['edges'][file.filename][name] = {'weight': 0.1}
-
-        return graph
+        return graph.as_dict()
 
     @classmethod
     def make_metafile_contents(cls, tag: str,
                                files: List['TextFile']) -> str:
         """Собрать текст метафайла из исходных данных.
         """
-        template = string.Template(HTML_TEMPLATE)
-        nodes_as_string = json.dumps(
-            cls.render_tag_graph(tag, files),
-            ensure_ascii=False,
-            indent=4
-        )
+        template = string.Template(Config.HTML_TEMPLATE)
         content = template.safe_substitute({
             'title': tag,
-            'nodes': nodes_as_string
+            'nodes': Syntax.to_json(cls.render_tag_graph(tag, files))
         })
         return content
 
@@ -409,15 +448,10 @@ class HTMLSyntax:
     def make_index_contents(cls, files: List['TextFile']) -> str:
         """Собрать текст стартовой страницы из исходных данных.
         """
-        template = string.Template(HTML_TEMPLATE)
-        nodes_as_string = json.dumps(
-            cls.render_index_graph(files),
-            ensure_ascii=False,
-            indent=4
-        )
+        template = string.Template(Config.HTML_TEMPLATE)
         content = template.safe_substitute({
             'title': 'Стартовая страница',
-            'nodes': nodes_as_string
+            'nodes': Syntax.to_json(cls.render_index_graph(files))
         })
         return content
 
@@ -531,15 +565,15 @@ class MarkdownSyntax:
 
         return content
 
-    @classmethod
-    def make_metafile_contents(cls, tag: str, files: List['TextFile']) -> str:
-        """Собрать текст метафайла из исходных данных.
+    @staticmethod
+    def render_text(title: str, files: List['TextFile']) -> str:
+        """Собрать базовый вариант md документа.
         """
         if not files:
             return ''
 
         lines = [
-            f'## Все вхождения тега "{tag}"\n',
+            f'{title}\n',
             '---\n'
         ]
 
@@ -549,9 +583,21 @@ class MarkdownSyntax:
                 MarkdownSyntax.href(file.title, file.filename)
             ))
 
-            lines.append('')
+        lines.append('')
 
         return '\n'.join(lines)
+
+    @classmethod
+    def make_metafile_contents(cls, tag: str, files: List['TextFile']) -> str:
+        """Собрать текст метафайла из исходных данных.
+        """
+        return cls.render_text(f'## Все вхождения тега "{tag}"', files)
+
+    @classmethod
+    def make_index_contents(cls, files: List['TextFile']) -> str:
+        """Собрать текст стартовой страницы из исходных данных.
+        """
+        return cls.render_text('# Все записи', files)
 
 
 def ensure_each_tag_has_metafile(
@@ -582,31 +628,34 @@ def ensure_each_tag_has_metafile(
         i += 1
 
 
-# def ensure_each_tag_has_link(files: List[MarkdownFile]) -> None:
-#     """Удостовериться, что каждый тег является ссылкой, а не текстом.
-#     """
-#     for file in files:
-#         existing_contents = file.contents
-#         new_contents = Markdown.replace_tags_with_hrefs(
-#             content=existing_contents,
-#             tags=file.tags
-#         )
-#
-#         if new_contents != existing_contents:
-#             file.contents = new_contents
+def ensure_each_tag_has_link(files: List['TextFile']) -> None:
+    """Удостовериться, что каждый тег является ссылкой, а не текстом.
+    """
+    for file in files:
+        existing_contents = file.contents
+        new_contents = MarkdownSyntax.replace_tags_with_hrefs(
+            content=existing_contents,
+            tags=file.tags
+        )
+
+        if new_contents != existing_contents:
+            file.contents = new_contents
 
 
 def ensure_index_exists(files: List[TextFile]) -> None:
     """Удостовериться, что у нас есть стартовая страница.
     """
     # markdown форма
-    # FIXME
+    name = MarkdownSyntax.get_index_filename()
+    contents = MarkdownSyntax.make_index_contents(files)
+    if Filesystem.write(name, contents):
+        Syntax.announce(f'Создан файл "{name}"')
 
     # html форма
-    name = 'index.html'
+    name = HTMLSyntax.get_index_filename()
     contents = HTMLSyntax.make_index_contents(files)
-    Filesystem.write(name, contents)
-    Syntax.announce(f'Создан файл "{name}"')
+    if Filesystem.write(name, contents):
+        Syntax.announce(f'Создан файл "{name}"')
 
 
 def map_tags_to_files(files: List[TextFile]) -> Dict[str, List[TextFile]]:
@@ -626,17 +675,28 @@ def map_tags_to_files(files: List[TextFile]) -> Dict[str, List[TextFile]]:
     }
 
 
-def main():
+def init():
+    """Подготовить параметры перед запуском.
+    """
+    if '--localexplorer' in sys.argv:
+        Config.protocol = 'localexplorer:'
+        Syntax.announce('Сборка будет произведена со '
+                        'стилем ссылок Local Explorer.')
+
+    current_directory = Path().absolute()
+    main(current_directory)
+
+
+def main(current_directory: Path):
     """Точка входа.
     """
-    current_directory = Path().absolute()
     Syntax.announce(f'Анализируем каталог "{current_directory}"')
 
     files = Filesystem.get_files_of_type(current_directory, 'md', TextFile)
     tags_to_files = map_tags_to_files(files)
 
     ensure_each_tag_has_metafile(tags_to_files)
-    # # ensure_each_tag_has_link(files)
+    ensure_each_tag_has_link(files)
     ensure_index_exists(files)
 
     changed = []
@@ -653,4 +713,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    init()  # pragma: no cover

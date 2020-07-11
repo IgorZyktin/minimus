@@ -13,7 +13,7 @@
                 particleSystem.screenPadding(100) // отступ с краёв
                 $(window).resize(that.resize)
                 that.resize()
-                that._initMouseHandling()
+                that.initMouseHandling()
             },
 
             resize: function () {
@@ -35,10 +35,13 @@
                 })
             },
 
-            _initMouseHandling: function () {
+            initMouseHandling: function () {
                 let selected = null;
                 let nearest = null;
                 let dragged = null;
+
+                let last_x = 0;
+                let last_y = 0;
 
                 let handler = {
                     moved: function (e) {
@@ -55,24 +58,10 @@
                         _mouseP = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
                         nearest = dragged = particleSystem.nearest(_mouseP);
 
-                        if (nearest && selected && nearest.node === selected.node) {
-                            let link = selected.node.data.link
-
-                            if (link !== undefined) {
-                                if (link.match(/^#/)) {
-                                    $(that).trigger({
-                                        type: "navigate",
-                                        path: link.substr(1)
-                                    })
-                                } else {
-                                    window.location = link
-                                }
-                                return false
-                            }
-
-                        }
-
                         if (dragged && dragged.node !== null) dragged.node.fixed = true
+
+                        last_x = _mouseP.x;
+                        last_y = _mouseP.y;
 
                         $(canvas).unbind('mousemove', handler.moved);
                         $(canvas).bind('mousemove', handler.dragged)
@@ -97,6 +86,21 @@
                         dragged.node.tempMass = 1000
                         dragged = null;
 
+                        let pos = $(canvas).offset();
+                        let s = arbor.Point(e.pageX - pos.left, e.pageY - pos.top)
+                        let dist = Math.sqrt(Math.abs(last_x - s.x) + Math.abs(last_y - s.y))
+
+                        if (dist <= 2) {
+                            if (nearest && selected && nearest.node === selected.node) {
+                                let link = selected.node.data.link
+
+                                if (link !== undefined) {
+                                    window.location = link
+                                    return false
+                                }
+                            }
+                        }
+
                         $(canvas).unbind('mousemove', handler.dragged)
                         $(window).unbind('mouseup', handler.dropped)
                         $(canvas).bind('mousemove', handler.moved);
@@ -113,7 +117,15 @@
     }
 
     $(document).ready(function () {
-        let sys = arbor.ParticleSystem(1000, 800, 0.5, 0.02)
+        let sys = arbor.ParticleSystem({
+            repulsion: 1000,
+            stiffness: 600,
+            friction: 0.5,
+            gravity: true,
+            fps: 55,
+            df: 0.02,
+            precision: 0.6
+        })
         sys.renderer = Renderer("#viewport")
 
         sys.graft({
