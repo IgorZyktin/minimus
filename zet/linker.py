@@ -9,7 +9,9 @@
     заменяя их ссылками на соответствующие метастраницы тегов.
 """
 import json
+import os
 import re
+import shutil
 import string
 import sys
 from collections import defaultdict
@@ -41,8 +43,12 @@ class Config:
     bg_color_tag = '#04266c'
     bg_color_node = '#5a0000'
     protocol = 'file://'
-    current_directory = Path().absolute()
-    custom_directory = False
+
+    source_directory = Path().absolute()
+    target_directory = Path().absolute()
+
+    custom_source = False
+    custom_target = False
 
     HTML_TEMPLATE = """
     <!DOCTYPE html>
@@ -300,7 +306,28 @@ class Filesystem:
         return str(filename.absolute())
 
     @classmethod
-    def read(cls, filename: Union[str, Path]) -> str:
+    def ensure_folder_exists(cls, target: Path):
+        """Создать всю цепочку каталогов для указанного пути.
+        """
+        path = None
+        parts = list(target.parts[:-1])
+
+        while parts:
+            if path is None:
+                path = Path(parts.pop(0))
+
+            else:
+                path = path / parts.pop(0)
+
+            if path.is_file():
+                break
+
+            if not path.exists():
+                os.mkdir(cls.cast_path(path))
+                Syntax.announce(f'Был создан каталог "{path}"')
+
+    @classmethod
+    def read(cls, filename: Path) -> str:
         """Поднять содержимое файла с жёсткого диска.
         """
         path = cls.cast_path(filename)
@@ -309,15 +336,27 @@ class Filesystem:
         return contents
 
     @classmethod
-    def write(cls, filename: Union[str, Path], contents: str) -> bool:
+    def write(cls, filename: Path, contents: str) -> bool:
         """Сохранить некий текст под определённым именем на диск.
         """
         if contents:
+            cls.ensure_folder_exists(filename)
             path = cls.cast_path(filename)
             with open(path, mode='w', encoding='utf-8') as file:
                 file.write(contents)
                 return True
         return False
+
+    @classmethod
+    def copy(cls, name_from: Path, name_to: Path):
+        """Скопировать файл.
+        """
+        cls.ensure_folder_exists(name_to)
+
+        shutil.copy(
+            cls.cast_path(name_from),
+            cls.cast_path(name_to)
+        )
 
 
 class Graph:
@@ -381,7 +420,7 @@ class HTMLSyntax:
     def get_local_dir() -> str:
         """Выдать локальную папку в читаемом для html формате.
         """
-        return str(Config.current_directory.absolute()).replace('\\', '/')
+        return str(Config.target_directory.absolute()).replace('\\', '/')
 
     @classmethod
     def make_link(cls, text: str, protocol: Optional[str] = None) -> str:
@@ -613,19 +652,19 @@ def ensure_each_tag_has_metafile(
     i = 1
     for tag, tag_files in tags_to_files.items():
         # markdown форма
-        tag_filename_markdown = MarkdownSyntax.get_tag_filename(tag)
+        name = Config.target_directory / MarkdownSyntax.get_tag_filename(tag)
         contents = MarkdownSyntax.make_metafile_contents(tag, tag_files)
-        Filesystem.write(tag_filename_markdown, contents)
+        Filesystem.write(name, contents)
         number = prefix.format(num=i, total=total)
-        Syntax.announce(f'{number}. Создан файл "{tag_filename_markdown}"')
+        Syntax.announce(f'{number}. Создан файл "{name}"')
         i += 1
 
         # html форма
-        tag_filename_html = HTMLSyntax.get_tag_filename(tag)
+        name = Config.target_directory / HTMLSyntax.get_tag_filename(tag)
         contents = HTMLSyntax.make_metafile_contents(tag, tag_files)
-        Filesystem.write(tag_filename_html, contents)
+        Filesystem.write(name, contents)
         number = prefix.format(num=i, total=total)
-        Syntax.announce(f'{number}. Создан файл "{tag_filename_html}"')
+        Syntax.announce(f'{number}. Создан файл "{name}"')
         i += 1
 
 
@@ -650,13 +689,13 @@ def ensure_index_exists(files: List[TextFile]) -> None:
         return
 
     # markdown форма
-    name = MarkdownSyntax.get_index_filename()
+    name = Config.target_directory / MarkdownSyntax.get_index_filename()
     contents = MarkdownSyntax.make_index_contents(files)
     if Filesystem.write(name, contents):
         Syntax.announce(f'Создан файл "{name}"')
 
     # html форма
-    name = HTMLSyntax.get_index_filename()
+    name = Config.target_directory / HTMLSyntax.get_index_filename()
     contents = HTMLSyntax.make_index_contents(files)
     if Filesystem.write(name, contents):
         Syntax.announce(f'Создан файл "{name}"')
@@ -688,10 +727,13 @@ def init():
                         'стилем ссылок Local Explorer.')
 
     for i in range(len(sys.argv)):
-        if sys.argv[i] == '--directory':
-            Config.current_directory = Path(sys.argv[i + 1]).absolute()
-            Config.custom_directory = True
-            break
+        if sys.argv[i] == '--source_directory':
+            Config.source_directory = Path(sys.argv[i + 1]).absolute()
+            Config.custom_source = True
+
+        if sys.argv[i] == '--target_directory':
+            Config.target_directory = Path(sys.argv[i + 1]).absolute()
+            Config.custom_target = True
 
     main()
 
@@ -699,10 +741,10 @@ def init():
 def main():
     """Точка входа.
     """
-    Syntax.announce(f'Анализируем каталог "{Config.current_directory}"')
+    Syntax.announce(f'Анализируем каталог "{Config.source_directory}"')
 
     files = Filesystem.get_files_of_type(
-        Config.current_directory, 'md', TextFile
+        Config.source_directory, 'md', TextFile
     )
     tags_to_files = map_tags_to_files(files)
 
@@ -712,15 +754,23 @@ def main():
 
     changed = []
     for file in files:
-        if (file.is_changed or Config.custom_directory) and file.contents:
-            changed.append((file.filename, file.contents))
+        if (file.is_changed or Config.custom_target) and file.contents:
+            name = Config.target_directory / file.filename
+            changed.append((name, file.contents))
 
-    for number, (filename, contents) in Syntax.numerate(changed):
-        Filesystem.write(filename, contents)
-        Syntax.announce(f'{number}. Сохранены изменения в файле "{filename}"')
+    for number, (name, contents) in Syntax.numerate(changed):
+        Filesystem.write(name, contents)
+        Syntax.announce(f'{number}. Сохранены изменения в файле "{name}"')
 
     if not files:
         Syntax.announce('Не найдено файлов для обработки.')
+
+    elif Config.custom_target:
+        for file in (Config.source_directory / 'lib').iterdir():
+            Filesystem.copy(
+                Config.source_directory / 'lib' / file.name,
+                Config.target_directory / 'lib' / file.name,
+            )
 
 
 if __name__ == '__main__':

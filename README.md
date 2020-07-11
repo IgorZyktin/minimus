@@ -98,20 +98,24 @@
 
 Примерно вот так:
 ```
-C:\notes>python linker.py
-Анализируем каталог "C:\Users\MainUser\PycharmProjects\Zet\zet"
-01 из 10. Создан файл "meta_hobot.md"
-02 из 10. Создан файл "meta_hobot.html"
-03 из 10. Создан файл "meta_4_lapy.md"
-04 из 10. Создан файл "meta_4_lapy.html"
-05 из 10. Создан файл "meta_seryy.md"
-06 из 10. Создан файл "meta_seryy.html"
-07 из 10. Создан файл "meta_hvost.md"
-08 из 10. Создан файл "meta_hvost.html"
-09 из 10. Создан файл "meta_mashina.md"
-10 из 10. Создан файл "meta_mashina.html"
-Создан файл "index.md"
-Создан файл "index.html"
+C:\folder>python linker.py
+Анализируем каталог "C:\folder"
+01 из 10. Создан файл "C:\folder\meta_hobot.md"
+02 из 10. Создан файл "C:\folder\meta_hobot.html"
+03 из 10. Создан файл "C:\folder\meta_4_lapy.md"
+04 из 10. Создан файл "C:\folder\meta_4_lapy.html"
+05 из 10. Создан файл "C:\folder\meta_seryy.md"
+06 из 10. Создан файл "C:\folder\meta_seryy.html"
+07 из 10. Создан файл "C:\folder\meta_hvost.md"
+08 из 10. Создан файл "C:\folder\meta_hvost.html"
+09 из 10. Создан файл "C:\folder\meta_mashina.md"
+10 из 10. Создан файл "C:\folder\meta_mashina.html"
+Создан файл "C:\folder\index.md"
+Создан файл "C:\folder\index.html"
+1 из 4. Сохранены изменения в файле "C:\folder\2020-07-06_elephant.md"
+2 из 4. Сохранены изменения в файле "C:\folder\2020-07-06_mouse.md"
+3 из 4. Сохранены изменения в файле "C:\folder\2020-07-06_recursion.md"
+4 из 4. Сохранены изменения в файле "C:\folder\2020-07-06_vacuum.md"
 ```
 Важно помнить, что линковщик это не динамический инструмент. Он не нужен для чтения заметок, только для их сшивки. Достаточно время от времени запускать его на одном компьютере, где установлен python. Читать заметки при этом можно с любого устройства, python при этом не требуется. 
 
@@ -119,10 +123,23 @@ C:\notes>python linker.py
 
 Сразу после этого уже можно работать. Но пользоваться html документами будет не очень удобно т.к. бразуер будет открывать md документы просто как текст. Чтобы видеть разметку, необходимо расширение для браузера. В данном проекте применён Local Explorer (ссылка внизу). После его установки Chrome будет запускать md документы через стандартное приложение операционной системы.
 
+### Аргументы запуска
+
 Сборка с генерацией ссылок в формате "Local Explorer":
 ```
 python linker.py --localexplorer
+```
+
+Взять исходные данные (md файлы) из другого каталога:
+```
+python linker.py --source_directory "my cool folder"
 ``` 
+
+Сохранить все результаты работы и скопировать нужные для запуска файлы в другой каталог:
+```
+python linker.py --target_directory "my cool folder"
+``` 
+
 ### Справочные данные
 
 1. Подробнее про **Zettelkasten**: 
