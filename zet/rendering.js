@@ -56,23 +56,48 @@ function drawEdge(ctx, edge, pt1, pt2) {
     ctx.stroke()
 }
 
+
 function drawNode(ctx, node, pt) {
     // нарисовать одну ноду
-    let w = ctx.measureText(node.data.label || "").width + 10
-    let h = 25;
-    let label = node.data.label
+    let w;
+    let h;
+    let text = node.data.label || ''
+    let lines;
 
-    ctx.fillStyle = node.data.bg_color;
+    ctx.fillStyle = node.data.bg_color
 
-    roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, node.data.bg_color, 2)
+    if (text.length > 20) lines = text.split(',');
+    else lines = null;
 
-    if (label) {
+    if (lines && lines.length > 1) {
+        let longest_line;
+        for (let line of lines) {
+            if (!longest_line && line) longest_line = line
+            else if (line && line.trim().length > longest_line.length) longest_line = line.trim();
+        }
+        w = ctx.measureText(longest_line).width + 10;
+        h = lines.length * 15 + 10;
+        roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, node.data.bg_color, 2);
+
         ctx.font = "bold 16px Arial"
         ctx.textAlign = "center"
-        ctx.fillStyle = "#d7d7d7"
-        ctx.fillText(label || "", pt.x, pt.y + 5)
+        ctx.fillStyle = "#d7d7d7";
+        for (let [index, line] of lines.entries()) {
+            ctx.fillText(line.trim(), pt.x, pt.y - 5 + index * 15)
+        }
+    } else {
+        w = ctx.measureText(text).width + 10;
+        h = 25;
+        roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, node.data.bg_color, 2);
+        if (text) {
+            ctx.font = "bold 16px Arial"
+            ctx.textAlign = "center"
+            ctx.fillStyle = "#d7d7d7";
+            ctx.fillText(text || "", pt.x, pt.y + 5)
+        }
     }
 }
+
 
 (function ($) {
     let Renderer = function (canvas_id) {
@@ -197,7 +222,7 @@ function drawNode(ctx, node, pt) {
             repulsion: 1000,
             stiffness: 600,
             friction: 0.5,
-            gravity: true,
+            gravity: false,
             fps: 55,
             df: 0.02,
             precision: 0.6

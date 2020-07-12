@@ -476,11 +476,12 @@ class HTMLSyntax:
         )
 
         for i, file in enumerate(files, start=1):
+            key = Syntax.transliterate(file.title)
             graph.add_node(
-                file.filename, file.title, Config.bg_color_node,
+                key, file.title, Config.bg_color_node,
                 link=cls.make_link(file.filename)
             )
-            graph.add_edge('tag', file.filename)
+            graph.add_edge('tag', key)
 
         return graph.as_dict()
 
@@ -491,18 +492,19 @@ class HTMLSyntax:
         graph = Graph()
 
         for file in files:
+            base_key = Syntax.transliterate(file.title)
             graph.add_node(
-                file.filename, file.title, Config.bg_color_node,
+                base_key, file.title, Config.bg_color_node,
                 link=cls.make_link(file.filename)
             )
 
             for tag in file.tags:
-                name = Syntax.transliterate(tag)
+                key = Syntax.transliterate(tag)
                 graph.add_node(
-                    name, tag, Config.bg_color_tag,
+                    key, tag, Config.bg_color_tag,
                     link=cls.make_link(MarkdownSyntax.get_tag_filename(tag))
                 )
-                graph.add_edge(file.filename, name)
+                graph.add_edge(base_key, key)
 
         return graph.as_dict()
 
