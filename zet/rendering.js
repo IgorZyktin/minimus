@@ -59,43 +59,45 @@ function drawEdge(ctx, edge, pt1, pt2) {
 
 function drawNode(ctx, node, pt) {
     // нарисовать одну ноду
+    let font_size = 16;
     let w;
-    let h;
-    let text = node.data.label || ''
+    let h = font_size;
+    let text = node.data.label || '';
+    let padding = 5;
     let lines;
 
     ctx.fillStyle = node.data.bg_color
+    ctx.font = 'bold ' + font_size + 'px Arial';
+    ctx.textAlign = 'center';
 
-    if (text.length > 20) lines = text.split(',');
-    else lines = null;
+    if (text.length > 20) lines = text.split(',')
+    else lines = [text];
 
-    if (lines && lines.length > 1) {
-        let longest_line;
-        for (let line of lines) {
-            if (!longest_line && line) longest_line = line
-            else if (line && line.trim().length > longest_line.length) longest_line = line.trim();
-        }
-        w = ctx.measureText(longest_line).width + 10;
-        h = lines.length * 15 + 10;
-        roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, node.data.bg_color, 2);
-
-        ctx.font = "bold 16px Arial"
-        ctx.textAlign = "center"
-        ctx.fillStyle = "#d7d7d7";
-        for (let [index, line] of lines.entries()) {
-            ctx.fillText(line.trim(), pt.x, pt.y - 5 + index * 15)
-        }
-    } else {
-        w = ctx.measureText(text).width + 10;
-        h = 25;
-        roundRect(ctx, pt.x - w / 2, pt.y - h / 2, w, h, 5, node.data.bg_color, 2);
-        if (text) {
-            ctx.font = "bold 16px Arial"
-            ctx.textAlign = "center"
-            ctx.fillStyle = "#d7d7d7";
-            ctx.fillText(text || "", pt.x, pt.y + 5)
-        }
+    let longest_line = '';
+    for (let line of lines) {
+        if (line.trim().length > longest_line.length)
+            longest_line = line.trim();
     }
+    w = ctx.measureText(longest_line).width + padding * 2;
+    let full_h = lines.length * h + padding * 2;
+
+    ctx.fillStyle = node.data.bg_color;
+    roundRect(
+        ctx,
+        pt.x - w / 2 - padding,
+        pt.y - full_h / 2 - padding,
+        w + padding * 2,
+        full_h + padding * 2,
+        5,
+        node.data.bg_color,
+        2
+    );
+
+    ctx.fillStyle = '#D7D7D7';
+    for (let [index, line] of lines.entries()) {
+        ctx.fillText(line.trim(), pt.x, pt.y - full_h / 2 + index * h + h + 3)
+    }
+
 }
 
 
