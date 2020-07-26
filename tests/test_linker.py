@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Union
 from unittest.mock import Mock
 
-from zet.linker import *
+from minimus.linker import *
 
 REF_MD = r"""
 # Слон
@@ -52,31 +52,7 @@ REF_METAFILE_MD = """
 """.lstrip()
 
 
-class TestSyntax(unittest.TestCase):
-    def test_transliterate(self):
-        f = Syntax.transliterate
-        self.assertEqual(f('Два весёлых гуся'), 'dva_veselyh_gusya')
-        self.assertEqual(f('Мама мыла раму'), 'mama_myla_ramu')
-        self.assertEqual(f('Ёкарный бабай'), 'ekarnyy_babay')
-        self.assertEqual(f('ишь как оно итить'), 'ish_kak_ono_itit')
 
-    def test_announce(self):
-        f = Syntax.announce
-        mock = Mock()
-        f('a', 1, None, test='value', callback=mock)
-        mock.assert_called_once_with('a, 1, None, test=value')
-
-    def test_to_json(self):
-        d = dict(a=1, b=2, c=None)
-        res = Syntax.to_json(d)
-        ref = """
-{
-    "a": 1,
-    "b": 2,
-    "c": null
-}
-        """.strip()
-        self.assertEqual(res, ref)
 
 
 class TestFilesystem(unittest.TestCase):
@@ -121,12 +97,12 @@ class TestFilesystem(unittest.TestCase):
         fake.iterdir.return_value = [
             Path('file.txt'),
             Path('file.oth'),
-            Path('z.zet'),
-            Path('index.zet'),
+            Path('z.minimus'),
+            Path('index.minimus'),
         ]
-        files = TFilesystem.get_files_of_type(fake, 'zet', TextFile)
+        files = TFilesystem.get_files_of_type(fake, 'minimus', TextFile)
         self.assertTrue(len(files) == 1)
-        self.assertTrue(files[0].filename == 'z.zet')
+        self.assertTrue(files[0].filename == 'z.minimus')
 
 
 class TestTextFile(unittest.TestCase):

@@ -229,12 +229,39 @@ function drawNode(ctx, node, pt) {
             df: 0.02,
             precision: 0.6
         })
-        sys.renderer = Renderer("#viewport")
+        sys.renderer = Renderer('#viewport')
 
         sys.graft({
             nodes: main_data_block.nodes,
             edges: main_data_block.edges
-        })
-    })
+        });
+
+        function zoom(event) {
+            event.preventDefault();
+            console.log(event)
+            console.log(sys.screen())
+                    let canvas_element = $('#viewport')
+        let canvas = canvas_element.get(0)
+        let ctx = canvas.getContext("2d");
+            sys.eachNode(function (node, pt) {
+                        ctx.fillStyle = '#FF0000';
+    roundRect(
+        ctx,
+        pt.x - 5,
+        pt.y - 5,
+        10,
+        10,
+        5,
+        '#FFFF00',
+        2
+    );
+                })
+
+        }
+
+        const viewport = document.getElementById('viewport');
+        viewport.onwheel = zoom;
+        viewport.addEventListener('wheel', zoom);
+    });
 
 })(this.jQuery)
