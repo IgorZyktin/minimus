@@ -9,6 +9,11 @@ from typing import List, Optional
 class AbstractTextFile:
     """Абстрактный текстовый файл.
     """
+    @abstractmethod
+    def __getattr__(self, item):
+        """Текстовый файл должен иметь и произвольные атрибуты тоже.
+        """
+
     @property
     @abstractmethod
     def filename(self) -> str:
@@ -51,7 +56,7 @@ class AbstractDocument:
 
     @property
     @abstractmethod
-    def filename(self) -> str:
+    def corresponding_filename(self) -> str:
         """Вернуть соответствующее документу имя файла.
         """
 
@@ -67,7 +72,7 @@ class MetaMixin(AbstractDocument, ABC):
     """
 
     @property
-    def filename(self) -> str:
+    def corresponding_filename(self) -> str:
         """Вернуть соответствующее имя для файла.
         """
-        return 'meta_' + super().filename
+        return 'meta_' + super().corresponding_filename

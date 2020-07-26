@@ -8,6 +8,7 @@ from pathlib import Path
 class Config:
     """Специальный класс для хранения настроек.
     """
+    lang = 'RU'
     bg_color_tag = '#04266c'
     bg_color_node = '#5a0000'
     protocol = 'file://'

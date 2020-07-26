@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 from typing import Type, TypeVar, Optional, Tuple, List, Union
 
+from minimus.config import Config
 from minimus.syntax import Syntax
 
 T = TypeVar('T')
@@ -19,6 +20,13 @@ class FileSystem:
         'index',
         'meta',
     )
+    config: Config
+
+    @classmethod
+    def set_config(cls, given_config: Config) -> None:
+        """Запомнить новый экземпляр настроек.
+        """
+        cls.config = given_config
 
     @classmethod
     def get_files_of_type(cls,
@@ -81,6 +89,8 @@ class FileSystem:
             if not path.exists():
                 created = cls.cast_path(path)
                 os.mkdir(created)
+                Syntax.stdout('New folder has been created: "{folder}"',
+                              cls.config.lang, folder=created)
 
         return created
 
@@ -98,6 +108,7 @@ class FileSystem:
         """Сохранить некий текст под определённым именем на диск.
         """
         if contents:
+            cls.ensure_folder_exists(filename)
             path = cls.cast_path(filename)
             with open(path, mode='w', encoding='utf-8') as file:
                 file.write(contents)
@@ -108,6 +119,7 @@ class FileSystem:
     def copy(cls, copy_from: Path, copy_to: Path):
         """Скопировать файл.
         """
+        cls.ensure_folder_exists(copy_to)
         shutil.copy(
             cls.cast_path(copy_from),
             cls.cast_path(copy_to)

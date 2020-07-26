@@ -13,55 +13,9 @@ from typing import (
     List, Optional
 )
 
-__all__ = [
-    'Graph',
-    'TextFile',
-    'Filesystem',
-    'MarkdownSyntax',
-    'HTMLSyntax',
-    'map_tags_to_files',
-]
-
 from minimus.config import Config
+from minimus.graph import Graph
 from minimus.syntax import Syntax
-
-
-class Graph:
-    """Представление графа.
-    """
-
-    def __init__(self):
-        """Инициализировать экземпляр.
-        """
-        self.nodes = {}
-        self.edges = {}
-
-    def add_node(self, name: str, label: str,
-                 bg_color: str, link: str) -> None:
-        """Добавить ноду в граф.
-        """
-        self.nodes[name] = {
-            'label': label,
-            'bg_color': bg_color,
-            'link': link,
-        }
-
-    def add_edge(self, node_start: str, node_finish: str,
-                 weight: float = 0.1) -> None:
-        """Добавить грань в граф.
-        """
-        if node_start not in self.edges:
-            self.edges[node_start] = {}
-
-        self.edges[node_start][node_finish] = {'weight': weight}
-
-    def as_dict(self) -> dict:
-        """Вернуть граф в форме словаря.
-        """
-        return {
-            'nodes': self.nodes,
-            'edges': self.edges,
-        }
 
 
 class HTMLSyntax:
@@ -73,15 +27,6 @@ class HTMLSyntax:
         """Вернуть название файла индекса.
         """
         return 'index.html'
-
-    # @classmethod
-    # def get_tag_filename(cls, tag: str) -> str:
-    #     """Вернуть соответствующее тегу имя файла.
-    #
-    #     >>> HTMLSyntax.get_tag_filename('планирование')
-    #     'meta_planirovanie.html'
-    #     """
-    #     return 'meta_' + Syntax.transliterate(tag) + '.html'
 
     @staticmethod
     def get_local_dir() -> str:
@@ -112,7 +57,7 @@ class HTMLSyntax:
             key = Syntax.transliterate(file.title)
             graph.add_node(
                 key, file.title, Config.bg_color_node,
-                link=cls.make_link(file.filename)
+                link=cls.make_link(file.corresponding_filename)
             )
             graph.add_edge('tag', key)
 
@@ -128,7 +73,7 @@ class HTMLSyntax:
             base_key = Syntax.transliterate(file.title)
             graph.add_node(
                 base_key, file.title, Config.bg_color_node,
-                link=cls.make_link(file.filename)
+                link=cls.make_link(file.corresponding_filename)
             )
 
             for tag in file.tags:
@@ -163,45 +108,4 @@ class HTMLSyntax:
             'nodes': Syntax.to_json(cls.render_index_graph(files))
         })
         return content
-
-
-class MarkdownSyntax:
-    """Мастер по работе с форматом MarkDown.
-
-    TITLE_PATTERN - шаблон заголовка
-        Произвольное количество пробелов от начала строки, за которыми следуют
-        один или несколько октоторпов. Потом идёт обязательный пробел (одно из
-        отличий заголовка от тега), за которым произвольный набор символов
-        до конца строки.
-
-    HEAD_BARE_TAG_PATTERN - шаблон голого тега из заголовка статьи.
-        Это тег, который ещё не был отформатирован пользователем.
-        Строго с начала строки, затем экранированный октоторп и
-        сразу текст без пробела, считываемый до конца строки.
-
-    BODY_BARE_TAG_PATTERN - неотформатированный тег, но уже в теле документа.
-        Мы заведомо не знаем, где кончается текст тега, так что этот
-        шаблон надо по месту достравивать для каждого тега.
-
-    FULL_TAG_PATTERN - отформатированный тег в теле документа.
-        Он уже оформлен в виде гиперссылки.
-    """
-
-    @classmethod
-    def make_metafile_contents(cls, tag: str, files: List['TextFile']) -> str:
-        """Собрать текст метафайла из исходных данных.
-        """
-        return cls.render_text(f'## Все вхождения тега "{tag}"', files)
-
-    @classmethod
-    def make_index_contents(cls, files: List['TextFile']) -> str:
-        """Собрать текст стартовой страницы из исходных данных.
-        """
-        return cls.render_text('# Все записи', files)
-
-
-
-
-
-
 

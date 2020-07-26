@@ -1,3 +1,3 @@
-pyinstaller ./zet/linker.py --onefile
-copy dist\linker.exe zet\linker.exe
+pyinstaller ./minimus/__main__.py --onefile
+copy dist\minimus.exe zet\minimus.exe
 pause

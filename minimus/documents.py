@@ -19,13 +19,13 @@ class MarkdownDocument(AbstractDocument):
     BASE_TEMPLATE = """
 $title
 ---
-    """.lstrip()
+    """.strip() + '\n'
 
     @property
-    def filename(self) -> str:
+    def corresponding_filename(self) -> str:
         """Вернуть соответствующее имя для файла.
         """
-        return Syntax.transliterate(self.title) + '.md'
+        return Syntax.transliterate(self.given_title) + '.md'
 
     @property
     def content(self) -> str:
@@ -60,7 +60,7 @@ class MarkdownMetaDocument(MetaMixin, MarkdownDocument):
     def title(self) -> str:
         """Вернуть заголовок документа.
         """
-        return f'## Все вхождения тега "{self.title}"'
+        return f'## Все вхождения тега "{self.given_title}"'
 
 
 class MarkdownIndexDocument(MarkdownDocument):
@@ -74,7 +74,7 @@ class MarkdownIndexDocument(MarkdownDocument):
         return f'# Все записи'
 
     @property
-    def filename(self) -> str:
+    def corresponding_filename(self) -> str:
         """Вернуть соответствующее имя для файла.
         """
         return 'index.md'
@@ -116,12 +116,11 @@ class HypertextDocument(AbstractDocument):
     </html>
     """
 
-
     @property
-    def filename(self) -> str:
+    def corresponding_filename(self) -> str:
         """Вернуть соответствующее имя для файла.
         """
-        return Syntax.transliterate(self.title) + '.html'
+        return Syntax.transliterate(self.given_title) + '.html'
 
 
 class HupertextMetaDocument(MetaMixin, HypertextDocument):
@@ -134,7 +133,7 @@ class HypertextIndexDocument(HypertextDocument):
     """
 
     @property
-    def filename(self) -> str:
+    def corresponding_filename(self) -> str:
         """Вернуть соответствующее имя для файла.
         """
         return 'index.html'

@@ -1,4 +1,4 @@
-python ./zet/linker.py ^
+python -m minimus ^
 	--source_directory ./source ^
 	--target_directory ./target ^
 	--localexplorer

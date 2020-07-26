@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Тесты линковщика.
+"""Тесты.
 """
 import unittest
 from unittest.mock import Mock
@@ -79,3 +79,21 @@ class TestSyntax(unittest.TestCase):
             ('20 из 20', 'T')
         ]
         self.assertEqual(list(Syntax.numerate(inp)), ref)
+
+    def test_stdout(self):
+        config = Mock()
+        mock = Mock()
+        Syntax.set_config(config)
+
+        config.lang = 'RU'
+        Syntax.stdout('test {x}', callback=mock, x=1)
+        mock.assert_called_once_with('тест 1')
+        mock.reset_mock()
+
+        config.lang = 'EN'
+        Syntax.stdout('test {x}', callback=mock, x=2)
+        mock.assert_called_once_with('test 2')
+        mock.reset_mock()
+
+        Syntax.stdout('x', 1, 2, 3, 4, callback=mock)
+        mock.assert_called_once_with('x, 1, 2, 3, 4')

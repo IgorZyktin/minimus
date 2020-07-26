@@ -4,113 +4,134 @@
 """
 import argparse
 import sys
+from pathlib import Path
 
-from minimus.file_system import FileSystem
 from minimus.config import Config
+from minimus.file_system import FileSystem
+from minimus.processing import map_tags_to_files, ensure_each_tag_has_metafile
 from minimus.syntax import Syntax
+from minimus.text_file import TextFile
 
 
 def init():
     """Подготовить параметры перед запуском.
     """
-    parser = argparse.ArgumentParser(description='Параметры сшивки заметок')
+    parser = argparse.ArgumentParser(description='Parameters of sewing')
 
-    parser.add_argument('--source_directory', action='store',
-                        help='Каталог с исходными данными')
-    parser.add_argument('--target_directory', action='store',
-                        help='Каталог для обработанных данных')
-    parser.add_argument('--localexplorer', action='store_true',
-                        help='Пытаться открывать файлы через '
-                             'стандартное приложение, а не барузер?')
+    parser.add_argument('--lang',
+                        action='store',
+                        default='RU',
+                        choices=['EN', 'RU'],
+                        help='Which language to use')
+
+    parser.add_argument('--source_directory',
+                        action='store',
+                        help='Where to get source files')
+
+    parser.add_argument('--target_directory',
+                        action='store',
+                        help='Where to save resulting files')
+
+    parser.add_argument('--localexplorer',
+                        action='store_true',
+                        help='Generate links that are supposed to be '
+                             'opened in explorer rather than browser?')
 
     args = parser.parse_args()
-    config = Config()
-    config.launch_directory = Path()
-    Syntax.announce('-' * 79)
-    Syntax.announce('Скрипт запущен в каталоге {}.'
-                    .format(FileSystem.cast_path(Config.launch_directory)))
 
-    Config.script_directory = Config.launch_directory / 'minimus'
-    if not Config.script_directory.exists():
-        Syntax.announce('Не удаётся найти каталог с библиотеками: {}'
-                        .format(FileSystem.cast_path(Config.script_directory)))
+    config = Config()
+    config.lang = args.lang
+    FileSystem.set_config(config)
+    Syntax.set_config(config)
+
+    Syntax.stdout('-' * 79)
+    Syntax.stdout('Script has been started at folder {folder}',
+                  folder=FileSystem.cast_path(config.launch_directory))
+
+    config.script_directory = config.launch_directory / 'minimus'
+    if not config.script_directory.exists():
+        Syntax.stdout('Unable to find folder with libraries: {folder}',
+                      folder=FileSystem.cast_path(config.script_directory))
         sys.exit()
 
     if args.source_directory is None:
-        Config.source_directory = Config.launch_directory / 'source'
+        config.source_directory = config.launch_directory / 'source'
 
     else:
         other_dir = Path(args.source_directory).absolute()
 
         if not other_dir.exists():
-            Syntax.announce('Не удаётся найти каталог исходных данных: {}'
-                            .format(FileSystem.cast_path(other_dir)))
+            Syntax.stdout('Unable to find folder with '
+                          'source files: {folder}',
+                          folder=FileSystem.cast_path(other_dir))
             sys.exit()
 
-        Config.source_directory = other_dir
+        config.source_directory = other_dir
 
-    Syntax.announce('Каталог исходных данных: {}.'
-                    .format(FileSystem.cast_path(Config.source_directory)))
+    Syntax.stdout('Source files folder: {folder}',
+                  folder=FileSystem.cast_path(config.source_directory))
 
     if args.target_directory is None:
-        Config.target_directory = Config.launch_directory / 'target'
+        config.target_directory = config.launch_directory / 'target'
 
     else:
         other_dir = Path(args.target_directory).absolute()
-        FileSystem.ensure_folder_exists(other_dir)
-        Config.target_directory = other_dir
+        config.target_directory = other_dir
 
-    Syntax.announce('Каталог обработанных данных: {}.'
-                    .format(FileSystem.cast_path(Config.target_directory)))
+    FileSystem.ensure_folder_exists(config.target_directory)
+    Syntax.stdout('Output files folder: {folder}',
+                  folder=FileSystem.cast_path(config.target_directory))
 
     if args.localexplorer:
-        Config.protocol = 'localexplorer:'
-        Syntax.announce('Сборка будет произведена со '
-                        'стилем ссылок Local Explorer.')
+        config.protocol = 'localexplorer:'
+        Syntax.stdout('The assembly will be done using '
+                      'the Local Explorer links style')
 
-    main()
+    main(config)
 
 
-def main():
+def main(config: Config):
     """Точка входа.
     """
     files = FileSystem.get_files_of_type(
-        Config.source_directory, 'md', TextFile
+        config.source_directory, 'md', TextFile
     )
     tags_to_files = map_tags_to_files(files)
 
-    Syntax.announce('\nЭтап 1. Генерация метафайлов.')
-    ensure_each_tag_has_metafile(tags_to_files)
+    Syntax.stdout('\nStage 1. Metafile generation')
+    ensure_each_tag_has_metafile(config, tags_to_files)
 
-    Syntax.announce('\nЭтап 2. Генерация гиперссылок.')
-    ensure_each_tag_has_link(files)
+    Syntax.stdout('\nStage 2. Hyperlinks generation')
+    # ensure_each_tag_has_link(files)
 
-    Syntax.announce('\nЭтап 3. Генерация индексов.')
-    ensure_index_exists(files)
+    Syntax.stdout('\nStage 3. Indexes generation')
+    # ensure_index_exists(files)
 
-    Syntax.announce('\nЭтап 4. Сохранение основных файлов.')
+    Syntax.stdout('\nStage 4. Main files saving')
     for number, file in Syntax.numerate(files):
-        name = Config.target_directory / file.filename
-        if FileSystem.write(name, file.contents):
-            Syntax.announce(f'\t{number}. Сохранены изменения'
-                            f' в файле "{name.absolute()}"')
+        name = config.target_directory / file.filename
+        if FileSystem.write(name, file.content):
+            Syntax.stdout('\t{number}. Saved changes to the file {filename}',
+                          number=number, filename=name.absolute())
 
     if not files:
-        Syntax.announce('Не найдено файлов для обработки.')
+        Syntax.stdout('No source files found to work with')
+        sys.exit()
 
-    Syntax.announce('\nЭтап 5. Копирование библиотек.')
+    Syntax.stdout('\nStage 5. Libraries copying')
     js_files = [
-        x for x in Config.script_directory.iterdir()
+        x for x in config.script_directory.iterdir()
         if x.suffix == '.js'
     ]
-    Syntax.announce(f'Был создан каталог "{path}"')
+
     for number, file in Syntax.numerate(js_files):
         if file.suffix == '.js':
             FileSystem.copy(
                 file.absolute(),
-                Config.target_directory.absolute() / file.name,
+                config.target_directory.absolute() / file.name,
             )
-            Syntax.announce(f'\t{number}. Скопирован файл "{file.absolute()}"')
+            Syntax.stdout('\t{number} File has been copied: {filename}',
+                          number=number, filename=file.absolute())
 
 
 if __name__ == '__main__':

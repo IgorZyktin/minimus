@@ -1,3 +1,5 @@
 /dist/
 /build/
 /linker.spec
+/venv/*
+/.idea/

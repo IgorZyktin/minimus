@@ -70,6 +70,8 @@ class TextFile(AbstractTextFile):
     def __getattr__(self, item: str) -> Any:
         """В любой непонятной ситуации мы пытаемся обратиться к attrs.
         """
+        item = item.lower()
+
         value = self.attrs.get(item)
 
         if value is None:
@@ -80,6 +82,13 @@ class TextFile(AbstractTextFile):
     def __setattr__(self, key: str, value: Any) -> None:
         """По умолчанию все атрибуты дописываются в attrs.
         """
+        key = key.lower()
+
+        if key == 'contents':
+            raise NameError(f'Атрибут {type(self).__name__} с текстовым '
+                            f'содержимым должен называться "content", '
+                            f'а не "contents".')
+
         if key not in self.normal_attrs:
             self.attrs[key] = value
             return
@@ -96,8 +105,9 @@ class TextFile(AbstractTextFile):
     def filename(self, new_filename: str) -> None:
         """Изменить имя файла.
         """
+        if new_filename != self._filename:
+            self.is_changed = True
         self._filename = new_filename
-        self.is_changed = True
 
     @property
     def content(self) -> str:
@@ -106,8 +116,9 @@ class TextFile(AbstractTextFile):
         return self._content
 
     @content.setter
-    def content(self, new_contents: str) -> None:
+    def content(self, new_content: str) -> None:
         """Изменить текстовое содержимое файла.
         """
-        self._content = new_contents
-        self.is_changed = True
+        if new_content != self._content:
+            self.is_changed = True
+        self._content = new_content
