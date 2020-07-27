@@ -31,7 +31,8 @@ class Config:
         """Вернуть текстовое представление.
         """
         pairs = []
-        for key, value in vars(self).items():
+        for key in dir(self):
+            value = getattr(self, key, None)
             if any([
                 '__' in key,
                 key.isupper(),
@@ -42,4 +43,6 @@ class Config:
             pairs.append(f'{key}={value!r}')
 
         name = type(self).__name__
-        return f'{name}(' + ', '.join(pairs) + ')'
+        prefix = f'{name}(\n'
+        body = ['    ' + x for x in sorted(pairs)]
+        return prefix + ',\n'.join(body) + '\n)'

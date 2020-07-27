@@ -23,3 +23,15 @@ class TestMapTagsToFiles(unittest.TestCase):
         }
 
         self.assertEqual(mapped, ref)
+
+    def test_ensure_each_tag_has_metafile(self):
+        pass
+        # FIXME
+
+    def test_ensure_each_tag_has_link(self):
+        pass
+        # FIXME
+
+    def test_ensure_index_exists(self):
+        pass
+        # FIXME

@@ -26,7 +26,8 @@ class TextFile(AbstractTextFile):
         'original_filename'
     }
 
-    def __init__(self, filename: str, content: str, is_changed: bool = False):
+    def __init__(self, filename: str, content: str,
+                 is_changed: bool = False, **kwargs):
         """Инициализировать экземпляр.
         """
         self.original_content = content
@@ -34,7 +35,7 @@ class TextFile(AbstractTextFile):
         self._content = content
         self._filename = filename
         self.is_changed = is_changed
-        self.attrs = {}
+        self.attrs = {**kwargs}
 
     def __repr__(self) -> str:
         """Вернуть текстовое представление.

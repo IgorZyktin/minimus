@@ -55,10 +55,10 @@ class AbstractDocument:
         return self.given_title
 
     @property
-    @abstractmethod
     def corresponding_filename(self) -> str:
-        """Вернуть соответствующее документу имя файла.
+        """Вернуть соответствующее имя для файла.
         """
+        return self.make_corresponding_filename(self.given_title)
 
     @property
     @abstractmethod
@@ -66,13 +66,19 @@ class AbstractDocument:
         """Вернуть скомпонованный текст документа.
         """
 
+    @classmethod
+    @abstractmethod
+    def make_corresponding_filename(cls, title: str) -> str:
+        """Вернуть соответствующее документу имя файла.
+        """
+
 
 class MetaMixin(AbstractDocument, ABC):
     """Примесь для формирования метафайлов.
     """
 
-    @property
-    def corresponding_filename(self) -> str:
+    @classmethod
+    def make_corresponding_filename(cls, title: str) -> str:
         """Вернуть соответствующее имя для файла.
         """
-        return 'meta_' + super().corresponding_filename
+        return 'meta_' + super().make_corresponding_filename(title)

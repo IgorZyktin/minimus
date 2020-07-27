@@ -3,7 +3,9 @@
 """Класс для работы с форматом Markdown.
 """
 import re
-from typing import Set
+from typing import Set, Type
+
+from minimus.abstract import AbstractDocument
 
 
 class MarkdownParser:
@@ -44,6 +46,13 @@ class MarkdownParser:
         return '[{}](./{})'.format(label, link.lstrip('/'))
 
     @classmethod
+    def tag2href(cls, text: str, maker: Type[AbstractDocument]) -> str:
+        """Конверсия в гиперссылку.
+        """
+        link = maker.make_corresponding_filename(text)
+        return cls.href('\\#' + text, link)
+
+    @classmethod
     def extract_title(cls, content: str) -> str:
         """Извлечь заголовок из тела документа.
         """
@@ -78,20 +87,16 @@ class MarkdownParser:
         }
 
     @classmethod
-    def replace_tags_with_hrefs(cls, content: str, tags: Set[str]) -> str:
+    def replace_tags_with_hrefs(cls, content: str, tags: Set[str],
+                                maker: Type[AbstractDocument]) -> str:
         """Перестроить текст так, чтобы теги стали гиперрсылками.
         """
-        bare_tags = set()
-
         for tag in cls.HEAD_BARE_TAG_PATTERN.findall(content):
-            bare_tags.add(tag)
             sub_pattern = cls.HEAD_BARE_TAG_PATTERN_CUSTOM.format(tag)
-            filename = cls.get_tag_filename(tag)
-            href = cls.href('\\#' + tag, filename)
-            content = re.sub(sub_pattern, cls.tag2href(tag), content)
+            content = re.sub(sub_pattern, cls.tag2href(tag, maker), content)
 
         for tag in tags:
             sub_pattern = cls.BODY_BARE_TAG_PATTERN_CUSTOM.format(tag)
-            content = re.sub(sub_pattern, cls.tag2href(tag), content)
+            content = re.sub(sub_pattern, cls.tag2href(tag, maker), content)
 
         return content

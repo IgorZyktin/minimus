@@ -7,7 +7,10 @@ from typing import List, Dict
 
 from minimus.abstract import AbstractDocument
 from minimus.config import Config
-from minimus.documents import MarkdownMetaDocument, HupertextMetaDocument
+from minimus.documents import (
+    MarkdownMetaDocument, HypertextMetaDocument,
+    MarkdownIndexDocument, HypertextIndexDocument
+)
 from minimus.file_system import FileSystem
 from minimus.markdown_parser import MarkdownParser
 from minimus.syntax import Syntax
@@ -76,6 +79,14 @@ def create_meta_md(config: Config, tag: str, files: List[TextFile],
     create_meta(config, document, prefix, num, total)
 
 
+def create_meta_html(config: Config, tag: str, files: List[TextFile],
+                     prefix: str, num: int, total: int) -> None:
+    """Создать html метадокумент.
+    """
+    document = HypertextMetaDocument(config, tag, files)
+    create_meta(config, document, prefix, num, total)
+
+
 def create_meta(config: Config, document: AbstractDocument,
                 prefix: str, num: int, total: int) -> None:
     """Создать метадокумент.
@@ -88,42 +99,41 @@ def create_meta(config: Config, document: AbstractDocument,
                   number=number, filename=filename.absolute())
 
 
-# def ensure_each_tag_has_link(files: List['TextFile']) -> None:
-#     """Удостовериться, что каждый тег является ссылкой, а не текстом.
-#     """
-#     for file in files:
-#         existing_contents = file.contents
-#         new_contents = MarkdownSyntax.replace_tags_with_hrefs(
-#             content=existing_contents,
-#             tags=file.tags
-#         )
-#
-#         if new_contents != existing_contents:
-#             file.contents = new_contents
-
-
-# def ensure_index_exists(files: List[TextFile]) -> None:
-#     """Удостовериться, что у нас есть стартовая страница.
-#     """
-#     if not files:
-#         return
-#
-#     # markdown форма
-#     name = Config.target_directory / MarkdownSyntax.get_index_filename()
-#     contents = MarkdownSyntax.make_index_contents(files)
-#     if Filesystem.write(name, contents):
-#         Syntax.announce(f'\tСоздан файл "{name.absolute()}"')
-#
-#     # html форма
-#     name = Config.target_directory / HTMLSyntax.get_index_filename()
-#     contents = HTMLSyntax.make_index_contents(files)
-#     if Filesystem.write(name, contents):
-#         Syntax.announce(f'\tСоздан файл "{name.absolute()}"')
-
-
-def create_meta_html(config: Config, tag: str, files: List[TextFile],
-                     prefix: str, num: int, total: int) -> None:
-    """Создать html метадокумент.
+def ensure_each_tag_has_link(files: List['TextFile']) -> None:
+    """Удостовериться, что каждый тег является ссылкой, а не текстом.
     """
-    document = HupertextMetaDocument(tag, files)
-    create_meta(config, document, prefix, num, total)
+    update_required = []
+
+    for file in files:
+        existing_content = file.content
+        new_content = MarkdownParser.replace_tags_with_hrefs(
+            content=existing_content,
+            tags=file.tags,
+            maker=MarkdownMetaDocument,
+        )
+
+        if new_content != existing_content:
+            file.content = new_content
+            update_required.append(file)
+
+    for number, file in Syntax.numerate(update_required):
+        Syntax.stdout('\t{number}. File has been updated: {filename}',
+                      number=number, filename=file.filename)
+
+
+def ensure_index_exists(config: Config, files: List[TextFile]) -> None:
+    """Удостовериться, что у нас есть стартовая страница.
+    """
+    if not files:
+        return
+
+    for each in [MarkdownIndexDocument, HypertextIndexDocument]:
+        if each is HypertextIndexDocument:
+            index = each(config, '', files)
+        else:
+            index = each('', files)
+
+        name = config.target_directory / index.corresponding_filename
+        if FileSystem.write(name, index.content):
+            Syntax.stdout('\tNew file has been created: {filename}',
+                          filename=name.absolute())

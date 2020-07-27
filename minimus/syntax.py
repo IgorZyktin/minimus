@@ -16,10 +16,14 @@ class Syntax:
     VOCABULARY = {
         'RU': {
             'test {x}': 'тест {x}',
+            '\tNew file has been created: {filename}':
+                '\tБыл создан файл: {filename}',
+            '\t{number}. File has been updated: {filename}':
+                '\t{number} Был обновлён файл: {filename}',
             'New folder has been created: {folder}':
-                'Был создан каталог {folder}',
-            'Script has been started at folder {folder}':
-                'Скрипт был запущен в каталоге {folder}',
+                'Был создан каталог: {folder}',
+            'Script has been started at folder: {folder}':
+                'Скрипт был запущен в каталоге: {folder}',
             '\t{number}. File created: {filename}':
                 '\t{number}. Создан файл: {filename}',
             'Unable to find folder with libraries: {folder}':
@@ -40,8 +44,10 @@ class Syntax:
                 '\nЭтап 3. Генерация индексов',
             '\nStage 4. Main files saving':
                 '\nЭтап 4. Сохранение основных файлов',
-            '\nStage 5. Libraries copying':
-                '\nЭтап 5. Копирование библиотек',
+            '\nStage 5. Additional files saving':
+                '\nЭтап 5. Сохранение дополнительных файлов',
+            '\nStage 6. Libraries copying':
+                '\nЭтап 6. Копирование библиотек',
             '\t{number} File has been copied: {filename}':
                 '\t{number}. Скопирован файл {filename}',
             'No source files found to work with':

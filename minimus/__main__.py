@@ -8,7 +8,10 @@ from pathlib import Path
 
 from minimus.config import Config
 from minimus.file_system import FileSystem
-from minimus.processing import map_tags_to_files, ensure_each_tag_has_metafile
+from minimus.processing import (
+    map_tags_to_files, ensure_each_tag_has_metafile,
+    ensure_each_tag_has_link, ensure_index_exists
+)
 from minimus.syntax import Syntax
 from minimus.text_file import TextFile
 
@@ -102,10 +105,10 @@ def main(config: Config):
     ensure_each_tag_has_metafile(config, tags_to_files)
 
     Syntax.stdout('\nStage 2. Hyperlinks generation')
-    # ensure_each_tag_has_link(files)
+    ensure_each_tag_has_link(files)
 
     Syntax.stdout('\nStage 3. Indexes generation')
-    # ensure_index_exists(files)
+    ensure_index_exists(config, files)
 
     Syntax.stdout('\nStage 4. Main files saving')
     for number, file in Syntax.numerate(files):
@@ -114,11 +117,14 @@ def main(config: Config):
             Syntax.stdout('\t{number}. Saved changes to the file {filename}',
                           number=number, filename=name.absolute())
 
+    Syntax.stdout('\nStage 5. Additional files saving')
+    # TODO - надо скопировать из source всё, что не *.md
+
     if not files:
         Syntax.stdout('No source files found to work with')
         sys.exit()
 
-    Syntax.stdout('\nStage 5. Libraries copying')
+    Syntax.stdout('\nStage 6. Libraries copying')
     js_files = [
         x for x in config.script_directory.iterdir()
         if x.suffix == '.js'
