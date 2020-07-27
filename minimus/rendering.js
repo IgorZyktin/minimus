@@ -59,14 +59,33 @@ function drawEdge(ctx, edge, pt1, pt2) {
 
 function drawNode(ctx, node, pt) {
     // нарисовать одну ноду
+    let w;
+    let h;
+    let padding = 5;
+    [w, h] = drawText(ctx, pt.x, pt.y, padding, node.data.label || '', '#D7D7D7');
+
+    ctx.fillStyle = node.data.bg_color;
+    roundRect(
+        ctx,
+        pt.x - w / 2 - padding,
+        pt.y - h / 2 - padding,
+        w + padding * 2,
+        h + padding * 2,
+        5,
+        node.data.bg_color,
+        2
+    );
+
+}
+
+
+function drawText(ctx, x, y, padding, text, fill) {
+    // сделать надпись
     let font_size = 16;
     let w;
     let h = font_size;
-    let text = node.data.label || '';
-    let padding = 5;
     let lines;
 
-    ctx.fillStyle = node.data.bg_color
     ctx.font = 'bold ' + font_size + 'px Arial';
     ctx.textAlign = 'center';
 
@@ -81,23 +100,11 @@ function drawNode(ctx, node, pt) {
     w = ctx.measureText(longest_line).width + padding * 2;
     let full_h = lines.length * h + padding * 2;
 
-    ctx.fillStyle = node.data.bg_color;
-    roundRect(
-        ctx,
-        pt.x - w / 2 - padding,
-        pt.y - full_h / 2 - padding,
-        w + padding * 2,
-        full_h + padding * 2,
-        5,
-        node.data.bg_color,
-        2
-    );
-
-    ctx.fillStyle = '#D7D7D7';
+    ctx.fillStyle = fill;
     for (let [index, line] of lines.entries()) {
-        ctx.fillText(line.trim(), pt.x, pt.y - full_h / 2 + index * h + h + 3)
+        ctx.fillText(line.trim(), x, y - full_h / 2 + index * h + h + 3)
     }
-
+    return [w, full_h];
 }
 
 
