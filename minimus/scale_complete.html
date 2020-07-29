@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Canvas tutorial</title>
+    <script type="text/javascript">
+        const range = (start, stop, step = 1) =>
+            Array(Math.ceil((stop - start) / step)).fill(start).map((x, y) => scale_complete + y * step);
+
+        let dots = [
+            {name: 'Центр', x: 0, y: 0, color: '#d79eff'},
+            {name: 'A', x: -100, y: -100, color: '#0000FF'},
+            {name: 'B', x: 100, y: -100, color: '#0000FF'},
+            {name: 'C', x: 100, y: 100, color: '#0000FF'},
+            {name: 'D', x: -100, y: 100, color: '#0000FF'},
+        ];
+
+        let offset = {x: 500, y: 500};  // смещение экранной системы координат от модельной
+        let scale = 1.0; // масштаб
+        let added = 0; // счётчик для добавленных точек
+
+        function getCanvas() {
+            // получить объект, на котором мы рисуем
+            return document.getElementById('main_canvas')
+        }
+
+        function getScreenSize() {
+            // получить размер canvas в пикселах
+            const canvas = getCanvas();
+            return [canvas.width, canvas.height]
+        }
+
+        function getScreenCenter() {
+            // получить экранные координаты центра canvas
+            let [w, h] = getScreenSize();
+            return [w / 2, h / 2]
+        }
+
+        function intoScreenCoord(x, y) {
+            // преобразовать модельные координаты в экранные
+            return [
+                Math.round(scale_complete * scale + offset.x),
+                Math.round(y * scale + offset.y)
+            ]
+        }
+
+        function intoModelCoord(x, y) {
+            // преобразовать экранные координаты в модельные
+            return [
+                Math.round((scale_complete - offset.x) / scale),
+                Math.round((y - offset.y) / scale)
+            ]
+        }
+
+        function drawGrid(ctx, w, h) {
+            // нарисовать сетку
+            ctx.strokeStyle = '#939393'
+
+            for (let each of range(0, w, 100)) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(each, 0);
+                ctx.lineTo(each, h);
+                ctx.stroke();
+            }
+
+            for (let each of range(0, h, 100)) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, each);
+                ctx.lineTo(w, each);
+                ctx.stroke();
+            }
+        }
+
+        function drawDot(ctx, dot) {
+            // нарисовать точку
+            let [x, y] = intoScreenCoord(dot.x, dot.y);
+            ctx.fillStyle = dot.color;
+            ctx.fillText(dot.name, scale_complete + 10, y)
+
+            ctx.beginPath();
+            ctx.arc(scale_complete, y, 5, 0, Math.PI * 2, true);
+            ctx.fill()
+
+            ctx.fillStyle = '#61d934'
+            ctx.fillText(`x=${dot.x}, y=${dot.y}`, scale_complete + 10, y + 15)
+            ctx.fillStyle = '#c93e3e'
+            ctx.fillText(`ЭкрX=${scale_complete}, ЭкрY=${y}`, scale_complete + 10, y + 30)
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#000000'
+            ctx.arc(scale_complete, y, Math.abs(50 * scale), 0, Math.PI * 2, true);
+            ctx.stroke()
+        }
+
+        function draw() {
+            const canvas = getCanvas();
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let font_size = 16
+            ctx.font = 'bold ' + font_size + 'px Arial';
+
+            drawGrid(ctx, canvas.width, canvas.height);
+
+            for (let dot of dots) {
+                drawDot(ctx, dot)
+            }
+        }
+
+        function getCursorPosition(canvas, event) {
+            // получить положение курсора в экранных координатах
+            const rect = canvas.getBoundingClientRect();
+            return [event.clientX - rect.left, event.clientY - rect.top]
+        }
+
+        function MouseClickHandler(e) {
+            // обработка левого клика мыши
+            added += 1;
+            const canvas = getCanvas();
+
+            let [cur_x, cur_y] = getCursorPosition(canvas, e)
+            let [mod_x, mod_y] = intoModelCoord(cur_x, cur_y)
+
+            dots.push({
+                name: 'dot_' + added,
+                x: mod_x,
+                y: mod_y,
+                color: '#864418'
+            })
+            // centerOnScreen(cur_x, cur_y)
+            draw();
+        }
+
+        function centerOnScreen(screen_x, screen_y) {
+            // чтобы точка попала в центр экрана
+            let [model_x, model_y] = intoModelCoord(screen_x, screen_y)
+            let [center_x, center_y] = getScreenCenter();
+            let [center_m_x, center_m_y] = intoModelCoord(center_x, center_y)
+            let sub_x = center_m_x - model_x + offset.x;
+            let sub_y = center_m_y - model_y + offset.y;
+            offset.x = sub_x
+            offset.y = sub_y
+        }
+
+        function MouseWheelHandler(e) {
+            // обработка колеса мыши
+            const canvas = getCanvas();
+            let [before_x, before_y] = getCursorPosition(canvas, e)
+            let [before_m_x, before_m_y] = intoModelCoord(before_x, before_y);
+
+            let delta = e.deltaY;
+            if (delta !== undefined) {
+                if (delta > 0) {
+                    scale -= 0.1;
+                } else {
+                    scale += 0.1;
+                }
+            }
+            let [after_m_x, after_m_y] = intoScreenCoord(before_m_x, before_m_y);
+            offset.x += before_x - after_m_x;
+            offset.y += before_y - after_m_y;
+            draw();
+        }
+
+        function go_top() {
+            offset.y -= 100;
+            draw();
+        }
+
+        function go_left() {
+            offset.x -= 100;
+            draw();
+        }
+
+        function go_right() {
+            offset.x += 100;
+            draw();
+        }
+
+        function go_down() {
+            offset.y += 100;
+            draw();
+        }
+
+        function larger() {
+            scale *= 1.1;
+            draw();
+        }
+
+        function smaller() {
+            scale /= 1.1;
+            draw();
+        }
+
+        function go_center() {
+            [offset.x, offset.y] = getScreenCenter();
+            draw()
+        }
+    </script>
+    <style type="text/css">
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body onload="draw();">
+<canvas id="main_canvas" width="1000" height="1000"></canvas>
+<br>
+
+<button onclick="go_left()">left</button>
+<button onclick="go_right()">right</button>
+<button onclick="go_top()">top</button>
+<button onclick="go_down()">bottom</button>
+<button onclick="larger()">larger</button>
+<button onclick="smaller()">smaller</button>
+<button onclick="go_center()">go_center</button>
+
+<script>
+    const canvas = document.querySelector('canvas');
+    canvas.addEventListener("mousedown", MouseClickHandler, false);
+    canvas.addEventListener("mousewheel", MouseWheelHandler, false);
+</script>
+</body>
+</html>
