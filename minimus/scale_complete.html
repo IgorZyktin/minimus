@@ -5,7 +5,7 @@
     <title>Canvas tutorial</title>
     <script type="text/javascript">
         const range = (start, stop, step = 1) =>
-            Array(Math.ceil((stop - start) / step)).fill(start).map((x, y) => scale_complete + y * step);
+            Array(Math.ceil((stop - start) / step)).fill(start).map((x, y) => x + y * step);
 
         let dots = [
             {name: 'Центр', x: 0, y: 0, color: '#d79eff'},
@@ -39,7 +39,7 @@
         function intoScreenCoord(x, y) {
             // преобразовать модельные координаты в экранные
             return [
-                Math.round(scale_complete * scale + offset.x),
+                Math.round(x * scale + offset.x),
                 Math.round(y * scale + offset.y)
             ]
         }
@@ -47,7 +47,7 @@
         function intoModelCoord(x, y) {
             // преобразовать экранные координаты в модельные
             return [
-                Math.round((scale_complete - offset.x) / scale),
+                Math.round((x - offset.x) / scale),
                 Math.round((y - offset.y) / scale)
             ]
         }
@@ -77,20 +77,20 @@
             // нарисовать точку
             let [x, y] = intoScreenCoord(dot.x, dot.y);
             ctx.fillStyle = dot.color;
-            ctx.fillText(dot.name, scale_complete + 10, y)
+            ctx.fillText(dot.name, x + 10, y)
 
             ctx.beginPath();
-            ctx.arc(scale_complete, y, 5, 0, Math.PI * 2, true);
+            ctx.arc(x, y, 5, 0, Math.PI * 2, true);
             ctx.fill()
 
             ctx.fillStyle = '#61d934'
-            ctx.fillText(`x=${dot.x}, y=${dot.y}`, scale_complete + 10, y + 15)
+            ctx.fillText(`x=${dot.x}, y=${dot.y}`, x + 10, y + 15)
             ctx.fillStyle = '#c93e3e'
-            ctx.fillText(`ЭкрX=${scale_complete}, ЭкрY=${y}`, scale_complete + 10, y + 30)
+            ctx.fillText(`ЭкрX=${x}, ЭкрY=${y}`, x + 10, y + 30)
 
             ctx.beginPath();
             ctx.strokeStyle = '#000000'
-            ctx.arc(scale_complete, y, Math.abs(50 * scale), 0, Math.PI * 2, true);
+            ctx.arc(x, y, Math.abs(50 * scale), 0, Math.PI * 2, true);
             ctx.stroke()
         }
 
