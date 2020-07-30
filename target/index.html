@@ -9,6 +9,8 @@
                 type="application/javascript"></script>
             <script src="arbor.js" 
                 type="application/javascript"></script>
+            <script src="utils.js" 
+                type="application/javascript"></script>
             <script src="rendering.js" 
                 type="application/javascript"></script>
 
@@ -23,6 +25,7 @@
 
         </head>
         <body>
+            <button id="btn">Скопировать координаты</button>
             <canvas id="viewport" width="1000" height="1000"></canvas>
             <script type="application/javascript">
                 let main_data_block = {
@@ -30,83 +33,101 @@
         "slon": {
             "label": "Слон",
             "bg_color": "#5a0000",
-            "link": "file://C:/PycharmProjects/minimus/target/2020-07-06_elephant.md"
-        },
-        "seryy": {
-            "label": "серый",
-            "bg_color": "#04266c",
-            "link": "file://C:/PycharmProjects/minimus/target/seryy.md"
-        },
-        "4_lapy": {
-            "label": "4 лапы",
-            "bg_color": "#04266c",
-            "link": "file://C:/PycharmProjects/minimus/target/4_lapy.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/2020-07-06_elephant.md",
+            "filename": "2020-07-06_elephant.md"
         },
         "hobot": {
             "label": "хобот",
             "bg_color": "#04266c",
-            "link": "file://C:/PycharmProjects/minimus/target/hobot.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/hobot.md",
+            "filename": "hobot.md"
+        },
+        "4_lapy": {
+            "label": "4 лапы",
+            "bg_color": "#04266c",
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/4_lapy.md",
+            "filename": "4_lapy.md"
+        },
+        "seryy": {
+            "label": "серый",
+            "bg_color": "#04266c",
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/seryy.md",
+            "filename": "seryy.md"
         },
         "mysh": {
             "label": "Мышь",
             "bg_color": "#5a0000",
-            "link": "file://C:/PycharmProjects/minimus/target/2020-07-06_mouse.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/2020-07-06_mouse.md",
+            "filename": "2020-07-06_mouse.md"
         },
         "hvost": {
             "label": "хвост",
             "bg_color": "#04266c",
-            "link": "file://C:/PycharmProjects/minimus/target/hvost.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/hvost.md",
+            "filename": "hvost.md"
         },
         "rekursiya": {
             "label": "Рекурсия",
             "bg_color": "#5a0000",
-            "link": "file://C:/PycharmProjects/minimus/target/2020-07-06_recursion.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/2020-07-06_recursion.md",
+            "filename": "2020-07-06_recursion.md"
         },
         "pylesos_vozdushnyy,_dlya_uborki_pomescheniy": {
             "label": "Пылесос воздушный, для уборки помещений",
             "bg_color": "#5a0000",
-            "link": "file://C:/PycharmProjects/minimus/target/2020-07-06_vacuum.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/2020-07-06_vacuum.md",
+            "filename": "2020-07-06_vacuum.md"
         },
         "mashina": {
             "label": "машина",
             "bg_color": "#04266c",
-            "link": "file://C:/PycharmProjects/minimus/target/mashina.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/mashina.md",
+            "filename": "mashina.md"
         }
     },
     "edges": {
         "slon": {
-            "seryy": {
-                "weight": 0.1
+            "hobot": {
+                "weight": 1.0,
+                "color": "#000000"
             },
             "4_lapy": {
-                "weight": 0.1
+                "weight": 1.0,
+                "color": "#000000"
             },
-            "hobot": {
-                "weight": 0.1
+            "seryy": {
+                "weight": 1.0,
+                "color": "#000000"
             }
         },
         "mysh": {
-            "seryy": {
-                "weight": 0.1
-            },
             "4_lapy": {
-                "weight": 0.1
+                "weight": 1.0,
+                "color": "#000000"
             },
             "hvost": {
-                "weight": 0.1
+                "weight": 1.0,
+                "color": "#000000"
+            },
+            "seryy": {
+                "weight": 1.0,
+                "color": "#000000"
             }
         },
         "rekursiya": {
             "hvost": {
-                "weight": 0.1
+                "weight": 1.0,
+                "color": "#000000"
             }
         },
         "pylesos_vozdushnyy,_dlya_uborki_pomescheniy": {
             "hobot": {
-                "weight": 0.1
+                "weight": 1.0,
+                "color": "#000000"
             },
             "mashina": {
-                "weight": 0.1
+                "weight": 1.0,
+                "color": "#000000"
             }
         }
     }

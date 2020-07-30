@@ -98,6 +98,8 @@ class HypertextDocument(AbstractDocument):
                 type="application/javascript"></script>
             <script src="arbor.js" 
                 type="application/javascript"></script>
+            <script src="utils.js" 
+                type="application/javascript"></script>
             <script src="rendering.js" 
                 type="application/javascript"></script>
 
@@ -112,6 +114,7 @@ class HypertextDocument(AbstractDocument):
 
         </head>
         <body>
+            <button id="btn">Скопировать координаты</button>
             <canvas id="viewport" width="1000" height="1000"></canvas>
             <script type="application/javascript">
                 let main_data_block = $nodes;
@@ -199,15 +202,19 @@ class HypertextIndexDocument(HypertextDocument):
             base_key = Syntax.transliterate(file.title)
             graph.add_node(
                 base_key, file.title, self.config.bg_color_node,
-                link=self.make_link(file.filename)
+                link=self.make_link(file.filename),
+                filename=file.filename,
             )
 
             for tag in file.tags:
                 key = Syntax.transliterate(tag)
+                filename = MarkdownDocument.make_corresponding_filename(tag)
+
                 graph.add_node(
                     key, tag, self.config.bg_color_tag,
                     link=self.make_link(
-                        MarkdownDocument.make_corresponding_filename(tag))
+                        filename),
+                    filename=filename
                 )
                 graph.add_edge(base_key, key)
 
