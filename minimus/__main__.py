@@ -10,7 +10,7 @@ from minimus.config import Config
 from minimus.file_system import FileSystem
 from minimus.processing import (
     map_tags_to_files, ensure_each_tag_has_metafile,
-    ensure_each_tag_has_link, ensure_index_exists
+    ensure_each_tag_has_link, ensure_index_exists,
 )
 from minimus.syntax import Syntax
 from minimus.text_file import TextFile
@@ -47,8 +47,9 @@ def init():
     FileSystem.set_config(config)
     Syntax.set_config(config)
 
-    Syntax.stdout('-' * 79)
-    Syntax.stdout('Script has been started at folder {folder}',
+    terminal_width = 79
+    Syntax.stdout('-' * terminal_width)
+    Syntax.stdout('Script has been started at folder: {folder}',
                   folder=FileSystem.cast_path(config.launch_directory))
 
     config.script_directory = config.launch_directory / 'minimus'
@@ -74,6 +75,15 @@ def init():
     Syntax.stdout('Source files folder: {folder}',
                   folder=FileSystem.cast_path(config.source_directory))
 
+    path = config.script_directory / 'template.html'
+    try:
+        with open(str(path.absolute()), mode='r', encoding='utf-8') as file:
+            config.html_template = file.read()
+    except FileNotFoundError:
+        Syntax.stdout('Cannot find HTML template: {path}',
+                      path=FileSystem.cast_path(path))
+        sys.exit()
+
     if args.target_directory is None:
         config.target_directory = config.launch_directory / 'target'
 
@@ -88,7 +98,7 @@ def init():
     if args.localexplorer:
         config.protocol = 'localexplorer:'
         Syntax.stdout('The assembly will be done using '
-                      'the Local Explorer links style')
+                      + 'the Local Explorer links style')
 
     main(config)
 
@@ -117,8 +127,18 @@ def main(config: Config):
             Syntax.stdout('\t{number}. Saved changes to the file {filename}',
                           number=number, filename=name.absolute())
 
+    non_md = [
+        x for x in config.source_directory.iterdir()
+        if x.suffix.lower() != '.md'
+    ]
     Syntax.stdout('\nStage 5. Additional files saving')
-    # TODO - надо скопировать из source всё, что не *.md
+    for number, file in Syntax.numerate(non_md):
+        FileSystem.copy(
+            file.absolute(),
+            config.target_directory.absolute() / file.name,
+        )
+        Syntax.stdout('\t{number} File has been copied: {filename}',
+                      number=number, filename=file.absolute())
 
     if not files:
         Syntax.stdout('No source files found to work with')

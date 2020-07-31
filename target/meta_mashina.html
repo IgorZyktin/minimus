@@ -1,35 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>машина</title>
 
-    <!DOCTYPE html>
-        <html lang="ru">
-        <head>
-            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-            <title>Стартовая страница</title>
+    <script src="jquery-3.5.1.min.js"
+            type="application/javascript"></script>
+    <script src="arbor.js"
+            type="application/javascript"></script>
+    <script src="utils.js"
+            type="application/javascript"></script>
+    <script src="rendering.js"
+            type="application/javascript"></script>
 
-            <script src="jquery-3.5.1.min.js" 
-                type="application/javascript"></script>
-            <script src="arbor.js" 
-                type="application/javascript"></script>
-            <script src="utils.js" 
-                type="application/javascript"></script>
-            <script src="rendering.js" 
-                type="application/javascript"></script>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: gray;
+            overflow: hidden;
+        }
 
-            <style type="text/css">
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                    background-color: gray;
-                    overflow: hidden;
-                }
-            </style>
+        button {
+            position: absolute;
+            display: inline-block;
+        }
+    </style>
 
-        </head>
-        <body>
-            <button id="btn">Скопировать координаты</button>
-            <canvas id="viewport" width="1000" height="1000"></canvas>
-            <script type="application/javascript">
-                let main_data_block = {};
-            </script>
-        </body>
-    </html>
-    
+</head>
+<body>
+<!--<button id="btn">Скопировать координаты</button>-->
+<canvas id="viewport" width="1000" height="1000"></canvas>
+<script type="application/javascript">
+    let main_data_block = {
+    "nodes": {
+        "tag": {
+            "label": "машина",
+            "bg_color": "#04266c",
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/meta_mashina.html",
+            "filename": "meta_mashina.html"
+        },
+        "pylesos_vozdushnyy,_dlya_uborki_pomescheniy": {
+            "label": "Пылесос воздушный, для уборки помещений",
+            "bg_color": "#5a0000",
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/2020-07-06_vacuum.md"
+        }
+    },
+    "edges": {
+        "tag": {
+            "pylesos_vozdushnyy,_dlya_uborki_pomescheniy": {
+                "weight": 1.0,
+                "color": "#000000"
+            }
+        }
+    }
+};
+</script>
+</body>
+</html>

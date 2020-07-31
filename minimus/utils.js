@@ -6,16 +6,16 @@
 function zoom_smaller(current_scale) {
     // уменьшить масштаб
     if (current_scale > 0.5)
-        return current_scale - 0.1;
-    return 0.5;
+        return current_scale - 0.1
+    return 0.5
 }
 
 
 function zoom_larger(current_scale) {
     // увеличить масштаб
     if (current_scale < 3.0)
-        return current_scale + 0.1;
-    return 3.0;
+        return current_scale + 0.1
+    return 3.0
 }
 
 
@@ -56,18 +56,18 @@ function drawEdge(ctx, edge, pt1, pt2, scale, offset) {
     let [x2, y2] = intoScreenCoord(pt2.x, pt2.y, scale, offset);
 
     ctx.strokeStyle = edge.data.color;
-    ctx.lineWidth = edge.data.weight
-    ctx.beginPath()
-    ctx.moveTo(x1, y1)
-    ctx.lineTo(x2, y2)
-    ctx.stroke()
+    ctx.lineWidth = edge.data.weight;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
 }
 
 function splitToLines(text) {
     // нарезать потенциальный заголовок ноды на строки
     if (text.length > 20)
-        return text.split(',');
-    return [text];
+        return text.split(',')
+    return [text]
 }
 
 
@@ -82,7 +82,7 @@ function measureText(ctx, lines, font_size, padding) {
     let full_w = ctx.measureText(longest_line).width + padding * 2;
     let full_h = lines.length * font_size + padding * 2;
 
-    return [full_w, full_h];
+    return [full_w, full_h]
 }
 
 

@@ -22,6 +22,8 @@ class Syntax:
                 '\t{number} Был обновлён файл: {filename}',
             'New folder has been created: {folder}':
                 'Был создан каталог: {folder}',
+            'Cannot find HTML template: {path}':
+                'Не найден шаблон для HTM документов: {path}',
             'Script has been started at folder: {folder}':
                 'Скрипт был запущен в каталоге: {folder}',
             '\t{number}. File created: {filename}':

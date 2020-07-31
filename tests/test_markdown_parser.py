@@ -4,7 +4,7 @@
 """
 import unittest
 
-from minimus.documents import MarkdownDocument, MarkdownMetaDocument
+from minimus.documents_markdown import MarkdownDocument, MarkdownMetaDocument
 from minimus.markdown_parser import MarkdownParser
 from tests.content import REF_MD, REF_MD_WITH_LINKS
 

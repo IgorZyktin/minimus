@@ -6,9 +6,10 @@ from abc import abstractmethod, ABC
 from typing import List, Optional
 
 
-class AbstractTextFile:
+class AbstractTextFile(ABC):
     """Абстрактный текстовый файл.
     """
+
     @abstractmethod
     def __getattr__(self, item):
         """Текстовый файл должен иметь и произвольные атрибуты тоже.
@@ -27,12 +28,15 @@ class AbstractTextFile:
         """
 
 
-class AbstractDocument:
+class AbstractDocument(ABC):
     """Абстрактный документ.
     """
+
     BASE_TEMPLATE = ''
 
-    def __init__(self, title: str, files: List[AbstractTextFile],
+    def __init__(self,
+                 title: str,
+                 files: List[AbstractTextFile],
                  template: Optional[str] = None):
         """Инициализировать экземпляр.
         """
@@ -71,14 +75,3 @@ class AbstractDocument:
     def make_corresponding_filename(cls, title: str) -> str:
         """Вернуть соответствующее документу имя файла.
         """
-
-
-class MetaMixin(AbstractDocument, ABC):
-    """Примесь для формирования метафайлов.
-    """
-
-    @classmethod
-    def make_corresponding_filename(cls, title: str) -> str:
-        """Вернуть соответствующее имя для файла.
-        """
-        return 'meta_' + super().make_corresponding_filename(title)

@@ -7,9 +7,11 @@ from typing import List, Dict
 
 from minimus.abstract import AbstractDocument
 from minimus.config import Config
-from minimus.documents import (
-    MarkdownMetaDocument, HypertextMetaDocument,
-    MarkdownIndexDocument, HypertextIndexDocument
+from minimus.documents_html import (
+    HypertextMetaDocument, HypertextIndexDocument,
+)
+from minimus.documents_markdown import (
+    MarkdownMetaDocument, MarkdownIndexDocument,
 )
 from minimus.file_system import FileSystem
 from minimus.markdown_parser import MarkdownParser
@@ -51,7 +53,7 @@ def map_tags_to_files(files: List[TextFile]) -> Dict[str, List[TextFile]]:
 
 
 def ensure_each_tag_has_metafile(config: Config,
-                                 tags_to_files: Dict[str, List[TextFile]]
+                                 tags_to_files: Dict[str, List[TextFile]],
                                  ) -> None:
     """Удостовериться, что для каждого тега есть персональная страничка.
 
@@ -127,13 +129,14 @@ def ensure_index_exists(config: Config, files: List[TextFile]) -> None:
     if not files:
         return
 
-    for each in [MarkdownIndexDocument, HypertextIndexDocument]:
-        if each is HypertextIndexDocument:
-            index = each(config, '', files)
-        else:
-            index = each('', files)
-
-        name = config.target_directory / index.corresponding_filename
-        if FileSystem.write(name, index.content):
+    def make_index(some_index):
+        filename = config.target_directory / some_index.corresponding_filename
+        if FileSystem.write(filename, some_index.content):
             Syntax.stdout('\tNew file has been created: {filename}',
-                          filename=name.absolute())
+                          filename=filename.absolute())
+
+    index = MarkdownIndexDocument('', files)
+    make_index(index)
+
+    index = HypertextIndexDocument(config, '', files)
+    make_index(index)

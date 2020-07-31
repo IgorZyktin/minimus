@@ -31,7 +31,10 @@ class TestGraph(unittest.TestCase):
             'edges': {
                 'start': {
                     'finish': {
-                        'weight': 0.1}}},
+                        'color': '#000000',
+                        'weight': 1.0}
+                }
+            },
             'nodes': {}
         }
         self.assertEqual(graph.as_dict(), ref)

@@ -103,41 +103,48 @@
 
 Примерно вот так:
 ```
-C:\folder>run_linker_exe.bat
+C:\folder>run_RU.bat
 -------------------------------------------------------------------------------
-Скрипт запущен в каталоге C:\folder.
-Каталог исходных данных: C:\folder\source.
-Каталог обработанных данных: C:\folder\target.
-Сборка будет произведена со стилем ссылок Local Explorer.
+Скрипт был запущен в каталоге: C:\folder
+Каталог исходных данных: C:\folder\source
+Каталог обработанных данных: C:\folder\target
+Сборка будет произведена со стилем ссылок Local Explorer
 
 Этап 1. Генерация метафайлов.
-        01 из 10. Создан файл "C:\folder\target\meta_hobot.md"
-        02 из 10. Создан файл "C:\folder\target\meta_hobot.html"
-        03 из 10. Создан файл "C:\folder\target\meta_seryy.md"
-        04 из 10. Создан файл "C:\folder\target\meta_seryy.html"
-        05 из 10. Создан файл "C:\folder\target\meta_4_lapy.md"
-        06 из 10. Создан файл "C:\folder\target\meta_4_lapy.html"
-        07 из 10. Создан файл "C:\folder\target\meta_hvost.md"
-        08 из 10. Создан файл "C:\folder\target\meta_hvost.html"
-        09 из 10. Создан файл "C:\folder\target\meta_mashina.md"
-        10 из 10. Создан файл "C:\folder\target\meta_mashina.html"
+        01 из 10. Создан файл: C:\folder\target\meta_hobot.md
+        02 из 10. Создан файл: C:\folder\target\meta_hobot.html
+        03 из 10. Создан файл: C:\folder\target\meta_seryy.md
+        04 из 10. Создан файл: C:\folder\target\meta_seryy.html
+        05 из 10. Создан файл: C:\folder\target\meta_4_lapy.md
+        06 из 10. Создан файл: C:\folder\target\meta_4_lapy.html
+        07 из 10. Создан файл: C:\folder\target\meta_hvost.md
+        08 из 10. Создан файл: C:\folder\target\meta_hvost.html
+        09 из 10. Создан файл: C:\folder\target\meta_mashina.md
+        10 из 10. Создан файл: C:\folder\target\meta_mashina.html
 
-Этап 2. Генерация гиперссылок.
+Этап 2. Генерация гиперссылок
+        1 из 4 Был обновлён файл: 2020-07-06_elephant.md
+        2 из 4 Был обновлён файл: 2020-07-06_mouse.md
+        3 из 4 Был обновлён файл: 2020-07-06_recursion.md
+        4 из 4 Был обновлён файл: 2020-07-06_vacuum.md
 
-Этап 3. Генерация индексов.
-        Создан файл "C:\folder\target\index.md"
-        Создан файл "C:\folder\target\index.html"
+Этап 3. Генерация индексов
+        Был создан файл: C:\folder\target\index.md
+        Был создан файл: C:\folder\target\index.html
 
-Этап 4. Сохранение основных файлов.
-        1 из 4. Сохранены изменения в файле "C:\folder\target\2020-07-06_elephant.md"
-        2 из 4. Сохранены изменения в файле "C:\folder\target\2020-07-06_mouse.md"
-        3 из 4. Сохранены изменения в файле "C:\folder\target\2020-07-06_recursion.md"
-        4 из 4. Сохранены изменения в файле "C:\folder\target\2020-07-06_vacuum.md"
+Этап 4. Сохранение основных файлов
+        1 из 4. Сохранены изменения в файле C:\folder\target\2020-07-06_elephant.md
+        2 из 4. Сохранены изменения в файле C:\folder\target\2020-07-06_mouse.md
+        3 из 4. Сохранены изменения в файле C:\folder\target\2020-07-06_recursion.md
+        4 из 4. Сохранены изменения в файле C:\folder\target\2020-07-06_vacuum.md
 
-Этап 5. Копирование библиотек.
-        1 из 3. Скопирован файл "C:\folder\zet\arbor.js"
-        2 из 3. Скопирован файл "C:\folder\zet\jquery-3.5.1.min.js"
-        3 из 3. Скопирован файл "C:\folder\zet\rendering.js"
+Этап 5. Сохранение дополнительных файлов
+
+Этап 6. Копирование библиотек
+        1 из 4. Скопирован файл C:\folder\minimus\arbor.js
+        2 из 4. Скопирован файл C:\folder\minimus\jquery-3.5.1.min.js
+        3 из 4. Скопирован файл C:\folder\minimus\rendering.js
+        4 из 4. Скопирован файл C:\folder\minimus\utils.js
 ```
 Важно помнить, что линковщик это не динамический инструмент. Он не нужен для чтения заметок, только для их сшивки. Достаточно время от времени запускать его при обновлении содержимого. Читать заметки при этом можно с любого устройства, python при этом не требуется. 
 
@@ -149,7 +156,8 @@ C:\folder>run_linker_exe.bat
 
   Ключ | Значение
 :-----:|:---:
---localexplorer  |  Сборка с генерацией ссылок в формате "Local Explorer":
+--lang  |  Язык примечаний ('RU' или 'EN')
+--localexplorer  |  Сборка с генерацией ссылок в формате "Local Explorer"
 --source_directory "C:\my cool folder"  | Выбрать каталог исходных данных
 --target_directory "C:\my cool folder"  | Выбрать каталог для сохранения
  

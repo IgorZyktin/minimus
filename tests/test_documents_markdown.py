@@ -4,7 +4,7 @@
 """
 import unittest
 
-from minimus.documents import MarkdownDocument, MarkdownMetaDocument, \
+from minimus.documents_markdown import MarkdownDocument, MarkdownMetaDocument, \
     MarkdownIndexDocument
 from minimus.text_file import TextFile
 

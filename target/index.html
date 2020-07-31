@@ -1,34 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Стартовая страница</title>
 
-    <!DOCTYPE html>
-        <html lang="ru">
-        <head>
-            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-            <title>Стартовая страница</title>
+    <script src="jquery-3.5.1.min.js"
+            type="application/javascript"></script>
+    <script src="arbor.js"
+            type="application/javascript"></script>
+    <script src="utils.js"
+            type="application/javascript"></script>
+    <script src="rendering.js"
+            type="application/javascript"></script>
 
-            <script src="jquery-3.5.1.min.js" 
-                type="application/javascript"></script>
-            <script src="arbor.js" 
-                type="application/javascript"></script>
-            <script src="utils.js" 
-                type="application/javascript"></script>
-            <script src="rendering.js" 
-                type="application/javascript"></script>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: gray;
+            overflow: hidden;
+        }
 
-            <style type="text/css">
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                    background-color: gray;
-                    overflow: hidden;
-                }
-            </style>
+        button {
+            position: absolute;
+            display: inline-block;
+        }
+    </style>
 
-        </head>
-        <body>
-            <button id="btn">Скопировать координаты</button>
-            <canvas id="viewport" width="1000" height="1000"></canvas>
-            <script type="application/javascript">
-                let main_data_block = {
+</head>
+<body>
+<!--<button id="btn">Скопировать координаты</button>-->
+<canvas id="viewport" width="1000" height="1000"></canvas>
+<script type="application/javascript">
+    let main_data_block = {
     "nodes": {
         "slon": {
             "label": "Слон",
@@ -36,11 +40,11 @@
             "link": "localexplorer:C:/PycharmProjects/minimus/target/2020-07-06_elephant.md",
             "filename": "2020-07-06_elephant.md"
         },
-        "hobot": {
-            "label": "хобот",
+        "seryy": {
+            "label": "серый",
             "bg_color": "#04266c",
-            "link": "localexplorer:C:/PycharmProjects/minimus/target/hobot.md",
-            "filename": "hobot.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/seryy.md",
+            "filename": "seryy.md"
         },
         "4_lapy": {
             "label": "4 лапы",
@@ -48,11 +52,11 @@
             "link": "localexplorer:C:/PycharmProjects/minimus/target/4_lapy.md",
             "filename": "4_lapy.md"
         },
-        "seryy": {
-            "label": "серый",
+        "hobot": {
+            "label": "хобот",
             "bg_color": "#04266c",
-            "link": "localexplorer:C:/PycharmProjects/minimus/target/seryy.md",
-            "filename": "seryy.md"
+            "link": "localexplorer:C:/PycharmProjects/minimus/target/hobot.md",
+            "filename": "hobot.md"
         },
         "mysh": {
             "label": "Мышь",
@@ -87,7 +91,7 @@
     },
     "edges": {
         "slon": {
-            "hobot": {
+            "seryy": {
                 "weight": 1.0,
                 "color": "#000000"
             },
@@ -95,21 +99,21 @@
                 "weight": 1.0,
                 "color": "#000000"
             },
-            "seryy": {
+            "hobot": {
                 "weight": 1.0,
                 "color": "#000000"
             }
         },
         "mysh": {
-            "4_lapy": {
-                "weight": 1.0,
-                "color": "#000000"
-            },
             "hvost": {
                 "weight": 1.0,
                 "color": "#000000"
             },
             "seryy": {
+                "weight": 1.0,
+                "color": "#000000"
+            },
+            "4_lapy": {
                 "weight": 1.0,
                 "color": "#000000"
             }
@@ -121,18 +125,17 @@
             }
         },
         "pylesos_vozdushnyy,_dlya_uborki_pomescheniy": {
-            "hobot": {
+            "mashina": {
                 "weight": 1.0,
                 "color": "#000000"
             },
-            "mashina": {
+            "hobot": {
                 "weight": 1.0,
                 "color": "#000000"
             }
         }
     }
 };
-            </script>
-        </body>
-    </html>
-    
+</script>
+</body>
+</html>

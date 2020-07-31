@@ -1,5 +1,13 @@
-let offset = {x: 500, y: 500};  // смещение экранной системы координат от модельной
-let scale = 0.5; // масштаб
+/*
+    Базовые инструменты рендеринга. Дополнения к тому, что умеет arbor.js.
+*/
+
+// смещение экранной системы координат от модельной
+let offset = {
+    x: 0,
+    y: 0
+};
+let scale = 1; // масштаб
 
 (function ($) {
     let Renderer = function (canvas_id) {
@@ -102,6 +110,8 @@ let scale = 0.5; // масштаб
                         )
 
                         if (dist <= 2 * scale) {
+                            // срабатывает только если узел почти не таскали,
+                            // фактически просто кликнули
                             if (nearest && selected && nearest.node === selected.node) {
                                 let link = selected.node.data.link
 

@@ -3,3 +3,5 @@
 /linker.spec
 /venv/*
 /.idea/
+*.spec
+.mypy_cache/

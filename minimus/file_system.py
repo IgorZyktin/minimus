@@ -16,6 +16,7 @@ T = TypeVar('T')
 class FileSystem:
     """Специальный класс для работы с файловой системой.
     """
+
     names_to_ignore = (
         'index',
         'meta',
@@ -33,17 +34,17 @@ class FileSystem:
                           directory: Path,
                           suffix: str,
                           desired_type: Type[T],
-                          ignore: Optional[Tuple[str, ...]] = None
+                          ignore: Optional[Tuple[str, ...]] = None,
                           ) -> List[T]:
         """Получить перечень всех документов нужного типа в каталоге.
 
         Пример вывода:
-        [
-            TextFile('2020-07-06_elephant.md'),
-            TextFile('2020-07-06_mouse.md'),
-            TextFile('2020-07-06_recursion.md'),
-            TextFile('2020-07-06_vacuum.md'),
-        ]
+            [
+                TextFile('2020-07-06_elephant.md'),
+                TextFile('2020-07-06_mouse.md'),
+                TextFile('2020-07-06_recursion.md'),
+                TextFile('2020-07-06_vacuum.md'),
+            ]
         """
         files = []
         ignore = ignore or cls.names_to_ignore
@@ -122,5 +123,5 @@ class FileSystem:
         cls.ensure_folder_exists(copy_to)
         shutil.copy(
             cls.cast_path(copy_from),
-            cls.cast_path(copy_to)
+            cls.cast_path(copy_to),
         )

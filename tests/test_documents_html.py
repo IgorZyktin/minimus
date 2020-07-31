@@ -3,21 +3,20 @@
 """Тесты.
 """
 import unittest
+from unittest.mock import Mock
 
-from minimus.documents import (
-    HypertextIndexDocument, HypertextDocument, HypertextMetaDocument
+from minimus.documents_html import (
+    HypertextMetaDocument, HypertextIndexDocument
 )
 
 
 class TestHypertextDocument(unittest.TestCase):
-    # noinspection PyTypeChecker
     def test_corresponding_filename(self):
-        document = HypertextDocument(None, 'Нечто', [])
-        self.assertEqual(document.corresponding_filename, 'nechto.html')
-        self.assertEqual(document.title, 'Нечто')
+        config = Mock()
+        config.htmt_template = ''
 
-        document = HypertextMetaDocument(None, 'Нечто', [])
+        document = HypertextMetaDocument(config, 'Нечто', [])
         self.assertEqual(document.corresponding_filename, 'meta_nechto.html')
 
-        document = HypertextIndexDocument(None, '', [])
+        document = HypertextIndexDocument(config, '', [])
         self.assertEqual(document.corresponding_filename, 'index.html')

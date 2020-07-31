@@ -30,6 +30,7 @@ Config(
     bg_color_tag='#04266c',
     custom_source=False,
     custom_target=False,
+    html_template='',
     lang='RU',
     launch_directory='l',
     protocol='file://',
