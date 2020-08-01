@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from minimus.abstract import AbstractDocument, AbstractTextFile
 from minimus.config import Config
-from minimus.documents_markdown import MarkdownDocument
+from minimus.documents_markdown import MarkdownMetaDocument
 from minimus.graph import Graph
 from minimus.syntax import Syntax
 
@@ -83,11 +83,13 @@ class HypertextMetaDocument(HypertextDocument):
 
         for i, file in enumerate(files, start=1):
             key = Syntax.transliterate(file.title)
+            filename = MarkdownMetaDocument\
+                .make_corresponding_filename(self.title)
             graph.add_node(
                 name=key,
                 label=file.title,
                 bg_color=self.config.bg_color_node,
-                link=self.make_link(file.filename)
+                link=self.make_link(filename)
             )
             graph.add_edge('tag', key)
 
@@ -133,7 +135,8 @@ class HypertextIndexDocument(HypertextDocument):
 
             for tag in file.tags:
                 key = Syntax.transliterate(tag)
-                filename = MarkdownDocument.make_corresponding_filename(tag)
+                filename = MarkdownMetaDocument\
+                    .make_corresponding_filename(tag)
 
                 graph.add_node(
                     name=key,

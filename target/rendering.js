@@ -199,8 +199,8 @@ let scale = 1; // масштаб
         const canvas = document.getElementById('viewport');
         canvas.addEventListener('mousewheel', zoom, false);
 
-        const btn = document.getElementById('btn');
-        btn.addEventListener('click', extractCoords, false);
+        // const btn = document.getElementById('btn');
+        // btn.addEventListener('click', extractCoords, false);
     });
 
 })(this.jQuery)
