@@ -40,7 +40,7 @@
 
 ## Как пользоваться
 
-1. Скачать себе репозиторий: https://github.com/IgorZyktin/Zet/archive/master.zip, разархивировать.
+1. Скачать себе репозиторий: https://github.com/IgorZyktin/minimus/archive/master.zip, разархивировать.
 2. Положить свои заметки в каталог source (подробнее см. ниже).
 3. Если есть установленый python (3.8.0 и выше) - запустить run_linker_py.bat.
 4. Если нет python - запустить run_linker_exe.bat.
