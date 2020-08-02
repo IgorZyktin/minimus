@@ -3,12 +3,11 @@
 """Набор классов для HTML документов.
 """
 import string
-from abc import abstractmethod
 from typing import List, Optional
 
 from minimus.abstract import AbstractDocument, AbstractTextFile
 from minimus.config import Config
-from minimus.documents_markdown import MarkdownMetaDocument
+from minimus.documents_markdown import MarkdownMetaDocument, MarkdownDocument
 from minimus.graph import Graph
 from minimus.syntax import Syntax
 
@@ -34,6 +33,17 @@ class HypertextDocument(AbstractDocument):
         """
         return '{name}.html'.format(name=Syntax.transliterate(title))
 
+    @property
+    def content(self) -> str:
+        """Вернуть скомпонованный текст документа.
+        """
+        template = string.Template(self.template)
+        content = template.safe_substitute({
+            'title': self.title,
+            'nodes': Syntax.to_json(self.render_graph(self.files)),
+        })
+        return content
+
     def get_local_dir(self) -> str:
         """Выдать локальную папку в читаемом для html формате.
         """
@@ -46,18 +56,6 @@ class HypertextDocument(AbstractDocument):
         directory = self.get_local_dir()
         return protocol + directory + '/' + text
 
-    @property
-    def content(self) -> str:
-        """Вернуть скомпонованный текст документа.
-        """
-        template = string.Template(self.template)
-        content = template.safe_substitute({
-            'title': self.title,
-            'nodes': Syntax.to_json(self.render_graph(self.files)),
-        })
-        return content
-
-    @abstractmethod
     def render_graph(self, files: List[AbstractTextFile]) -> dict:
         """Базовый HTML документ не умеет в графы.
         """
@@ -67,39 +65,45 @@ class HypertextDocument(AbstractDocument):
 class HypertextMetaDocument(HypertextDocument):
     """Метадокумент HTML.
     """
-
-    def render_graph(self, files: List[AbstractTextFile]) -> dict:
-        """Граф для метафайла (простой).
+    @property
+    def title(self) -> str:
+        """Вернуть заголовок документа.
         """
-        graph = Graph()
-
-        graph.add_node(
-            name='tag',
-            label=self.title,
-            bg_color=self.config.bg_color_tag,
-            link=self.make_link(self.corresponding_filename),
-            filename=self.corresponding_filename,
-        )
-
-        for i, file in enumerate(files, start=1):
-            key = Syntax.transliterate(file.title)
-            filename = MarkdownMetaDocument\
-                .make_corresponding_filename(self.title)
-            graph.add_node(
-                name=key,
-                label=file.title,
-                bg_color=self.config.bg_color_node,
-                link=self.make_link(filename)
-            )
-            graph.add_edge('tag', key)
-
-        return graph.as_dict()
+        return f'Все вхождения тега "{self.given_title}"'
 
     @classmethod
     def make_corresponding_filename(cls, title: str) -> str:
         """Вернуть соответствующее имя для файла.
         """
         return 'meta_{name}.html'.format(name=Syntax.transliterate(title))
+
+    def render_graph(self, files: List[AbstractTextFile]) -> dict:
+        """Граф для метафайла (простой).
+        """
+        graph = Graph()
+
+        filename = MarkdownMetaDocument\
+            .make_corresponding_filename(self.given_title)
+
+        graph.add_node(
+            name='tag',
+            label=self.title,
+            bg_color=self.config.bg_color_tag,
+            link=self.make_link(filename),
+            filename=self.corresponding_filename,
+        )
+
+        for i, file in enumerate(files, start=1):
+            key = Syntax.transliterate(file.title)
+            graph.add_node(
+                name=key,
+                label=file.title,
+                bg_color=self.config.bg_color_node,
+                link=self.make_link(file.filename)
+            )
+            graph.add_edge('tag', key)
+
+        return graph.as_dict()
 
 
 class HypertextIndexDocument(HypertextDocument):
@@ -135,7 +139,7 @@ class HypertextIndexDocument(HypertextDocument):
 
             for tag in file.tags:
                 key = Syntax.transliterate(tag)
-                filename = MarkdownMetaDocument\
+                filename = HypertextMetaDocument \
                     .make_corresponding_filename(tag)
 
                 graph.add_node(

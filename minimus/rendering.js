@@ -62,7 +62,7 @@ let scale = 1; // масштаб
                         nearest = particleSystem.nearest(_mouseP);
 
                         if (!nearest || !nearest.node) return false
-                        selected = (nearest.distance < 50 * scale) ? nearest : null
+                        selected = (nearest.distance < 20 * scale) ? nearest : null
                         return false
                     },
                     clicked: function (e) {
@@ -109,7 +109,7 @@ let scale = 1; // масштаб
                             Math.abs(last_x - s.x) + Math.abs(last_y - s.y)
                         )
 
-                        if (dist <= 2 * scale) {
+                        if (dist <= 5 * scale) {
                             // срабатывает только если узел почти не таскали,
                             // фактически просто кликнули
                             if (nearest && selected && nearest.node === selected.node) {

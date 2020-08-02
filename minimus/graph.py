@@ -7,6 +7,37 @@ from typing import Dict
 
 class Graph:
     """Представление графа.
+
+    Будучи полностью собранным, выглядит примерно вот так:
+    {
+        "nodes": {
+            "tag": {
+                "label": "Все вхождения тега \"4 лапы\"",
+                "bg_color": "#04266c",
+                "filename": "meta_4_lapy.html"
+            },
+            "slon": {
+                "label": "Слон",
+                "bg_color": "#5a0000",
+            },
+            "mysh": {
+                "label": "Мышь",
+                "bg_color": "#5a0000",
+            }
+        },
+        "edges": {
+            "tag": {
+                "slon": {
+                    "weight": 1.0,
+                    "color": "#000000"
+                },
+                "mysh": {
+                    "weight": 1.0,
+                    "color": "#000000"
+                }
+            }
+        }
+    };
     """
 
     def __init__(self):
