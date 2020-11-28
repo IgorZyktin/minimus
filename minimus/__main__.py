@@ -27,6 +27,10 @@ def init():
                         choices=['EN', 'RU'],
                         help='Which language to use')
 
+    parser.add_argument('--render_html',
+                        action='store_true',
+                        help='Render HTML graphs additionally to MD files')
+
     parser.add_argument('--source_directory',
                         action='store',
                         help='Where to get source files')
@@ -44,6 +48,7 @@ def init():
 
     config = Config()
     config.lang = args.lang
+    config.render_html = bool(args.render_html)
     FileSystem.set_config(config)
     Syntax.set_config(config)
 
@@ -75,14 +80,15 @@ def init():
     Syntax.stdout('Source files folder: {folder}',
                   folder=FileSystem.cast_path(config.source_directory))
 
-    path = config.script_directory / 'template.html'
-    try:
-        with open(str(path.absolute()), mode='r', encoding='utf-8') as file:
-            config.html_template = file.read()
-    except FileNotFoundError:
-        Syntax.stdout('Cannot find HTML template: {path}',
-                      path=FileSystem.cast_path(path))
-        sys.exit()
+    if config.render_html:
+        path = config.script_directory / 'template.html'
+        try:
+            with open(str(path.absolute()), mode='r', encoding='utf-8') as file:
+                config.html_template = file.read()
+        except FileNotFoundError:
+            Syntax.stdout('Cannot find HTML template: {path}',
+                          path=FileSystem.cast_path(path))
+            sys.exit()
 
     if args.target_directory is None:
         config.target_directory = config.launch_directory / 'target'
@@ -144,20 +150,21 @@ def main(config: Config):
         Syntax.stdout('No source files found to work with')
         sys.exit()
 
-    Syntax.stdout('\nStage 6. Libraries copying')
-    js_files = [
-        x for x in config.script_directory.iterdir()
-        if x.suffix == '.js'
-    ]
+    if config.render_html:
+        Syntax.stdout('\nStage 6. Libraries copying')
+        js_files = [
+            x for x in config.script_directory.iterdir()
+            if x.suffix == '.js'
+        ]
 
-    for number, file in Syntax.numerate(js_files):
-        if file.suffix == '.js':
-            FileSystem.copy(
-                file.absolute(),
-                config.target_directory.absolute() / file.name,
-            )
-            Syntax.stdout('\t{number} File has been copied: {filename}',
-                          number=number, filename=file.absolute())
+        for number, file in Syntax.numerate(js_files):
+            if file.suffix == '.js':
+                FileSystem.copy(
+                    file.absolute(),
+                    config.target_directory.absolute() / file.name,
+                )
+                Syntax.stdout('\t{number} File has been copied: {filename}',
+                              number=number, filename=file.absolute())
 
 
 if __name__ == '__main__':

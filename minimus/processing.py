@@ -69,8 +69,9 @@ def ensure_each_tag_has_metafile(config: Config,
         i += 1
 
         # html форма
-        create_meta_html(config, tag, tag_files, prefix, i, total)
-        i += 1
+        if config.render_html:
+            create_meta_html(config, tag, tag_files, prefix, i, total)
+            i += 1
 
 
 def create_meta_md(config: Config, tag: str, files: List[TextFile],
@@ -138,5 +139,6 @@ def ensure_index_exists(config: Config, files: List[TextFile]) -> None:
     index = MarkdownIndexDocument('', files)
     make_index(index)
 
-    index = HypertextIndexDocument(config, '', files)
-    make_index(index)
+    if config.render_html:
+        index = HypertextIndexDocument(config, '', files)
+        make_index(index)

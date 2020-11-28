@@ -14,6 +14,8 @@ class Config:
     bg_color_node = '#5a0000'
     protocol = 'file://'
 
+    render_html = False
+
     _base_path = Path().absolute()
     launch_directory = _base_path
     script_directory = _base_path
