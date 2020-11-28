@@ -129,7 +129,7 @@ def main(config: Config):
 
     non_md = [
         x for x in config.source_directory.iterdir()
-        if x.suffix.lower() != '.md'
+        if x.suffix.lower() != '.md' and not x.name.startswith('.')
     ]
     Syntax.stdout('\nStage 5. Additional files saving')
     for number, file in Syntax.numerate(non_md):
