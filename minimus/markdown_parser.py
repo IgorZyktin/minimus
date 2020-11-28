@@ -31,7 +31,7 @@ class MarkdownParser:
     """
 
     TITLE_PATTERN = re.compile(r'^\s*#+\s(.*)', flags=re.MULTILINE)
-    HEAD_BARE_TAG_PATTERN = re.compile(r'^\\#(.*)$', flags=re.MULTILINE)
+    HEAD_BARE_TAG_PATTERN = re.compile(r'^\\\s?#(.*)$', flags=re.MULTILINE)
     FULL_TAG_PATTERN = re.compile(r'\[\\#(.*)\]\(\./(.*.md)\)')
 
     HEAD_BARE_TAG_PATTERN_CUSTOM = r'^\\#{}$'

@@ -164,6 +164,7 @@ C:\folder>run_RU.bat
 ### Посмотреть живьём
 
 В репозиторий (и соответствующий [zip архив](https://github.com/IgorZyktin/minimus/archive/master.zip)) включены каталоги source и target, открыв их, можно посмотреть что из чего сгенерировалось и как выглядит.
+
 ### Аргументы запуска
 
   Ключ | Значение
@@ -173,6 +174,29 @@ C:\folder>run_RU.bat
 --source_directory "C:\my cool folder"  | Выбрать каталог исходных данных
 --target_directory "C:\my cool folder"  | Выбрать каталог для сохранения
  
+### Развёртывание
+
+Я храню на компьютере bat файл со скриптом запуска. 
+Он позволяет мне быстро пересобрать новую версию заметок.
+
+```batch
+@ECHO off
+SET source=C:\Users\MainUser\YandexDisk\zettelkasten_source\content
+SET target=C:\Users\MainUser\YandexDisk\zettelkasten_target\content
+SET executable_directory=C:\PycharmProjects\minimus\
+SET executable=%executable_directory%minimus.exe
+
+CD %executable_directory%
+
+%executable% ^
+    --lang RU ^
+    --source_directory %source% ^
+    --target_directory %target% ^
+    --localexplorer
+
+PAUSE
+EXIT
+```
 
 ### Справочные данные
 
