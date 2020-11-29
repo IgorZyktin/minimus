@@ -8,7 +8,7 @@ from minimus import arguments, settings
 from minimus.components.class_repository import Repository
 from minimus.utils.files_processing import make_metainfo, ensure_folder_exists
 from minimus.utils.file_class_helpers import analyze_contents, \
-    map_tags_to_files, ensure_each_tag_has_metafile
+    map_tags_to_files, ensure_each_tag_has_metafile, ensure_index_exists
 from minimus.utils.output_processing import stdout
 
 
@@ -31,12 +31,7 @@ def main():
 
     run(repository)
 
-    # Syntax.stdout('\nStage 2. Hyperlinks generation')
-    # ensure_each_tag_has_link(files)
-    #
-    # Syntax.stdout('\nStage 3. Indexes generation')
-    # ensure_index_exists(config, files)
-    #
+
     # Syntax.stdout('\nStage 4. Main files saving')
     # for number, file in Syntax.numerate(files):
     #     name = config.target_directory / file.filename
@@ -63,10 +58,11 @@ def run(repository: Repository):
     """
     tags_to_files = map_tags_to_files(repository.get_files())
 
-    print(tags_to_files)
-
     stdout('\nStage 1. Metafile generation')
     ensure_each_tag_has_metafile(tags_to_files)
+
+    stdout('\nStage 2. Indexes generation')
+    ensure_index_exists(repository.get_files())
 
 
 if __name__ == '__main__':

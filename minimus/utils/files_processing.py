@@ -36,7 +36,7 @@ def make_metainfo(source_directory: str) -> List[dict]:
 
     for path, _, filenames in os.walk(source_directory):
         for filename in filenames:
-            full_path = os.path.join(path, filename)
+            full_path = join_path(path, filename)
             new_record = {
                 'original_filename': filename,
                 'original_path': os.path.abspath(full_path),
@@ -60,7 +60,7 @@ def ensure_folder_exists(path: str) -> Optional[str]:
         if current_path is None:
             current_path = part
         else:
-            current_path = os.path.join(current_path, part)
+            current_path = join_path(current_path, part)
 
         if not os.path.exists(current_path):
             with safe_operation():
@@ -83,6 +83,12 @@ def get_ext(filename: str) -> str:
     return ext.lstrip('.')
 
 
+def join_path(path: str, filename: str) -> str:
+    """Сшить путь с именем файла.
+    """
+    return os.path.join(path, filename)
+
+
 def write_text(path: str, filename: str, content: str) -> str:
     """Сохранить некий текст под определённым именем на диск.
     """
@@ -90,7 +96,7 @@ def write_text(path: str, filename: str, content: str) -> str:
         return ''
 
     ensure_folder_exists(path)
-    full_path = os.path.join(path, filename)
+    full_path = join_path(path, filename)
 
     with open(full_path, mode='w', encoding='utf-8') as file:
         file.write(content)

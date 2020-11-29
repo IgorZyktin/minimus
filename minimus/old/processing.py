@@ -82,7 +82,7 @@ def ensure_each_tag_has_link(files: List['TextFile']) -> None:
         existing_content = file.content
         new_content = MarkdownParser.replace_tags_with_hrefs(
             content=existing_content,
-            tags=file.tags,
+            tags=file.get_tags(),
             maker=MarkdownMetaDocument,
         )
 

@@ -13,8 +13,14 @@ VOCABULARY = {
 
         'test {x}': 'тест {x}',
 
-        '\tNew file has been created: {filename}':
-            '\tБыл создан файл: {filename}',
+        '## All occurrences of the tag "{tag}"\n\n':
+            '## Все вхождения тега "{tag}"\n\n',
+
+        '# All entries"\n\n':
+            '# Все записи\n\n',
+
+        '\t{tag_number}. File created: {filename}':
+            '\t{tag_number}. Создан файл: {filename}',
 
         '\t{number}. File has been updated: {filename}':
             '\t{number} Был обновлён файл: {filename}',
@@ -28,6 +34,9 @@ VOCABULARY = {
         '\t{number}. File created: {filename}':
             '\t{number}. Создан файл: {filename}',
 
+        '\tFile created: {filename}':
+            '\tСоздан файл: {filename}',
+
         'Source directory: {folder}':
             'Каталог исходных данных: {folder}',
 
@@ -40,17 +49,11 @@ VOCABULARY = {
         '\nStage 1. Metafile generation':
             '\nЭтап 1. Генерация метафайлов.',
 
-        '\nStage 2. Hyperlinks generation':
-            '\nЭтап 2. Генерация гиперссылок',
-
-        '\nStage 3. Indexes generation':
-            '\nЭтап 3. Генерация индексов',
+        '\nStage 2. Indexes generation':
+            '\nЭтап 2. Генерация индексов',
 
         '\nStage 4. Main files saving':
             '\nЭтап 4. Сохранение основных файлов',
-
-        '\nStage 5. Additional files saving':
-            '\nЭтап 5. Сохранение дополнительных файлов',
 
         '\t{number} File has been copied: {filename}':
             '\t{number}. Скопирован файл {filename}',

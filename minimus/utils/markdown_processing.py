@@ -29,3 +29,12 @@ def extract_full_tags(content: str) -> Generator[Match, None, None]:
     """
     for match in settings.FULL_TAG_PATTERN.finditer(content):
         yield match
+
+
+def href(label: str, link: str) -> str:
+    """Собрать гиперссылку из частей.
+
+    >>> href('Hello!', 'world')
+    '[Hello!](./world)'
+    """
+    return '[{}](./{})'.format(label, link.lstrip('/'))

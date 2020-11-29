@@ -37,15 +37,6 @@ class MarkdownParser:
     HEAD_BARE_TAG_PATTERN_CUSTOM = r'^\\#{}$'
     BODY_BARE_TAG_PATTERN_CUSTOM = r'(?<!\[)\\#({})(?!\])'
 
-    @staticmethod
-    def href(label: str, link: str) -> str:
-        """Собрать гиперссылку из частей.
-
-        >>> MarkdownParser.href('Hello!', 'world')
-        '[Hello!](./world)'
-        """
-        return '[{}](./{})'.format(label, link.lstrip('/'))
-
     @classmethod
     def tag2href(cls, text: str, maker: Type[AbstractDocument]) -> str:
         """Конверсия в гиперссылку.
