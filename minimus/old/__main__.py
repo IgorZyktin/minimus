@@ -6,14 +6,15 @@ import argparse
 import sys
 from pathlib import Path
 
-from minimus.config import Config
-from minimus.file_system import FileSystem
-from minimus.processing import (
+import minimus.utils.text_processing
+from minimus.old.config import Config
+from minimus.old.file_system import FileSystem
+from minimus.old.processing import (
     map_tags_to_files, ensure_each_tag_has_metafile,
     ensure_each_tag_has_link, ensure_index_exists,
 )
-from minimus.syntax import Syntax
-from minimus.text_file import TextFile
+from minimus.old.syntax import Syntax
+from minimus.old.text_file import TextFile
 
 
 def init():
@@ -127,7 +128,7 @@ def main(config: Config):
     ensure_index_exists(config, files)
 
     Syntax.stdout('\nStage 4. Main files saving')
-    for number, file in Syntax.numerate(files):
+    for number, file in minimus.utils.text_processing.numerate(files):
         name = config.target_directory / file.filename
         if FileSystem.write(name, file.content):
             Syntax.stdout('\t{number}. Saved changes to the file {filename}',
@@ -138,7 +139,7 @@ def main(config: Config):
         if x.suffix.lower() != '.md' and not x.name.startswith('.')
     ]
     Syntax.stdout('\nStage 5. Additional files saving')
-    for number, file in Syntax.numerate(non_md):
+    for number, file in minimus.utils.text_processing.numerate(non_md):
         FileSystem.copy(
             file.absolute(),
             config.target_directory.absolute() / file.name,
@@ -157,7 +158,7 @@ def main(config: Config):
             if x.suffix == '.js'
         ]
 
-        for number, file in Syntax.numerate(js_files):
+        for number, file in minimus.utils.text_processing.numerate(js_files):
             if file.suffix == '.js':
                 FileSystem.copy(
                     file.absolute(),

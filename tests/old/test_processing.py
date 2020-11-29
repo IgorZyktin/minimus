@@ -4,8 +4,8 @@
 """
 import unittest
 
-from minimus.processing import map_tags_to_files
-from minimus.text_file import TextFile
+from minimus.old.processing import map_tags_to_files
+from minimus.old.text_file import TextFile
 
 
 class TestMapTagsToFiles(unittest.TestCase):

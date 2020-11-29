@@ -4,9 +4,9 @@
 """
 import unittest
 
-from minimus.documents_markdown import MarkdownDocument, MarkdownMetaDocument, \
+from minimus.old.documents_markdown import MarkdownDocument, MarkdownMetaDocument, \
     MarkdownIndexDocument
-from minimus.text_file import TextFile
+from minimus.old.text_file import TextFile
 
 
 class TestMarkdownDocument(unittest.TestCase):

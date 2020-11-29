@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Union
 from unittest.mock import Mock
 
-from minimus.file_system import FileSystem
-from minimus.text_file import TextFile
+from minimus.old.file_system import FileSystem
+from minimus.old.text_file import TextFile
 
 
 class TestFileSystem(unittest.TestCase):

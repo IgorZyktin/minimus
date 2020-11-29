@@ -5,7 +5,8 @@
 import unittest
 from unittest.mock import Mock
 
-from minimus.syntax import Syntax
+import minimus.utils.text_processing
+from minimus.old.syntax import Syntax
 
 
 class TestSyntax(unittest.TestCase):
@@ -35,11 +36,11 @@ class TestSyntax(unittest.TestCase):
         self.assertEqual(res, ref)
 
     def test_make_prefix(self):
-        self.assertEqual(Syntax.make_prefix(1), '{num:01} из {total:01d}')
-        self.assertEqual(Syntax.make_prefix(75), '{num:02} из {total:02d}')
-        self.assertEqual(Syntax.make_prefix(825), '{num:03} из {total:03d}')
-        self.assertEqual(Syntax.make_prefix(843346), '{num:06} из {total:06d}')
-        self.assertEqual(Syntax.make_prefix(-1), '{num:02} из {total:02d}')
+        self.assertEqual(minimus.utils.text_processing.make_prefix(1), '{num:01} из {total:01d}')
+        self.assertEqual(minimus.utils.text_processing.make_prefix(75), '{num:02} из {total:02d}')
+        self.assertEqual(minimus.utils.text_processing.make_prefix(825), '{num:03} из {total:03d}')
+        self.assertEqual(minimus.utils.text_processing.make_prefix(843346), '{num:06} из {total:06d}')
+        self.assertEqual(minimus.utils.text_processing.make_prefix(-1), '{num:02} из {total:02d}')
 
     def test_numerate(self):
         inp = (chr(i) for i in range(97, 105))
@@ -53,7 +54,7 @@ class TestSyntax(unittest.TestCase):
             ('7 из 8', 'g'),
             ('8 из 8', 'h')
         ]
-        self.assertEqual(list(Syntax.numerate(inp)), ref)
+        self.assertEqual(list(minimus.utils.text_processing.numerate(inp)), ref)
 
         inp = (chr(i) for i in range(65, 85))
         ref = [
@@ -78,7 +79,7 @@ class TestSyntax(unittest.TestCase):
             ('19 из 20', 'S'),
             ('20 из 20', 'T')
         ]
-        self.assertEqual(list(Syntax.numerate(inp)), ref)
+        self.assertEqual(list(minimus.utils.text_processing.numerate(inp)), ref)
 
     def test_stdout(self):
         config = Mock()

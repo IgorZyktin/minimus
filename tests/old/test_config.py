@@ -4,7 +4,7 @@
 """
 import unittest
 
-from minimus.config import Config
+from minimus.old.config import Config
 
 
 class TestConfig(unittest.TestCase):

@@ -4,7 +4,7 @@
 """
 import unittest
 
-from minimus.text_file import TextFile
+from minimus.old.text_file import TextFile
 
 
 class TestTextFile(unittest.TestCase):

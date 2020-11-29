@@ -5,51 +5,22 @@
 from collections import defaultdict
 from typing import List, Dict
 
-from minimus.abstract import AbstractDocument
-from minimus.config import Config
-from minimus.documents_html import (
+import minimus.utils.text_processing
+from minimus.old.abstract import AbstractDocument
+from minimus.old.config import Config
+from minimus.old.documents_html import (
     HypertextMetaDocument, HypertextIndexDocument,
 )
-from minimus.documents_markdown import (
+from minimus.old.documents_markdown import (
     MarkdownMetaDocument, MarkdownIndexDocument,
 )
-from minimus.file_system import FileSystem
-from minimus.markdown_parser import MarkdownParser
-from minimus.syntax import Syntax
-from minimus.text_file import TextFile
+from minimus.old.file_system import FileSystem
+from minimus.old.markdown_parser import MarkdownParser
+from minimus.old.syntax import Syntax
+from minimus.old.text_file import TextFile
 
 
-def map_tags_to_files(files: List[TextFile]) -> Dict[str, List[TextFile]]:
-    """Собрать отображение тегов на файлы.
 
-    Пример вывода:
-    {
-        '4 лапы':
-            [
-                TextFile('2020-07-06_elephant.md'),
-                TextFile('2020-07-06_mouse.md')
-            ],
-        'серый':
-            [
-                TextFile('2020-07-06_elephant.md'),
-                TextFile('2020-07-06_mouse.md')
-            ],
-    }
-
-    """
-    tags_to_files = defaultdict(list)
-
-    for file in files:
-        file.title = MarkdownParser.extract_title(file.content)
-        file.tags = MarkdownParser.extract_tags(file.content)
-
-        for tag in file.tags:
-            tags_to_files[tag].append(file)
-
-    return {
-        tag: sorted(files)
-        for tag, files in tags_to_files.items()
-    }
 
 
 def ensure_each_tag_has_metafile(config: Config,
@@ -60,7 +31,7 @@ def ensure_each_tag_has_metafile(config: Config,
     Вместо проверки правильности, она просто каждый раз создаётся заново.
     """
     total = len(tags_to_files) * 2
-    prefix = Syntax.make_prefix(total)
+    prefix = minimus.utils.text_processing.make_prefix(total)
 
     i = 1
     for tag, tag_files in tags_to_files.items():
@@ -119,7 +90,7 @@ def ensure_each_tag_has_link(files: List['TextFile']) -> None:
             file.content = new_content
             update_required.append(file)
 
-    for number, file in Syntax.numerate(update_required):
+    for number, file in minimus.utils.text_processing.numerate(update_required):
         Syntax.stdout('\t{number}. File has been updated: {filename}',
                       number=number, filename=file.filename)
 

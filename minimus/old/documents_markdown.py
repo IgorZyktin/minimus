@@ -7,9 +7,10 @@
 """
 import string
 
-from minimus.abstract import AbstractDocument
-from minimus.markdown_parser import MarkdownParser
-from minimus.syntax import Syntax
+import minimus.utils.text_processing
+from minimus.old.abstract import AbstractDocument
+from minimus.old.markdown_parser import MarkdownParser
+from minimus.old.syntax import Syntax
 
 
 class MarkdownDocument(AbstractDocument):
@@ -42,7 +43,7 @@ $title
 
         lines = []
         # noinspection PyTypeChecker
-        for number, file in Syntax.numerate(sorted(self.files)):
+        for number, file in minimus.utils.text_processing.numerate(sorted(self.files)):
             lines.append('{}. {}\n'.format(
                 number,
                 MarkdownParser.href(file.title, file.filename),

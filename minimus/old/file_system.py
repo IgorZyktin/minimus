@@ -7,8 +7,8 @@ import shutil
 from pathlib import Path
 from typing import Type, TypeVar, Optional, Tuple, List, Union
 
-from minimus.config import Config
-from minimus.syntax import Syntax
+from minimus.old.config import Config
+from minimus.old.syntax import Syntax
 
 T = TypeVar('T')
 
@@ -69,31 +69,6 @@ class FileSystem:
         if isinstance(filename, str):
             return filename
         return str(filename.absolute())
-
-    @classmethod
-    def ensure_folder_exists(cls, target: Path) -> Optional[str]:
-        """Создать всю цепочку каталогов для указанного пути.
-
-        Вернуть путь, если каталог был создан.
-        """
-        path = Path('.')
-        parts = list(target.parts)[::-1]
-        created = None
-
-        while parts:
-            path = path / parts.pop()
-
-            if not parts and '.' in path.name:
-                # это по всей видимости файл
-                break
-
-            if not path.exists():
-                created = cls.cast_path(path)
-                os.mkdir(created)
-                Syntax.stdout('New folder has been created: "{folder}"',
-                              cls.config.lang, folder=created)
-
-        return created
 
     @classmethod
     def read(cls, filename: Path) -> str:

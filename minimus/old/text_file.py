@@ -8,7 +8,7 @@
 from functools import total_ordering
 from typing import Any
 
-from minimus.abstract import AbstractTextFile
+from minimus.old.abstract import AbstractTextFile
 
 
 @total_ordering

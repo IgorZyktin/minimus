@@ -5,7 +5,7 @@
 import re
 from typing import Set, Type
 
-from minimus.abstract import AbstractDocument
+from minimus.old.abstract import AbstractDocument
 
 
 class MarkdownParser:

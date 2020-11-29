@@ -4,7 +4,7 @@
 """
 import unittest
 
-from minimus.graph import Graph
+from minimus.old.graph import Graph
 
 
 class TestGraph(unittest.TestCase):

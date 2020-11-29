@@ -5,11 +5,11 @@
 import string
 from typing import List, Optional
 
-from minimus.abstract import AbstractDocument, AbstractTextFile
-from minimus.config import Config
-from minimus.documents_markdown import MarkdownMetaDocument, MarkdownDocument
-from minimus.graph import Graph
-from minimus.syntax import Syntax
+from minimus.old.abstract import AbstractDocument, AbstractTextFile
+from minimus.old.config import Config
+from minimus.old.documents_markdown import MarkdownMetaDocument
+from minimus.old.graph import Graph
+from minimus.old.syntax import Syntax
 
 
 class HypertextDocument(AbstractDocument):

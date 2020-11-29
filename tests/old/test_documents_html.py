@@ -5,7 +5,7 @@
 import unittest
 from unittest.mock import Mock
 
-from minimus.documents_html import (
+from minimus.old.documents_html import (
     HypertextMetaDocument, HypertextIndexDocument, HypertextDocument
 )
 
