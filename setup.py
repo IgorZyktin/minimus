@@ -5,16 +5,15 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name='minimus',
-    version='1.0',
+    version='1.1',
     author='Igor Zyktin',
     author_email='nicord@yandex.ru',
-    description='Small tool aiming to help making notes. '
-                'Works with Markdown format and allows you '
-                'to build cute graphs.',
+    description='Small tool aiming to help making notes '
+                'in Markdown format.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/IgorZyktin/minimus',
-    packages=setuptools.find_packages(),
+    packages=[],
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
