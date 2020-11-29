@@ -81,3 +81,18 @@ def get_ext(filename: str) -> str:
     """
     _, ext = os.path.splitext(filename.lower())
     return ext.lstrip('.')
+
+
+def write_text(path: str, filename: str, content: str) -> str:
+    """Сохранить некий текст под определённым именем на диск.
+    """
+    if not content:
+        return ''
+
+    ensure_folder_exists(path)
+    full_path = os.path.join(path, filename)
+
+    with open(full_path, mode='w', encoding='utf-8') as file:
+        file.write(content)
+
+    return full_path

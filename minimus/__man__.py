@@ -7,7 +7,8 @@ import sys
 from minimus import arguments, settings
 from minimus.components.class_repository import Repository
 from minimus.utils.files_processing import make_metainfo, ensure_folder_exists
-from minimus.utils.markdown_processing import map_tags_to_files
+from minimus.utils.file_class_helpers import analyze_contents, \
+    map_tags_to_files, ensure_each_tag_has_metafile
 from minimus.utils.output_processing import stdout
 
 
@@ -26,12 +27,10 @@ def main():
         stdout('No source files found to work with')
         sys.exit(1)
 
-    tags_to_files = map_tags_to_files(repository.get_files())
-    print(tags_to_files)
+    analyze_contents(repository.get_files())
 
-    # Syntax.stdout('\nStage 1. Metafile generation')
-    # ensure_each_tag_has_metafile(config, tags_to_files)
-    #
+    run(repository)
+
     # Syntax.stdout('\nStage 2. Hyperlinks generation')
     # ensure_each_tag_has_link(files)
     #
@@ -58,6 +57,16 @@ def main():
     #     Syntax.stdout('\t{number} File has been copied: {filename}',
     #                   number=number, filename=file.absolute())
 
+
+def run(repository: Repository):
+    """Основная работа.
+    """
+    tags_to_files = map_tags_to_files(repository.get_files())
+
+    print(tags_to_files)
+
+    stdout('\nStage 1. Metafile generation')
+    ensure_each_tag_has_metafile(tags_to_files)
 
 
 if __name__ == '__main__':
