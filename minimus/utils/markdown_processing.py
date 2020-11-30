@@ -31,10 +31,10 @@ def extract_full_tags(content: str) -> Generator[Match, None, None]:
         yield match
 
 
-def href(label: str, link: str) -> str:
+def href(label: str, link: str, base_folder: str = './') -> str:
     """Собрать гиперссылку из частей.
 
     >>> href('Hello!', 'world')
     '[Hello!](./world)'
     """
-    return '[{}](./{})'.format(label, link.lstrip('/'))
+    return '[{}]({})'.format(label, base_folder + link.lstrip('/'))

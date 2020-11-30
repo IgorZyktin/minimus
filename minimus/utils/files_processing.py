@@ -102,3 +102,42 @@ def write_text(path: str, filename: str, content: str) -> str:
         file.write(content)
 
     return full_path
+
+
+def shortest_common_path(readme_directory: str, target_directory: str) -> str:
+    """Собрать минимально возможный по длине относительный путь из двух путей.
+
+    >>> shortest_common_path(r"C:\\usr\\va", r"C:\\usr\\bg\\doc\\pictures\\ew")
+    '..\\bg\\doc\\pictures\\ew'
+    """
+    if readme_directory == target_directory:
+        return '.'
+
+    head_parts = list(Path(readme_directory).parts)
+    tail_parts = list(Path(target_directory).parts)
+
+    common_elements = 0
+
+    while head_parts and tail_parts:
+        if head_parts[0] != tail_parts[0]:
+            break
+
+        head_parts.pop(0)
+        tail_parts.pop(0)
+        common_elements += 1
+
+    if not common_elements:
+        return target_directory
+
+    resulting_path = ''
+
+    if head_parts:
+        for _ in head_parts:
+            resulting_path = os.path.join(resulting_path, '..')
+    else:
+        resulting_path = '.'
+
+    for element in tail_parts:
+        resulting_path = os.path.join(resulting_path, element)
+
+    return resulting_path

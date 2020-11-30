@@ -16,6 +16,18 @@ from minimus.utils.markdown_processing import (
 from minimus.utils.output_processing import stdout, transliterate, translate
 from minimus.utils.text_processing import numerate
 
+__all__ = [
+    'analyze_contents',
+    'analyze_single_file',
+    'make_slices',
+    'map_tags_to_files',
+    'ensure_each_tag_has_metafile',
+    'create_metafile',
+    'ensure_index_exists',
+    'ensure_readme_exists',
+    'create_index',
+]
+
 
 def analyze_contents(files: List[File]) -> None:
     """Проанализаровать содержимое каждого из файлов.
@@ -146,20 +158,37 @@ def ensure_index_exists(files: List[File]) -> None:
     if not files:
         return
 
-    content = create_index(files)
+    base_folder = './'
+
+    content = create_index(files, base_folder)
     created = write_text(
         path=settings.TARGET_DIRECTORY,
         filename='index.md',
         content=content,
     )
 
-    stdout(
-        '\tFile created: {filename}',
-        filename=created,
+    stdout('\tFile created: {filename}', filename=created)
+
+
+def ensure_readme_exists(files: List[File]) -> None:
+    """Удостовериться, что у нас есть стартовая страница.
+    """
+    if not files:
+        return
+
+    base_folder = './'  # FIXME
+
+    content = create_index(files, base_folder)
+    created = write_text(
+        path=settings.README_DIRECTORY,
+        filename='README.md',
+        content=content,
     )
 
+    stdout('\tFile created: {filename}', filename=created)
 
-def create_index(files: List[File]) -> str:
+
+def create_index(files: List[File], base_folder: str) -> str:
     """Собрать содержимое старотового файла.
     """
     content = [
@@ -181,8 +210,19 @@ def create_index(files: List[File]) -> str:
         by_cat[file.category].append(file)
 
     for number, category in numerate(categories):
-        content.append(f'{number}. {category.title()}\n')
+        meta_url = href(
+            label=category.title(),
+            link='meta_' + transliterate(category) + '.md',
+            base_folder=base_folder,
+        )
+        content.append(f'{number}. {meta_url}\n')
+
         for each_file in by_cat[category]:
-            content.append(f'* {href(each_file.title, each_file.filename)}\n')
+            url = href(
+                label=each_file.title,
+                link=each_file.filename,
+                base_folder=base_folder,
+            )
+            content.append(f'* {url}\n')
 
     return '\n'.join(content)

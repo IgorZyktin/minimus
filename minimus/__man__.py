@@ -7,8 +7,7 @@ import sys
 from minimus import arguments, settings
 from minimus.components.class_repository import Repository
 from minimus.utils.files_processing import make_metainfo, ensure_folder_exists
-from minimus.utils.file_class_helpers import analyze_contents, \
-    map_tags_to_files, ensure_each_tag_has_metafile, ensure_index_exists
+from minimus.utils.file_class_helpers import *
 from minimus.utils.output_processing import stdout
 
 
@@ -63,6 +62,7 @@ def run(repository: Repository):
 
     stdout('\nStage 2. Indexes generation')
     ensure_index_exists(repository.get_files())
+    ensure_readme_exists(repository.get_files())
 
 
 if __name__ == '__main__':

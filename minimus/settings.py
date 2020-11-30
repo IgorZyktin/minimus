@@ -12,7 +12,7 @@ BASE_PATH = os.path.abspath(os.getcwd())
 LAUNCH_DIRECTORY = BASE_PATH
 SOURCE_DIRECTORY = os.path.join(BASE_PATH, 'source')
 TARGET_DIRECTORY = os.path.join(BASE_PATH, 'target')
-README_DIRECTORY = BASE_PATH
+README_DIRECTORY = TARGET_DIRECTORY
 
 # шаблоны регулярных выражений
 
