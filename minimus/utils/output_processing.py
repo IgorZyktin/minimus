@@ -52,8 +52,11 @@ VOCABULARY = {
         '\nStage 2. Indexes generation':
             '\nЭтап 2. Генерация индексов',
 
-        '\nStage 4. Main files saving':
-            '\nЭтап 4. Сохранение основных файлов',
+        '\nStage 3. Main files saving':
+            '\nЭтап 3. Сохранение основных файлов',
+
+        '\nStage 4. Additional files saving':
+            '\nЭтап 4. Сохранение дополнительных файлов',
 
         '\t{number} File has been copied: {filename}':
             '\t{number}. Скопирован файл {filename}',

@@ -37,4 +37,7 @@ def href(label: str, link: str, base_folder: str = './') -> str:
     >>> href('Hello!', 'world')
     '[Hello!](./world)'
     """
+    if base_folder == '.':
+        base_folder = './'
+
     return '[{}]({})'.format(label, base_folder + link.lstrip('/'))

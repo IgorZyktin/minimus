@@ -9,7 +9,7 @@ from typing import List, Dict
 from minimus import settings
 from minimus.components.class_file import File
 from minimus.components.class_slice import Slice
-from minimus.utils.files_processing import write_text
+from minimus.utils.files_processing import write_text, shortest_common_path
 from minimus.utils.markdown_processing import (
     extract_bare_tags, extract_full_tags, href,
 )
@@ -26,6 +26,8 @@ __all__ = [
     'ensure_index_exists',
     'ensure_readme_exists',
     'create_index',
+    'save_md_files_to_the_target',
+    'save_non_md_files_to_the_target',
 ]
 
 
@@ -176,7 +178,10 @@ def ensure_readme_exists(files: List[File]) -> None:
     if not files:
         return
 
-    base_folder = './'  # FIXME
+    base_folder = shortest_common_path(
+        readme_directory=settings.README_DIRECTORY,
+        target_directory=settings.TARGET_DIRECTORY,
+    )
 
     content = create_index(files, base_folder)
     created = write_text(
@@ -225,4 +230,30 @@ def create_index(files: List[File], base_folder: str) -> str:
             )
             content.append(f'* {url}\n')
 
+        content.append('')
+
     return '\n'.join(content)
+
+
+def save_md_files_to_the_target(files: List[File]) -> None:
+    """Сохранить файл маркдаун в целевой каталог.
+    """
+    for number, file in numerate(files):
+        write_text(
+            path=settings.TARGET_DIRECTORY,
+            filename=file.filename,
+            content=file.content,
+        )
+        stdout('\t{number}. Saved changes to the file {filename}',
+               number=number, filename=file.filename)
+
+
+def save_non_md_files_to_the_target() -> str:
+    """Сохранить файлы с медиа контентом в целевой каталог.
+    """
+    # source = os.path.join(file.original_path, file.original_filename)
+    # target = os.path.join(settings.TARGET_DIRECTORY, file.filename)
+    # shutil.copy(source, target)
+    # created = target
+
+    # return created

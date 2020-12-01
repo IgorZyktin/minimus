@@ -5,6 +5,8 @@
 from functools import cached_property
 from re import Match
 
+from minimus.utils.output_processing import transliterate
+
 
 class Slice:
     """Сегмент внутри текста.
@@ -23,8 +25,11 @@ class Slice:
 
     def __str__(self):
         if self.full:
-            return self.inner_text
-        return f'<<<{self.inner_text}>>>'
+            return self.match.group()
+        return '[<{tag}>](./meta_{trans}.md)' \
+            .format(tag=self.inner_text,
+                    trans=transliterate(self.inner_text)) \
+            .replace('<', '{{').replace('>', '}}')
 
     def __repr__(self):
         return f'{type(self).__name__}' \
