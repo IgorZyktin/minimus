@@ -7,7 +7,7 @@ from re import Match
 
 from minimus.utils.output_processing import transliterate
 
-
+# TODO - терует серьёзной доработки, не рендерит теги внутри документа
 class Slice:
     """Сегмент внутри текста.
     """
