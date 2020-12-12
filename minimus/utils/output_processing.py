@@ -16,8 +16,8 @@ VOCABULARY = {
         '## All occurrences of the tag "{tag}"':
             '## Все вхождения тега "{tag}"',
 
-        '# All entries"\n\n':
-            '# Все записи\n\n',
+        '# All entries':
+            '# Все записи',
 
         'New folder created: {folder}':
             'Создан каталог: {folder}',
@@ -37,8 +37,8 @@ VOCABULARY = {
         '\t{number}. File created: {filename}':
             '\t{number}. Создан файл: {filename}',
 
-        'File created: {filename}':
-            'Создан файл: {filename}',
+        '\tFile created: {filename}':
+            '\tСоздан файл: {filename}',
 
         'Stage 1. Metafile generation':
             'Этап 1. Генерация метафайлов',
@@ -67,8 +67,14 @@ VOCABULARY = {
         'Metainfo: {total} entries saved':
             'Метаинформация: сохранено {total} записей',
 
-        'Processing complete':
-            'Обработка завершена',
+        'Processing complete in {seconds} sec.':
+            'Обработка завершена за {seconds} сек.',
+
+        '\tNo files to save':
+            '\tНет файлов для сохранения',
+
+        'Version: {version}, last_update: {last_update}':
+            'Версия: {version}, последнее обновление: {last_update}',
     }
 }
 

@@ -16,7 +16,8 @@ def start() -> None:
     _stdout = partial(stdout, color=Fore.LIGHTRED_EX)
     _stdout(settings.LINE)
     _stdout(settings.LOGO)
-    _stdout('Version: ' + settings.__version__)
+    _stdout('Version: {version}, last_update: {last_update}',
+            version=settings.__version__, last_update=settings.LAST_UPDATE)
     _stdout(settings.LINE)
 
 
@@ -42,9 +43,10 @@ def newline() -> None:
     stdout('')
 
 
-def complete() -> None:
+def complete(seconds: float) -> None:
     """Вывести на экран сообщение об окончании работы программы.
     """
     _stdout = partial(stdout, color=Fore.LIGHTRED_EX)
-    _stdout('Processing complete')
+    _stdout('Processing complete in {seconds} sec.',
+            seconds=f'{seconds:0.2f}')
     _stdout(settings.LINE)

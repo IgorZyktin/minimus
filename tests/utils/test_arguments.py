@@ -2,9 +2,10 @@
 
 """Тесты.
 """
+from unittest.mock import patch
+
 import pytest
 
-from minimus.settings import Config
 from minimus.utils.arguments import parse_command_line_arguments, \
     apply_cli_args_to_settings
 
@@ -60,23 +61,24 @@ def test_parse_command_line_arguments(raw_arguments, reference):
 def test_apply_cli_args_to_config_default(fix_default_arguments):
     """Должен оставить конфиг как есть.
     """
-    config = Config()
-    apply_cli_args_to_settings(config, fix_default_arguments)
+    with patch('minimus.utils.arguments.settings') as fake_settings:
+        apply_cli_args_to_settings(fix_default_arguments)
 
-    for argument in dir(Config):
-        if argument.isupper():
-            assert getattr(config, argument) == getattr(Config, argument)
+    for key, value in fix_default_arguments.items():
+        if value is not None:
+            assert getattr(fake_settings, key.upper()) == value
 
 
 def test_apply_cli_args_to_config_new(fix_use_english, fix_use_readme):
     """Должен мутировать экземпляр конфига.
     """
-    config = Config()
     arguments = {
         **{k: v for k, v in fix_use_english.items() if v is not None},
         **{k: v for k, v in fix_use_readme.items() if v is not None},
     }
-    apply_cli_args_to_settings(config, arguments)
+    with patch('minimus.utils.arguments.settings') as fake_settings:
+        apply_cli_args_to_settings(arguments)
 
     for key, value in arguments.items():
-        assert getattr(config, key.upper()) == value
+        if value is not None:
+            assert getattr(fake_settings, key.upper()) == value

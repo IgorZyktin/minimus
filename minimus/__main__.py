@@ -3,6 +3,7 @@
 """Головной файл проекта.
 """
 import sys
+import time
 from functools import partial
 
 from colorama import init, Fore
@@ -48,8 +49,10 @@ def main():
 def run(repository: Repository):
     """Основная работа.
     """
-    # output.start()
-    # output.resulting_settings()
+    timestamp = time.monotonic()
+
+    output.start()
+    output.resulting_settings()
 
     ensure_folder_exists(settings.TARGET_DIRECTORY)
     ensure_folder_exists(settings.README_DIRECTORY)
@@ -65,8 +68,8 @@ def run(repository: Repository):
     output.newline()
 
     _stdout('Stage 2. Indexes generation')
-    #     ensure_index_exists(repository.get_files())
-    #     ensure_readme_exists(repository.get_files())
+    ensure_index_exists(repository)
+    ensure_readme_exists(repository)
     output.newline()
 
     _stdout('Stage 3. Main files saving')
@@ -79,7 +82,7 @@ def run(repository: Repository):
 
     output.line()
     files_processing.dump_metainfo(repository.metainfo)
-    output.complete()
+    output.complete(time.monotonic() - timestamp)
 
 
 if __name__ == '__main__':

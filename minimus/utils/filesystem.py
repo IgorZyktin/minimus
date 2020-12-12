@@ -10,6 +10,13 @@ from colorama import Fore
 
 from minimus.utils.output_processing import stdout
 
+__all__ = [
+    'get_ext',
+    'join',
+    'ensure_folder_exists',
+    'find_shortest_common_path',
+]
+
 
 def get_ext(filename: str) -> str:
     """Вернуть расширение файла.
@@ -21,12 +28,12 @@ def get_ext(filename: str) -> str:
     return ext.lstrip('.')
 
 
-def join(path: str, filename: str) -> str:
+def join(*args) -> str:
     """Сшить путь с именем файла.
 
     Просто укороченная форма записи стандартной инструкции.
     """
-    return os.path.join(path, filename)
+    return os.path.join(*args)
 
 
 def ensure_folder_exists(path: str) -> Optional[str]:
@@ -85,11 +92,11 @@ def find_shortest_common_path(current_directory: str,
 
     if head_parts:
         for _ in head_parts:
-            resulting_path = os.path.join(resulting_path, '..')
+            resulting_path = join(resulting_path, '..')
     else:
         resulting_path = '.'
 
     for element in tail_parts:
-        resulting_path = os.path.join(resulting_path, element)
+        resulting_path = join(resulting_path, element)
 
     return resulting_path

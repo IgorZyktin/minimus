@@ -130,7 +130,7 @@ class BareTag(RegExSegment):
     def __str__(self) -> str:
         """Вернуть текстовое представление.
         """
-        return '[{tag}](./meta_{trans}.md)\n\n'.format(
+        return '[{tag}](./meta_{trans}.md)'.format(
             tag=self.inner_text,
             trans=transliterate(self.inner_text),
         )

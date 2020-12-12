@@ -6,8 +6,7 @@ import os
 import tempfile
 from unittest.mock import patch
 
-from minimus.utils.filesystem import find_shortest_common_path, get_ext, join, \
-    ensure_folder_exists
+from minimus.utils.filesystem import *
 
 
 def test_shortest_common_path_normal():
@@ -56,8 +55,23 @@ def test_join():
 
 def test_ensure_folder_exists_one_level():
     with tempfile.TemporaryDirectory() as tmp_dir, \
-            patch('minimus.utils.filesystem.stdout'):
+            patch('minimus.utils.filesystem.stdout') as fake_stdout:
         path = join(tmp_dir, 'folder')
         assert not os.path.exists(path)
-        ensure_folder_exists(path, language='EN')
+        ensure_folder_exists(path)
         assert os.path.exists(path)
+
+    fake_stdout.assert_called_once()
+    assert not os.path.exists(path)
+
+
+def test_ensure_folder_exists_deep():
+    with tempfile.TemporaryDirectory() as tmp_dir, \
+            patch('minimus.utils.filesystem.stdout') as fake_stdout:
+        path = join(tmp_dir, 'a', 'b', 'c', 'd', 'e')
+        assert not os.path.exists(path)
+        ensure_folder_exists(path)
+        assert os.path.exists(path)
+
+    assert len(fake_stdout.mock_calls) == 5
+    assert not os.path.exists(path)

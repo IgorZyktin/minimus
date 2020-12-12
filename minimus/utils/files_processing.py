@@ -51,7 +51,6 @@ def get_metainfo() -> Dict[str, Meta]:
 def get_stored_metainfo() -> Dict[str, Meta]:
     """Попытаться загрузить метаинформацию с прошлого запуска.
     """
-    return {}# FIXME
     path = join(settings.SOURCE_DIRECTORY, settings.METAFILE_NAME)
 
     metainfo = {}
@@ -84,7 +83,7 @@ def dump_metainfo(metainfo: Dict[str, Meta]) -> None:
         json.dump(as_dict, file, ensure_ascii=False, indent=4)
 
     stdout('Metainfo: {total} entries saved',
-           total=len(as_dict), color=Fore.MAGENTA)
+           total=len(as_dict), color=Fore.YELLOW)
 
 
 def write_text(path: str, filename: str, content: str) -> str:

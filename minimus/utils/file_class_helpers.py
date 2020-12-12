@@ -5,7 +5,7 @@
 import bisect
 import shutil
 from collections import defaultdict
-from typing import List, Dict
+from typing import List, Dict, Generator
 
 from colorama import Fore
 
@@ -13,11 +13,12 @@ from minimus import settings
 from minimus.components import segment_types
 from minimus.components.class_file import File
 from minimus.components.class_repository import Repository
-from minimus.utils.files_processing import write_text
-from minimus.utils.filesystem import join
-from minimus.utils.output_processing import stdout, transliterate, translate
-from minimus.utils.text_processing import numerate
 from minimus.utils import markdown_processing
+from minimus.utils.files_processing import write_text
+from minimus.utils.filesystem import join, find_shortest_common_path
+from minimus.utils.output_processing import stdout, transliterate, translate
+from minimus.utils import spans_processing
+from minimus.utils.text_processing import numerate
 
 __all__ = [
     'analyze_files',
@@ -58,43 +59,18 @@ def analyze_single_file(file: File) -> None:
     for segment in segment_types.MarkdownUrl.from_string(content):
         bisect.insort_right(segments, segment)
 
-    spans = []
-    for segment in segments:
-        spans.append((
-            segment.start_outer,
-            segment.end_outer,
-        ))
+    # на этом этапе надо добавить в сегменты простые текстовые куски файла
+    spans = spans_processing.make_spans_for_segments(segments)
+    inverted_spans = spans_processing.make_inverted_spans(spans, len(content))
 
-    if spans:
-        start_of_text = content[0:spans[0][0]]
-        if start_of_text:
-            first_segment = segment_types.TextSegment(
-                start_outer=0,
-                content=start_of_text,
-            )
-            bisect.insort_right(segments, first_segment)
-
-    if len(spans) > 1:
-        end_of_text = content[spans[-1][1]:]
-        if end_of_text:
-            last_segment = segment_types.TextSegment(
-                start_outer=spans[-1][1],
-                content=end_of_text,
-            )
-            bisect.insort_right(segments, last_segment)
+    for span in inverted_spans:
+        segment = segment_types.TextSegment(
+            start_outer=span.start,
+            content=content[span.start:span.stop],
+        )
+        bisect.insort_right(segments, segment)
 
     file.renderer.segments = segments
-
-
-# def make_markdown_segments(content: str)\
-#         -> List[segment_types.AbstractSegment]:
-#     """Собрать список сегментов из содержимого файла.
-#
-#     Сегменты вставляются упорядоченно согласно их месту в тексте.
-#     Перекрытие диапазонов не рассматривается.
-#     """
-#
-#     return segments
 
 
 def map_tags_to_files(repository: Repository) -> Dict[str, List[File]]:
@@ -166,91 +142,94 @@ def create_metafile(tag: str, files: List[File]) -> str:
     return '\n'.join(content)
 
 
-def ensure_index_exists(files: List[File]) -> None:
+def ensure_index_exists(repository: Repository) -> None:
     """Удостовериться, что у нас есть стартовая страница.
     """
-    # if not files:
-    #     return
-    #
-    # base_folder = './'
-    #
-    # content = create_index(files, base_folder)
-    # created = write_text(
-    #     path=settings.TARGET_DIRECTORY,
-    #     filename='index.md',
-    #     content=content,
-    # )
-    #
-    # stdout('\tFile created: {filename}', filename=created)
+    if not repository:
+        return
+
+    content = create_index(repository, './')
+    created = write_text(
+        path=settings.TARGET_DIRECTORY,
+        filename='index.md',
+        content=content,
+    )
+
+    stdout('\tFile created: {filename}', filename=created, color=Fore.YELLOW)
 
 
-def ensure_readme_exists(files: List[File]) -> None:
+def ensure_readme_exists(repository: Repository) -> None:
     """Удостовериться, что у нас есть стартовая страница.
     """
-    # if not files:
-    #     return
-    #
-    # base_folder = shortest_common_path(
-    #     readme_directory=settings.README_DIRECTORY,
-    #     target_directory=settings.TARGET_DIRECTORY,
-    # )
-    #
-    # content = create_index(files, base_folder)
-    # created = write_text(
-    #     path=settings.README_DIRECTORY,
-    #     filename='README.md',
-    #     content=content,
-    # )
-    #
-    # stdout('\tFile created: {filename}', filename=created)
+    if not repository:
+        return
+
+    base_folder = find_shortest_common_path(
+        current_directory=settings.README_DIRECTORY,
+        target_directory=settings.TARGET_DIRECTORY,
+    )
+
+    content = create_index(repository, base_folder)
+    created = write_text(
+        path=settings.README_DIRECTORY,
+        filename='README.md',
+        content=content,
+    )
+
+    stdout('\tFile created: {filename}', filename=created, color=Fore.YELLOW)
 
 
-def create_index(files: List[File], base_folder: str) -> str:
+def get_all_categories(repository: Repository) -> Generator[str, None, None]:
+    """Извлечь все категории всех файлов.
+    """
+    for file in repository:
+        if file.is_markdown and file.renderer.category:
+            yield file.renderer.category
+
+
+def create_index(repository: Repository, base_folder: str) -> str:
     """Собрать содержимое старотового файла.
     """
-    # content = [
-    #     translate(
-    #         template='# All entries"\n\n',
-    #         language=settings.LANGUAGE,
-    #     )
-    # ]
-    #
-    # categories = sorted({
-    #     x.category for x in files
-    #     if x.category is not None
-    # })
-    #
-    # unfixed_files = files.copy()
-    # by_cat = defaultdict(list)
-    #
-    # for file in unfixed_files:
-    #     by_cat[file.category].append(file)
-    #
-    # for number, category in numerate(categories):
-    #     meta_url = href(
-    #         label=category.title(),
-    #         link='meta_' + transliterate(category) + '.md',
-    #         base_folder=base_folder,
-    #     )
-    #     content.append(f'{number}. {meta_url}\n')
-    #
-    #     for each_file in by_cat[category]:
-    #         url = href(
-    #             label=each_file.title,
-    #             link=each_file.filename,
-    #             base_folder=base_folder,
-    #         )
-    #         content.append(f'* {url}\n')
-    #
-    #     content.append('')
-    #
-    # return '\n'.join(content)
+    content = [
+        translate(
+            template='# All entries',
+            language=settings.LANGUAGE,
+        ),
+        '\n---\n'
+    ]
+
+    categories = sorted(get_all_categories(repository))
+    by_category = defaultdict(list)
+
+    for file in repository:
+        if file.is_markdown and file.renderer.category:
+            by_category[file.renderer.category].append(file)
+
+    for number, category in numerate(categories):
+        meta_url = markdown_processing.href(
+            label=category.title(),
+            link='meta_' + transliterate(category) + '.md',
+            base_folder=base_folder,
+        )
+        content.append(f'{number}. {meta_url}\n')
+
+        for each_file in by_category[category]:
+            url = markdown_processing.href(
+                label=each_file.renderer.title,
+                link=each_file.meta.filename,
+                base_folder=base_folder,
+            )
+            content.append(f'* {url}\n')
+
+        content.append('')
+
+    return '\n'.join(content)
 
 
 def save_main_files(repository: Repository) -> None:
     """Сохранить файлы маркдаун в целевой каталог.
     """
-    files = [x for x in repository if not x.is_metafile]
+    files = [x for x in repository if not x.is_metafile and x.is_markdown]
 
     for number, file in numerate(files):
         filename = file.meta.filename
@@ -285,3 +264,6 @@ def save_additional_files(repository: Repository) -> None:
         else:
             stdout('\t{number}. No changes detected: {filename}',
                    number=number, filename=filename)
+
+    if not files:
+        stdout('\tNo files to save')
