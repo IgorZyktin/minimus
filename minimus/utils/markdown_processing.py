@@ -27,7 +27,14 @@ def extract_bare_tags(content: str) -> Generator[Match, None, None]:
 def extract_full_tags(content: str) -> Generator[Match, None, None]:
     """Извлечь все полноразмерные теги из тела документа.
     """
-    for match in regex_patterns.FULL_TAG_PATTERN.finditer(content):
+    for match in regex_patterns.MARKDOWN_URL_PATTERN.finditer(content):
+        yield match
+
+
+def extract_urls(content: str) -> Generator[Match, None, None]:
+    """Извлечь все полноразмерные теги из тела документа.
+    """
+    for match in regex_patterns.MARKDOWN_URL_PATTERN.finditer(content):
         yield match
 
 

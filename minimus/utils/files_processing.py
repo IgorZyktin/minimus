@@ -8,29 +8,29 @@ from typing import Dict
 
 from colorama import Fore
 
+from minimus import settings
 from minimus.components.class_meta import Meta
 from minimus.components.class_statistic import Statistic
 from minimus.utils.filesystem import join, ensure_folder_exists
-from minimus.utils.output_processing import translate, stdout
+from minimus.utils.output_processing import stdout
 
 
-def get_metainfo(source_directory: str, language: str) -> Dict[str, Meta]:
+def get_metainfo() -> Dict[str, Meta]:
     """Собрать плоский список всего, что есть в source_directory.
 
     Каталоги игнорируются.
     """
-    if not os.path.exists(source_directory):
+    if not os.path.exists(settings.SOURCE_DIRECTORY):
         return {}
 
     metainfo = {}
 
-    for path, _, filenames in os.walk(source_directory):
+    for path, _, filenames in os.walk(settings.SOURCE_DIRECTORY):
         for filename in filenames:
             if filename in metainfo:
-                raise FileExistsError(translate(
-                    'Filenames are supposed to be unique: {filename}',
-                    language=language,
-                ))
+                stdout('Filenames are supposed to be unique: {filename}',
+                       filename=filename)
+                return {}
 
             full_path = join(path, filename)
             stat = os.stat(full_path)
@@ -48,11 +48,11 @@ def get_metainfo(source_directory: str, language: str) -> Dict[str, Meta]:
     return metainfo
 
 
-def get_stored_metainfo(source_directory: str,
-                        metafile_name: str) -> Dict[str, Meta]:
+def get_stored_metainfo() -> Dict[str, Meta]:
     """Попытаться загрузить метаинформацию с прошлого запуска.
     """
-    path = join(source_directory, metafile_name)
+    return {}# FIXME
+    path = join(settings.SOURCE_DIRECTORY, settings.METAFILE_NAME)
 
     metainfo = {}
 
@@ -64,14 +64,13 @@ def get_stored_metainfo(source_directory: str,
             meta = Meta.from_dict(contents)
             metainfo[meta.original_filename] = meta
 
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         pass
 
     return metainfo
 
 
-def dump_metainfo(directory: str, filename: str,
-                  metainfo: Dict[str, Meta], language: str) -> None:
+def dump_metainfo(metainfo: Dict[str, Meta]) -> None:
     """Сохранить актуальную метаинформацию на диск.
     """
     as_dict = {
@@ -79,27 +78,23 @@ def dump_metainfo(directory: str, filename: str,
         for filename, meta in metainfo.items()
     }
 
-    path = join(directory, filename)
+    path = join(settings.SOURCE_DIRECTORY, settings.METAFILE_NAME)
 
     with open(path, mode='w', encoding='utf-8') as file:
         json.dump(as_dict, file, ensure_ascii=False, indent=4)
 
-    stdout(
-        template='\nMetainfo: {total} entries saved',
-        language=language,
-        total=len(as_dict),
-        color=Fore.MAGENTA,
-    )
+    stdout('Metainfo: {total} entries saved',
+           total=len(as_dict), color=Fore.MAGENTA)
 
 
-def write_text(path: str, filename: str, content: str, language: str) -> str:
+def write_text(path: str, filename: str, content: str) -> str:
     """Сохранить некий текст под определённым именем на диск.
     """
     if not content:
         return ''
 
     full_path = join(path, filename)
-    ensure_folder_exists(path, language)
+    ensure_folder_exists(path)
 
     with open(full_path, mode='w', encoding='utf-8') as file:
         file.write(content)

@@ -5,8 +5,8 @@
 from functools import partial
 from unittest.mock import patch, call, Mock
 
-from minimus.config import Config
-from minimus.output import describe_resulting_config
+from minimus.settings import Config
+from minimus.output import resulting_settings
 from minimus.utils.output_processing import stdout
 
 
@@ -22,7 +22,7 @@ def test_describe_config_ru():
     config.README_DIRECTORY = 'path4'
 
     fake_stdout = Mock()
-    describe_resulting_config(config, fake_stdout)
+    resulting_settings(config, fake_stdout)
 
     fake_stdout.assert_has_calls([
         call('Script started at: {folder}', folder='path1'),
@@ -33,7 +33,7 @@ def test_describe_config_ru():
 
     with patch('builtins.print') as fake_print:
         _stdout = partial(stdout, language='RU')
-        describe_resulting_config(config, _stdout)
+        resulting_settings(config, _stdout)
 
     fake_print.assert_has_calls([
         call('Скрипт запущен в каталоге: path1'),
@@ -55,7 +55,7 @@ def test_describe_config_en():
     config.README_DIRECTORY = 'path4'
 
     fake_stdout = Mock()
-    describe_resulting_config(config, fake_stdout)
+    resulting_settings(config, fake_stdout)
 
     fake_stdout.assert_has_calls([
         call('Script started at: {folder}', folder='path1'),
@@ -66,7 +66,7 @@ def test_describe_config_en():
 
     with patch('builtins.print') as fake_print:
         _stdout = partial(stdout, language='EN')
-        describe_resulting_config(config, _stdout)
+        resulting_settings(config, _stdout)
 
     fake_print.assert_has_calls([
         call('Script started at: path1'),

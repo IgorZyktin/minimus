@@ -4,9 +4,9 @@
 """
 import pytest
 
-from minimus.config import Config
+from minimus.settings import Config
 from minimus.utils.arguments import parse_command_line_arguments, \
-    apply_cli_args_to_config
+    apply_cli_args_to_settings
 
 
 @pytest.fixture()
@@ -61,7 +61,7 @@ def test_apply_cli_args_to_config_default(fix_default_arguments):
     """Должен оставить конфиг как есть.
     """
     config = Config()
-    apply_cli_args_to_config(config, fix_default_arguments)
+    apply_cli_args_to_settings(config, fix_default_arguments)
 
     for argument in dir(Config):
         if argument.isupper():
@@ -76,7 +76,7 @@ def test_apply_cli_args_to_config_new(fix_use_english, fix_use_readme):
         **{k: v for k, v in fix_use_english.items() if v is not None},
         **{k: v for k, v in fix_use_readme.items() if v is not None},
     }
-    apply_cli_args_to_config(config, arguments)
+    apply_cli_args_to_settings(config, arguments)
 
     for key, value in arguments.items():
         assert getattr(config, key.upper()) == value

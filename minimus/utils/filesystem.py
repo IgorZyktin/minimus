@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 from typing import Optional
 
+from colorama import Fore
+
 from minimus.utils.output_processing import stdout
 
 
@@ -27,7 +29,7 @@ def join(path: str, filename: str) -> str:
     return os.path.join(path, filename)
 
 
-def ensure_folder_exists(path: str, language: str) -> Optional[str]:
+def ensure_folder_exists(path: str) -> Optional[str]:
     """Создать всю цепочку каталогов для указанного пути.
 
     Вернуть путь, если каталог был создан.
@@ -45,11 +47,8 @@ def ensure_folder_exists(path: str, language: str) -> Optional[str]:
 
         if not os.path.exists(current_path):
             os.mkdir(current_path)
-            stdout(
-                'New folder created: {folder}',
-                folder=current_path,
-                language=language,
-            )
+            stdout('New folder created: {folder}',
+                   folder=current_path, color=Fore.MAGENTA)
 
     return current_path
 

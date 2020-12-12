@@ -17,10 +17,11 @@ class Repository:
     """Хранилище абстракций файлов.
     """
 
-    def __init__(self, metainfo: Dict[str, Meta],
+    def __init__(self, renderer_type: type, metainfo: Dict[str, Meta],
                  stored_metainfo: Dict[str, Meta]) -> None:
         """Инициализировать экземпляр.
         """
+        self.renderer_type = renderer_type
         self.metainfo = metainfo
         self.stored_metainfo = stored_metainfo
 
@@ -56,8 +57,9 @@ class Repository:
         """Прочитать содержимое изменённых файлов с диска.
         """
         for file in self._storage_by_filename.values():
-            if file.is_markdown() and file.is_updated:
-                file.original_content = read_text(
+            if file.is_markdown:
+                original_content = read_text(
                     path=file.meta.original_path,
                     filename=file.meta.original_filename,
-                ),
+                )
+                file.renderer = self.renderer_type(original_content)

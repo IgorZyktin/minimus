@@ -4,6 +4,7 @@
 """
 from typing import Callable, Optional
 
+from minimus import settings
 from minimus.utils.text_processing import to_kv
 
 VOCABULARY = {
@@ -12,29 +13,17 @@ VOCABULARY = {
 
         'test {x}': 'тест {x}',
 
-        '## All occurrences of the tag "{tag}"\n\n':
-            '## Все вхождения тега "{tag}"\n\n',
+        '## All occurrences of the tag "{tag}"':
+            '## Все вхождения тега "{tag}"',
 
         '# All entries"\n\n':
             '# Все записи\n\n',
-
-        '\t{tag_number}. File created: {filename}':
-            '\t{tag_number}. Создан файл: {filename}',
-
-        '\t{number}. File has been updated: {filename}':
-            '\t{number} Был обновлён файл: {filename}',
 
         'New folder created: {folder}':
             'Создан каталог: {folder}',
 
         'Script started at: {folder}':
             'Скрипт запущен в каталоге: {folder}',
-
-        '\t{number}. File created: {filename}':
-            '\t{number}. Создан файл: {filename}',
-
-        '\tFile created: {filename}':
-            '\tСоздан файл: {filename}',
 
         'Source directory: {folder}':
             'Каталог исходных данных: {folder}',
@@ -45,17 +34,23 @@ VOCABULARY = {
         'README.md directory: {folder}':
             'Каталог для файла README.md: {folder}',
 
-        '\nStage 1. Metafile generation':
-            '\nЭтап 1. Генерация метафайлов.',
+        '\t{number}. File created: {filename}':
+            '\t{number}. Создан файл: {filename}',
 
-        '\nStage 2. Indexes generation':
-            '\nЭтап 2. Генерация индексов',
+        'File created: {filename}':
+            'Создан файл: {filename}',
 
-        '\nStage 3. Main files saving':
-            '\nЭтап 3. Сохранение основных файлов',
+        'Stage 1. Metafile generation':
+            'Этап 1. Генерация метафайлов',
 
-        '\nStage 4. Additional files saving':
-            '\nЭтап 4. Сохранение дополнительных файлов',
+        'Stage 2. Indexes generation':
+            'Этап 2. Генерация индексов',
+
+        'Stage 3. Main files saving':
+            'Этап 3. Сохранение основных файлов',
+
+        'Stage 4. Additional files saving':
+            'Этап 4. Сохранение дополнительных файлов',
 
         'No source files found to work with':
             'Не найдено файлов для обработки',
@@ -69,8 +64,11 @@ VOCABULARY = {
         '\t{number}. Copied file: {filename}':
             '\t{number}. Скопирован файл: {filename}',
 
-        '\nMetainfo: {total} entries saved':
-            '\nМетаинформация: сохранено {total} записей',
+        'Metainfo: {total} entries saved':
+            'Метаинформация: сохранено {total} записей',
+
+        'Processing complete':
+            'Обработка завершена',
     }
 }
 
@@ -144,11 +142,11 @@ def announce(*args, callback: Callable, **kwargs) -> None:
     callback(text)
 
 
-def stdout(template: str, *args, language: str,
-           callback: Optional[Callable] = None, color: str = '', **kwargs):
+def stdout(template: str, *args, callback: Optional[Callable] = None,
+           language: Optional[str] = None, color: str = '', **kwargs):
     """Вывод для пользователя, но с переводом на нужный язык.
     """
-    template = translate(template, language)
+    template = translate(template, language=language or settings.LANGUAGE)
     text = color + template.format(**kwargs)
     announce(text, *args, callback=callback or print)
 

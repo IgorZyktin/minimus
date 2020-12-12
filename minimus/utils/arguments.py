@@ -5,7 +5,7 @@
 import argparse
 from typing import List, Any, Dict
 
-from minimus.config import Config
+from minimus import settings
 
 
 def parse_command_line_arguments(raw_arguments: List[str]) -> Dict[str, Any]:
@@ -46,11 +46,9 @@ def parse_command_line_arguments(raw_arguments: List[str]) -> Dict[str, Any]:
     return vars(args)
 
 
-def apply_cli_args_to_config(config: Config,
-                             arguments: Dict[str, Any]) -> Config:
-    """Применить полученные аргументы к конфигу.
+def apply_cli_args_to_settings(arguments: Dict[str, Any]) -> None:
+    """Применить полученные аргументы к настройкам.
 
-    Мутирует объект конфигурации.
     После этой операции настройки уже никогда больше не меняются.
     """
 
@@ -60,11 +58,9 @@ def apply_cli_args_to_config(config: Config,
         new_value = arguments.get(name)
 
         if new_value is not None:
-            setattr(config, name.upper(), new_value)
+            setattr(settings, name.upper(), new_value)
 
     set_or_ignore('language')
     set_or_ignore('source_directory')
     set_or_ignore('target_directory')
     set_or_ignore('readme_directory')
-
-    return config

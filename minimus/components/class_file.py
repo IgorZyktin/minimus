@@ -3,16 +3,14 @@
 """Абстракция файла.
 
 Не занимается работой с файловой системой, берёт на себя только
-логику модификации содержимого и отслеживание изменений.
+логику отслеживания изменений.
 """
 from functools import cached_property
-from typing import Dict, List, Optional
+from typing import Optional
 
-# from minimus.utils.filesystem import get_ext
-# from minimus.utils.markdown_processing import extract_title
-from minimus.utils.filesystem import get_ext
-from minimus.utils.output_processing import transliterate
 from minimus.components.class_meta import Meta
+from minimus.components.class_renderer import Renderer
+from minimus.utils.filesystem import get_ext
 
 
 class File:
@@ -24,85 +22,28 @@ class File:
         """
         self.meta = meta
         self.stored_meta = stored_meta
-
-        self.original_content = ''
-        # self.components = []
-        # self.is_changed = False
-        # self.is_saved = False
-        # self._tags: Dict[str, None] = {}
+        self.renderer: Optional[Renderer] = None
 
     def __repr__(self):
         """Вернуть текстовое представление.
         """
         return f'{type(self).__name__}({self.meta.filename})'
 
+    @cached_property
     def is_markdown(self) -> bool:
         """Вернуть True если это markdown файл.
         """
-        return (
-                get_ext(self.meta.original_filename) == 'md'
-                and not self.meta.original_filename.startswith('meta')
-        )
+        return (not self.is_metafile and
+                get_ext(self.meta.original_filename) == 'md')
 
     @cached_property
     def is_updated(self) -> bool:
         """Вернуть True если файл изменился с прошлого запуска скрипта.
         """
-        return self.meta != self.stored_meta and self.content
+        return self.meta != self.stored_meta
 
     @cached_property
     def is_metafile(self) -> bool:
         """Вернуть True если является вспомогательным и не должен копироваться.
         """
         return self.meta.filename.startswith('meta')
-
-    # @cached_property
-    # def title(self) -> str:
-    #     """Вернуть заголовок файла.
-    #     """
-    #     if self.is_markdown():
-    #         return extract_title(self.original_content)
-    #     return ''
-    #
-    # @cached_property
-    # def original_content(self) -> str:
-    #     """Вернуть исходное содержимое файла.
-    #     """
-    #     with open(self.original_path, mode='r', encoding='utf-8') as file:
-    #         return file.read()
-
-    @cached_property
-    def content(self) -> str:
-        """Вернуть итоговое содержимое файла.
-        """
-        return '?'
-        return ''.join(map(str, self.components))
-
-    # def add_tag(self, tag: str) -> None:
-    #     """Добавить тег в перечнь тегов.
-    #
-    #     Нам надо сохранять теги без дубликатов, но хранить порядок вставки.
-    #     """
-    #     if not self.has_tag(tag):
-    #         self._tags[tag] = None
-    #
-    # def get_tags(self) -> List[str]:
-    #     """Вернуть список тегов в файле.
-    #     """
-    #     return list(self._tags)
-    #
-    # def has_tag(self, tag: str) -> bool:
-    #     """Вернуть True если у нас есть такой тег.
-    #     """
-    #     return tag in self._tags
-    #
-    # @cached_property
-    # def category(self) -> Optional[str]:
-    #     """Вернуть категорию файла.
-    #
-    #     Это первый тег в файле.
-    #     """
-    #     if not self._tags:
-    #         return None
-    #
-    #     return list(self._tags)[0]
