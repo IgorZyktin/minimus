@@ -57,14 +57,20 @@ VOCABULARY = {
         '\nStage 4. Additional files saving':
             '\nЭтап 4. Сохранение дополнительных файлов',
 
-        '\t{number} File has been copied: {filename}':
-            '\t{number}. Скопирован файл {filename}',
-
         'No source files found to work with':
             'Не найдено файлов для обработки',
 
-        '\t{number}. Saved changes to the file {filename}':
-            '\t{number}. Сохранены изменения в файле {filename}',
+        '\t{number}. Saved changes: {filename}':
+            '\t{number}. Сохранены изменения: {filename}',
+
+        '\t{number}. No changes detected: {filename}':
+            '\t{number}. Файл не менялся: {filename}',
+
+        '\t{number}. Copied file: {filename}':
+            '\t{number}. Скопирован файл: {filename}',
+
+        '\nMetainfo: {total} entries saved':
+            '\nМетаинформация: сохранено {total} записей',
     }
 }
 
@@ -139,11 +145,11 @@ def announce(*args, callback: Callable, **kwargs) -> None:
 
 
 def stdout(template: str, *args, language: str,
-           callback: Optional[Callable] = None, **kwargs):
+           callback: Optional[Callable] = None, color: str = '', **kwargs):
     """Вывод для пользователя, но с переводом на нужный язык.
     """
     template = translate(template, language)
-    text = template.format(**kwargs)
+    text = color + template.format(**kwargs)
     announce(text, *args, callback=callback or print)
 
 

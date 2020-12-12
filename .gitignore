@@ -5,3 +5,4 @@
 /.idea/
 *.spec
 .mypy_cache/
+*.json

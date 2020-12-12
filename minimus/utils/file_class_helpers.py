@@ -3,13 +3,17 @@
 """Вспомогательные функции специально для класса файла.
 """
 import bisect
+import shutil
 from collections import defaultdict
 from typing import List, Dict
 
-from minimus import settings
+from colorama import Fore
+
 from minimus.components.class_file import File
+from minimus.components.class_repository import Repository
 from minimus.components.class_slice import Slice
-from minimus.utils.files_processing import write_text, shortest_common_path
+from minimus.utils.files_processing import write_text
+from minimus.utils.filesystem import join
 from minimus.utils.markdown_processing import (
     extract_bare_tags, extract_full_tags, href,
 )
@@ -26,8 +30,8 @@ __all__ = [
     'ensure_index_exists',
     'ensure_readme_exists',
     'create_index',
-    'save_md_files_to_the_target',
-    'save_non_md_files_to_the_target',
+    'save_main_files',
+    'save_additional_files',
 ]
 
 
@@ -235,25 +239,50 @@ def create_index(files: List[File], base_folder: str) -> str:
     return '\n'.join(content)
 
 
-def save_md_files_to_the_target(files: List[File]) -> None:
-    """Сохранить файл маркдаун в целевой каталог.
+def save_main_files(target_directory: str,
+                    repository: Repository,
+                    language: str) -> None:
+    """Сохранить файлы маркдаун в целевой каталог.
     """
-    for number, file in numerate(files):
-        write_text(
-            path=settings.TARGET_DIRECTORY,
-            filename=file.filename,
-            content=file.content,
-        )
-        stdout('\t{number}. Saved changes to the file {filename}',
-               number=number, filename=file.filename)
+    for number, file in numerate(repository, total=len(repository)):
+        if file.is_metafile:
+            continue
+
+        filename = file.meta.filename
+
+        if file.is_updated:
+            write_text(
+                path=target_directory,
+                filename=filename,
+                content=file.content,
+                language=language,
+            )
+            stdout('\t{number}. Saved changes: {filename}',
+                   number=number, language=language,
+                   filename=filename, color=Fore.YELLOW)
+        else:
+            stdout('\t{number}. No changes detected: {filename}',
+                   number=number, language=language, filename=filename)
 
 
-def save_non_md_files_to_the_target() -> str:
+def save_additional_files(target_directory: str,
+                          repository: Repository,
+                          language: str) -> None:
     """Сохранить файлы с медиа контентом в целевой каталог.
     """
-    # source = os.path.join(file.original_path, file.original_filename)
-    # target = os.path.join(settings.TARGET_DIRECTORY, file.filename)
-    # shutil.copy(source, target)
-    # created = target
+    for number, file in numerate(repository, total=len(repository)):
+        if file.is_metafile:
+            continue
 
-    # return created
+        filename = file.meta.filename
+
+        if file.is_updated:
+            source = join(file.meta.original_path, file.meta.original_filename)
+            target = join(target_directory, filename)
+            shutil.copy(source, target)
+            stdout('\t{number}. Copied file: {filename}',
+                   number=number, language=language,
+                   filename=filename, color=Fore.YELLOW)
+        else:
+            stdout('\t{number}. No changes detected: {filename}',
+                   number=number, language=language, filename=filename)

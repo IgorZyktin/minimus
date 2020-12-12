@@ -2,7 +2,7 @@
 
 """Инструменты работы с текстом.
 """
-from typing import List, TypeVar, Iterable, Generator, Tuple
+from typing import List, TypeVar, Iterable, Generator, Tuple, Optional
 
 T = TypeVar('T')
 
@@ -33,15 +33,17 @@ def make_prefix(total: int) -> str:
     return prefix
 
 
-def numerate(collection: Iterable[T]) \
+def numerate(collection: Iterable[T], total: Optional[int] = None) \
         -> Generator[Tuple[str, T], None, None]:
     """Аналог enumerate, только с красивыми номерами.
 
     >>> list(numerate(['a', 'b', 'c']))
     [('1 из 3', 'a'), ('2 из 3', 'b'), ('3 из 3', 'c')]
     """
-    collection = list(collection)
-    total = len(collection)
+    if total is None:
+        collection = list(collection)
+        total = len(collection)
+
     prefix = make_prefix(total)
 
     for i, each in enumerate(collection, start=1):
