@@ -75,6 +75,9 @@ VOCABULARY = {
 
         'Version: {version}, last_update: {last_update}':
             'Версия: {version}, последнее обновление: {last_update}',
+
+        '### This tag occurs with':
+            '### Этот тег встречается вместе с',
     }
 }
 

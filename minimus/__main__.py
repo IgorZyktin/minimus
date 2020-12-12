@@ -60,11 +60,11 @@ def run(repository: Repository):
     output.line()
 
     analyze_files(repository)
-    tags_to_files = map_tags_to_files(repository)
+    tags_to_files, associated_tags = map_tags_to_files(repository)
 
     _stdout = partial(stdout, color=Fore.CYAN)
     _stdout('Stage 1. Metafile generation')
-    ensure_each_tag_has_metafile(tags_to_files)
+    ensure_each_tag_has_metafile(tags_to_files, associated_tags)
     output.newline()
 
     _stdout('Stage 2. Indexes generation')

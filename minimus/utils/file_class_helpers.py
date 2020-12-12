@@ -5,7 +5,7 @@
 import bisect
 import shutil
 from collections import defaultdict
-from typing import List, Dict, Generator
+from typing import List, Dict, Generator, Tuple, Set
 
 from colorama import Fore
 
@@ -13,11 +13,10 @@ from minimus import settings
 from minimus.components import segment_types
 from minimus.components.class_file import File
 from minimus.components.class_repository import Repository
-from minimus.utils import markdown_processing
+from minimus.utils import markdown_processing, spans_processing
 from minimus.utils.files_processing import write_text
 from minimus.utils.filesystem import join, find_shortest_common_path
 from minimus.utils.output_processing import stdout, transliterate, translate
-from minimus.utils import spans_processing
 from minimus.utils.text_processing import numerate
 
 __all__ = [
@@ -73,10 +72,11 @@ def analyze_single_file(file: File) -> None:
     file.renderer.segments = segments
 
 
-def map_tags_to_files(repository: Repository) -> Dict[str, List[File]]:
+def map_tags_to_files(repository: Repository) \
+        -> Tuple[Dict[str, List[File]], Dict[str, Set[str]]]:
     """Собрать отображение тегов на файлы.
 
-    Пример вывода:
+    Пример связи тега с файлами:
     {
         '4 лапы':
             [
@@ -89,25 +89,38 @@ def map_tags_to_files(repository: Repository) -> Dict[str, List[File]]:
                 File('2020-07-06_mouse.md')
             ],
     }
+
+    Пример связи тегов с тегами:
+    {
+        'хобот': {'серый', '4 лапы', 'хобот', 'машина'},
+        '4 лапы': {'хвост', 'серый', '4 лапы', 'хобот'},
+        'серый': {'хвост', 'серый', '4 лапы', 'хобот'},
+        'хвост': {'хвост', 'серый', '4 лапы'},
+        'машина': {'машина', 'хобот'}
+    }
     """
     tags_to_files = defaultdict(list)
+    associated_tags = defaultdict(set)
 
     for file in repository:
         if file.is_markdown:
-            for tag in file.renderer.get_tags():
+            all_tags_in_file = file.renderer.get_tags()
+            for tag in all_tags_in_file:
                 tags_to_files[tag].append(file)
+                associated_tags[tag].update(all_tags_in_file)
 
-    return dict(tags_to_files)
+    return dict(tags_to_files), dict(associated_tags)
 
 
-def ensure_each_tag_has_metafile(tags_to_files: Dict[str, List[File]]) -> None:
+def ensure_each_tag_has_metafile(tags_to_files: Dict[str, List[File]],
+                                 associated_tags: Dict[str, Set[str]]) -> None:
     """Удостовериться, что для каждого тега есть персональная страничка.
 
     Вместо проверки правильности, она просто каждый раз создаётся заново.
     """
     for tag_number, (tag, tag_files) in numerate(tags_to_files.items()):
         filename = 'meta_{name}.md'.format(name=transliterate(tag))
-        content = create_metafile(tag, tag_files)
+        content = create_metafile(tag, tag_files, associated_tags)
 
         created = write_text(
             path=settings.TARGET_DIRECTORY,
@@ -118,7 +131,8 @@ def ensure_each_tag_has_metafile(tags_to_files: Dict[str, List[File]]) -> None:
                number=tag_number, filename=created, color=Fore.YELLOW)
 
 
-def create_metafile(tag: str, files: List[File]) -> str:
+def create_metafile(tag: str, files: List[File],
+                    associated_tags: Dict[str, Set[str]]) -> str:
     """Собрать содержимое метафайла.
     """
     content = [
@@ -137,7 +151,26 @@ def create_metafile(tag: str, files: List[File]) -> str:
     raw_pairs.sort()
 
     for number, (text, url) in numerate(raw_pairs):
-        content.append(f'{number}. {markdown_processing.href(text, url)}\n')
+        href = markdown_processing.href(text, url)
+        content.append(f'{number}. {href}\n')
+
+    close_tags = {x for x in associated_tags.get(tag, set()) if x != tag}
+
+    if close_tags:
+        content.append('\n---\n')
+        content.append(translate(
+            template='### This tag occurs with',
+            language=settings.LANGUAGE,
+
+        ))
+        content.append('\n')
+
+        for number, associated_tag in numerate(sorted(close_tags)):
+            url = 'meta_' + transliterate(associated_tag) + '.md'
+            href = markdown_processing.href(associated_tag, url)
+            content.append(f'{number}. {href}\n')
+
+    content.append('')
 
     return '\n'.join(content)
 
@@ -168,6 +201,9 @@ def ensure_readme_exists(repository: Repository) -> None:
         current_directory=settings.README_DIRECTORY,
         target_directory=settings.TARGET_DIRECTORY,
     )
+
+    if not base_folder.endswith('/') or not base_folder.endswith('\\'):
+        base_folder += '/'
 
     content = create_index(repository, base_folder)
     created = write_text(
@@ -226,6 +262,8 @@ def create_index(repository: Repository, base_folder: str) -> str:
             content.append(f'* {url}\n')
 
         content.append('')
+
+    content.append('')
 
     return '\n'.join(content)
 
