@@ -136,7 +136,7 @@ def create_metafile(tag: str, files: List[File]) -> str:
     content = [
         translate(
             template='## All occurrences of the tag "{tag}"\n\n',
-            lang=settings.LANGUAGE,
+            language=settings.LANGUAGE,
         ).format(tag=tag)
     ]
 
@@ -199,7 +199,7 @@ def create_index(files: List[File], base_folder: str) -> str:
     content = [
         translate(
             template='# All entries"\n\n',
-            lang=settings.LANGUAGE,
+            language=settings.LANGUAGE,
         )
     ]
 

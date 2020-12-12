@@ -1,23 +1,12 @@
 # -*- coding: utf-8 -*-
 
-"""Настройки всей программы.
+"""Шаблоны регулярных выражений для обработки теста.
 """
-import os
-import re
-
-LANGUAGE = 'RU'
-
-# настрока путей для загрузки/сохранения файлов
-BASE_PATH = os.path.abspath(os.getcwd())
-LAUNCH_DIRECTORY = BASE_PATH
-SOURCE_DIRECTORY = os.path.join(BASE_PATH, 'source')
-TARGET_DIRECTORY = os.path.join(BASE_PATH, 'target')
-README_DIRECTORY = TARGET_DIRECTORY
-
-# шаблоны регулярных выражений
 
 # шаблон заголовка файла
 # пример: '# Заголовок'
+import re
+
 TITLE_PATTERN = re.compile(r"""
     ^     # начало строки
     \s*?  # произвольное число пробелов

@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name='minimus',
-    version='1.1',
+    version='1.2',
     author='Igor Zyktin',
     author_email='nicord@yandex.ru',
     description='Small tool aiming to help making notes '

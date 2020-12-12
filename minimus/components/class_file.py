@@ -8,7 +8,7 @@
 from functools import cached_property
 from typing import Dict, List, Optional
 
-from minimus.utils.files_processing import get_ext
+from minimus.utils.filesystem import get_ext
 from minimus.utils.markdown_processing import extract_title
 from minimus.utils.output_processing import transliterate
 

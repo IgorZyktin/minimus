@@ -2,9 +2,8 @@
 
 """Инструменты работы с текстовым выводом для пользователя.
 """
-from typing import Callable
+from typing import Callable, Optional
 
-from minimus import settings
 from minimus.utils.text_processing import to_kv
 
 VOCABULARY = {
@@ -25,11 +24,11 @@ VOCABULARY = {
         '\t{number}. File has been updated: {filename}':
             '\t{number} Был обновлён файл: {filename}',
 
-        'New folder has been created: {folder}':
-            'Был создан каталог: {folder}',
+        'New folder created: {folder}':
+            'Создан каталог: {folder}',
 
-        'Script has been started at folder: {folder}':
-            'Скрипт был запущен в каталоге: {folder}',
+        'Script started at: {folder}':
+            'Скрипт запущен в каталоге: {folder}',
 
         '\t{number}. File created: {filename}':
             '\t{number}. Создан файл: {filename}',
@@ -131,7 +130,7 @@ def transliterate(something: str) -> str:
     return something.lower().translate(TRANS_MAP)
 
 
-def announce(*args, callback: Callable = print, **kwargs) -> None:
+def announce(*args, callback: Callable, **kwargs) -> None:
     """Вывод для пользователя.
     """
     args = ', '.join(map(str, args))
@@ -139,22 +138,22 @@ def announce(*args, callback: Callable = print, **kwargs) -> None:
     callback(text)
 
 
-def stdout(template: str, *args,
-           callback: Callable = print, **kwargs):
+def stdout(template: str, *args, language: str,
+           callback: Optional[Callable] = None, **kwargs):
     """Вывод для пользователя, но с переводом на нужный язык.
     """
-    template = translate(template, settings.LANGUAGE)
+    template = translate(template, language)
     text = template.format(**kwargs)
-    announce(text, *args, callback=callback)
+    announce(text, *args, callback=callback or print)
 
 
-def translate(template: str, lang: str) -> str:
+def translate(template: str, language: str) -> str:
     """Перевести текст на нужный язык.
 
     >>> translate('hello world', 'RU')
     'привет мир'
     """
-    if lang == 'EN' or lang not in VOCABULARY:
+    if language == 'EN' or language not in VOCABULARY:
         return template
 
-    return VOCABULARY[lang].get(template, template)
+    return VOCABULARY[language].get(template, template)
