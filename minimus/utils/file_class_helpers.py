@@ -182,9 +182,13 @@ def ensure_readme_exists(repository: Repository) -> None:
 def get_all_categories(repository: Repository) -> Generator[str, None, None]:
     """Извлечь все категории всех файлов.
     """
+    already_sent = set()
+
     for file in repository:
         if file.is_markdown and file.renderer.category:
-            yield file.renderer.category
+            if file.renderer.category not in already_sent:
+                yield file.renderer.category
+                already_sent.add(file.renderer.category)
 
 
 def create_index(repository: Repository, base_folder: str) -> str:
