@@ -205,6 +205,8 @@ def ensure_readme_exists(repository: Repository) -> None:
     if not base_folder.endswith('/') or not base_folder.endswith('\\'):
         base_folder += '/'
 
+    base_folder = base_folder.replace('\\', '/')
+
     content = create_index(repository, base_folder)
     created = write_text(
         path=settings.README_DIRECTORY,
