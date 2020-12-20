@@ -140,7 +140,6 @@ def create_metafile(tag: str, files: List[File],
             template='## All occurrences of the tag "{tag}"',
             language=settings.LANGUAGE,
         ).format(tag=tag),
-        '\n---\n'
     ]
 
     raw_pairs = []
@@ -237,7 +236,6 @@ def create_index(repository: Repository, base_folder: str) -> str:
             template='# All entries',
             language=settings.LANGUAGE,
         ),
-        '\n---\n'
     ]
 
     categories = sorted(get_all_categories(repository))
