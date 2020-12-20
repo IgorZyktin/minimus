@@ -138,6 +138,7 @@
 @ECHO off
 SET source=C:\Users\MainUser\YandexDisk\zettelkasten_source\content
 SET target=C:\Users\MainUser\YandexDisk\zettelkasten_target\content
+SET readme=C:\Users\MainUser\YandexDisk\zettelkasten_target
 SET executable_directory=C:\PycharmProjects\minimus\
 SET executable=%executable_directory%minimus.exe
 
@@ -145,9 +146,13 @@ CD %executable_directory%
 
 %executable% ^
     --language RU ^
-    --source_directory %source% ^
-    --target_directory %target% ^
-    --readme_directory %target%
+    --source_directory %base%\%source% ^
+    --target_directory %base%\%target% ^
+	--readme_directory %base%\%readme%
+
+(echo Данный репозиторий был собран с помощью проекта Minimus: https://github.com/IgorZyktin/minimus) > %base%\%readme%\README.md.tmp
+type %base%\%readme%\README.md >> %base%\%readme%\README.md.tmp
+move /y %base%\%readme%\README.md.tmp %base%\%readme%\README.md
 
 PAUSE
 EXIT

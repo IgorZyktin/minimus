@@ -58,7 +58,7 @@ def apply_cli_args_to_settings(arguments: Dict[str, Any]) -> None:
         new_value = arguments.get(name)
 
         if new_value is not None:
-            setattr(settings, name.upper(), new_value)
+            setattr(settings, name.upper(), new_value.strip())
 
     set_or_ignore('language')
     set_or_ignore('source_directory')
