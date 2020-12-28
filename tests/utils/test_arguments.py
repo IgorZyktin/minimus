@@ -6,32 +6,46 @@ from unittest.mock import patch
 
 import pytest
 
-from minimus.utils.arguments import parse_command_line_arguments, \
-    apply_cli_args_to_settings
+from minimus.utils.arguments import (
+    parse_command_line_arguments,
+    apply_cli_args_to_settings,
+)
 
 
 @pytest.fixture()
 def fix_default_arguments():
     """Для случая, когда дополнительные аргументы не заданы.
     """
-    return {'language': 'RU', 'readme_directory': None,
-            'source_directory': None, 'target_directory': None}
+    return {
+        'language': 'RU',
+        'readme_directory': None,
+        'source_directory': None,
+        'target_directory': None,
+    }
 
 
 @pytest.fixture()
 def fix_use_english():
     """Для случая, когда выбран язык.
     """
-    return {'language': 'EN', 'readme_directory': None,
-            'source_directory': None, 'target_directory': None}
+    return {
+        'language': 'EN',
+        'readme_directory': None,
+        'source_directory': None,
+        'target_directory': None,
+    }
 
 
 @pytest.fixture()
 def fix_use_readme():
     """Для случая, когда указан каталог для readme.md.
     """
-    return {'language': 'RU', 'readme_directory': 'somewhere',
-            'source_directory': None, 'target_directory': None}
+    return {
+        'language': 'RU',
+        'readme_directory': 'somewhere',
+        'source_directory': None,
+        'target_directory': None,
+    }
 
 
 @pytest.fixture()

@@ -33,6 +33,12 @@ __all__ = [
 ]
 
 
+def title_sorter(file: File) -> str:
+    """Функция для сортировки по заголовку.
+    """
+    return file.renderer.title
+
+
 def analyze_files(repository: Repository) -> None:
     """Проанализаровать содержимое каждого из файлов.
 
@@ -140,6 +146,7 @@ def create_metafile(tag: str, files: List[File],
             template='## All occurrences of the tag "{tag}"',
             language=settings.LANGUAGE,
         ).format(tag=tag),
+        ''
     ]
 
     raw_pairs = []
@@ -156,13 +163,13 @@ def create_metafile(tag: str, files: List[File],
     close_tags = {x for x in associated_tags.get(tag, set()) if x != tag}
 
     if close_tags:
-        content.append('\n---\n')
+        content.append('---\n')
         content.append(translate(
             template='### This tag occurs with',
             language=settings.LANGUAGE,
 
         ))
-        content.append('\n')
+        content.append('')
 
         for number, associated_tag in numerate(sorted(close_tags)):
             url = 'meta_' + transliterate(associated_tag) + '.md'
@@ -236,6 +243,7 @@ def create_index(repository: Repository, base_folder: str) -> str:
             template='# All entries',
             language=settings.LANGUAGE,
         ),
+        ''
     ]
 
     categories = sorted(get_all_categories(repository))
@@ -253,7 +261,7 @@ def create_index(repository: Repository, base_folder: str) -> str:
         )
         content.append(f'{number}. {meta_url}\n')
 
-        for each_file in by_category[category]:
+        for each_file in sorted(by_category[category], key=title_sorter):
             url = markdown_processing.href(
                 label=each_file.renderer.title,
                 link=each_file.meta.filename,

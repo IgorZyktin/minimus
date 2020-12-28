@@ -130,9 +130,10 @@
 
 ```batch
 @ECHO off
-SET source=C:\Users\MainUser\YandexDisk\zettelkasten_source\content
-SET target=C:\Users\MainUser\YandexDisk\zettelkasten_target\content
-SET readme=C:\Users\MainUser\YandexDisk\zettelkasten_target
+SET base=C:\Users\MainUser\YandexDisk
+SET source=zettelkasten_source\content
+SET target=zettelkasten_target\content
+SET readme=zettelkasten_target
 SET executable_directory=C:\PycharmProjects\minimus\
 SET executable=%executable_directory%minimus.exe
 
