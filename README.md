@@ -146,6 +146,7 @@ CD %executable_directory%
 	--readme_directory %base%\%readme%
 
 (echo Данный репозиторий был собран с помощью проекта Minimus: https://github.com/IgorZyktin/minimus) > %base%\%readme%\README.md.tmp
+echo: >> %base%\%readme%\README.md.tmp
 type %base%\%readme%\README.md >> %base%\%readme%\README.md.tmp
 move /y %base%\%readme%\README.md.tmp %base%\%readme%\README.md
 
