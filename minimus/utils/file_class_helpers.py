@@ -40,7 +40,7 @@ def title_sorter(file: File) -> str:
 
 
 def analyze_files(repository: Repository) -> None:
-    """Проанализаровать содержимое каждого из файлов.
+    """Проанализировать содержимое каждого из файлов.
 
     Мутирует состояние файлов.
     """
@@ -50,7 +50,7 @@ def analyze_files(repository: Repository) -> None:
 
 
 def analyze_single_file(file: File) -> None:
-    """Проанализаровать содержимое файла.
+    """Проанализировать содержимое файла.
 
     Мутирует состояние файла.
     """
@@ -236,7 +236,7 @@ def get_all_categories(repository: Repository) -> Generator[str, None, None]:
 
 
 def create_index(repository: Repository, base_folder: str) -> str:
-    """Собрать содержимое старотового файла.
+    """Собрать содержимое стартового файла.
     """
     content = [
         translate(
@@ -277,7 +277,7 @@ def create_index(repository: Repository, base_folder: str) -> str:
 
 
 def save_main_files(repository: Repository) -> None:
-    """Сохранить файлы маркдаун в целевой каталог.
+    """Сохранить файлы markdown в целевой каталог.
     """
     files = [x for x in repository if not x.is_metafile and x.is_markdown]
 

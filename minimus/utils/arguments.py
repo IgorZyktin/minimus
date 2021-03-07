@@ -9,7 +9,7 @@ from minimus import settings
 
 
 def parse_command_line_arguments(raw_arguments: List[str]) -> Dict[str, Any]:
-    """Вернуть словарь с аргументами командной строки.
+    """Return dictionary with parsed command line arguments.
     """
     parser = argparse.ArgumentParser(
         description='Minimus: zettelkasten catalogue on markdown files',
@@ -47,13 +47,13 @@ def parse_command_line_arguments(raw_arguments: List[str]) -> Dict[str, Any]:
 
 
 def apply_cli_args_to_settings(arguments: Dict[str, Any]) -> None:
-    """Применить полученные аргументы к настройкам.
+    """Apply command line arguments to settings.
 
-    После этой операции настройки уже никогда больше не меняются.
+    This mutates settings, but after they are considered immutable.
     """
 
     def set_or_ignore(name: str):
-        """Укороченная форма записи изменения параметра.
+        """Shorthand for parameter change.
         """
         new_value = arguments.get(name)
 

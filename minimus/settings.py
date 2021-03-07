@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-"""Настройки всей программы.
+"""Main settings.
 """
 
 import os
 
-__version__ = '1.3'
-LAST_UPDATE = '2020-12-28'
+__version__ = '1.4'
+LAST_UPDATE = '2021-03-07'
 
 LOGO = """
   ███╗   ███╗  ██╗  ███╗   ██╗  ██╗  ███╗   ███╗  ██╗   ██╗  ███████╗
@@ -19,10 +19,10 @@ LOGO = """
 
 LINE = '-' * (max(len(x) for x in LOGO.split('\n')) + 2)
 
-# настройки локализации вывода для пользователя
+# localisation of the user interface
 LANGUAGE = 'RU'
 
-# настройка путей для загрузки/сохранения файлов
+# paths to work with
 METAFILE_NAME = 'meta.json'
 BASE_PATH = os.path.abspath(os.getcwd())
 LAUNCH_DIRECTORY = BASE_PATH
