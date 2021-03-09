@@ -2,18 +2,17 @@
 
 """Representation of a single file on a disk.
 """
-from minimus.core.class_file_stats import FileStats
+from typing import Dict
 
 
 class FileProxy:
-    """Representation of a single file on a disk.
-    """
+    """Representation of a single file on a disk."""
 
     def __init__(self, path: str, filename: str,
-                 actual_stats: FileStats, historical_stats: FileStats) -> None:
+                 stats: Dict[str, int], is_changed: bool) -> None:
         """Initialize instance.
         """
         self.path = path
         self.filename = filename
-        self.actual_stats = actual_stats
-        self.historical_stats = historical_stats
+        self.stats = stats
+        self.is_changed = is_changed

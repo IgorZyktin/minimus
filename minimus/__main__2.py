@@ -3,19 +3,15 @@
 """Starting file.
 """
 import sys
-import time
-from functools import partial
 
-from colorama import init, Fore
+from colorama import init
 
-from minimus import output, settings
-from minimus.components.class_renderer import Renderer
-from minimus.components.class_repository import Repository
-from minimus.utils import arguments, files_processing
-from minimus.utils.file_class_helpers import *
-from minimus.utils.file_class_helpers import analyze_files
-from minimus.utils.filesystem import ensure_folder_exists
-from minimus.utils.output_processing import stdout
+from minimus import settings
+from minimus.core.class_file_proxy import FileProxy
+from minimus.core.class_file_repository import FileRepository
+from minimus.core.class_filesystem_interactor import FilesystemInteractor
+from minimus.core.class_path_converter import PathConverter
+from minimus.utils import arguments
 
 init(autoreset=True)
 
@@ -27,6 +23,21 @@ def main():
     given_arguments = arguments.parse_command_line_arguments(sys.argv)
     arguments.apply_cli_args_to_settings(given_arguments)
 
+    converter = PathConverter(source_path=settings.SOURCE_DIRECTORY,
+                              target_path=settings.TARGET_DIRECTORY)
+
+    interactor = FilesystemInteractor()
+
+    # 1. get all paths
+    repository = get_file_repository(converter, interactor,
+                                     settings.METAFILE_NAME)
+
+    # 2. save all side files
+    save_all_side_files(converter)
+
+
+
+    print(repository, len(repository))
     # get filesystem state
     # metainfo = files_processing.get_metainfo()
     # stored_metainfo = files_processing.get_stored_metainfo()
@@ -83,6 +94,32 @@ def main():
 #     output.line()
 #     files_processing.dump_metainfo(repository.metainfo)
 #     output.complete(time.monotonic() - timestamp)
+
+
+def get_file_repository(converter, interactor,
+                        metafile_name) -> FileRepository:
+    """Load source data from disk."""
+    existing_stats = interactor \
+        .get_existing_stats(converter.source_path, metafile_name)
+
+    repository = FileRepository()
+
+    for path, filename in interactor \
+            .iterate_on_unique_filenames(converter.source_path):
+        stats = interactor.get_stats_for_file(path, filename)
+        is_changed = existing_stats.get(filename) == stats
+        proxy = FileProxy(path, filename, stats, is_changed)
+        repository.add_proxy(proxy)
+
+    return repository
+
+
+def save_all_side_files(converter, interactor, repository):
+    for proxy in repository:
+        if not proxy.filename.endswith('.md'):
+            interactor.copy(
+                interactor.join(proxy.path, proxy.filename),
+            )
 
 
 if __name__ == '__main__':
