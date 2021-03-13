@@ -23,6 +23,10 @@ VOCABULARY = {
         ' New folder created: {folder}':
             '             Создан каталог: {folder}',
 
+        ('Current version of Minimus does '
+         'not support nested folders: {directories}'):
+            ('Текущая версия Minimus не поддерживает '
+             'работу с вложенными каталогами: {directories}'),
 
         '## All occurrences of the tag "{tag}"':
             '## Все вхождения тега "{tag}"',
@@ -30,28 +34,22 @@ VOCABULARY = {
         '# All entries':
             '# Все записи',
 
+        'of': 'из',
 
+        'Saving original files:':
+            'Сохраняем исходные файлы:',
 
-        '\t{number}. File created: {filename}':
-            '\t{number}. Создан файл: {filename}',
+        'Saving generated files:':
+            'Сохраняем сгенерированные файлы:',
+
+        'Saving indexes:':
+            'Сохраняем файлы оглавления:',
 
         '\tFile created: {filename}':
             '\tСоздан файл: {filename}',
 
-        'Stage 1. Metafile generation':
-            'Этап 1. Генерация метафайлов',
-
-        'Stage 2. Indexes generation':
-            'Этап 2. Генерация индексов',
-
-        'Stage 3. Main files saving':
-            'Этап 3. Сохранение основных файлов',
-
-        'Stage 4. Additional files saving':
-            'Этап 4. Сохранение дополнительных файлов',
-
-        'No source files found to work with':
-            'Не найдено файлов для обработки',
+        '\t{number}. File created: {filename}':
+            '\t{number}. Создан файл: {filename}',
 
         '\t{number}. Saved changes: {filename}':
             '\t{number}. Сохранены изменения: {filename}',
@@ -62,14 +60,8 @@ VOCABULARY = {
         '\t{number}. Copied file: {filename}':
             '\t{number}. Скопирован файл: {filename}',
 
-        'Metainfo: {total} entries saved':
-            'Метаинформация: сохранено {total} записей',
-
         'Processing complete in {seconds} sec.':
             'Обработка завершена за {seconds} сек.',
-
-        '\tNo files to save':
-            '\tНет файлов для сохранения',
 
         'Version: {version}, last_update: {last_update}':
             'Версия: {version}, последнее обновление: {last_update}',

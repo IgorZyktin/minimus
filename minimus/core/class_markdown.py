@@ -3,11 +3,11 @@
 """Document rendering class.
 """
 import re
-from typing import List
+from typing import List, Tuple
 
-from minimus import settings
 from minimus.core.class_document import Document
-from minimus.utils.output_processing import translate
+from minimus.utils.output_processing import transliterate, translate as _
+from minimus.utils.text_processing import numerate
 
 
 class Markdown:
@@ -54,7 +54,7 @@ class Markdown:
         return unique_tags
 
     @staticmethod
-    def make_tag_patter(tag: str) -> str:
+    def make_tag_pattern(tag: str) -> str:
         """Make new pattern for tag replacement."""
         return r'{{\s*' + tag + r'\s*}}'
 
@@ -74,8 +74,16 @@ class Markdown:
         >>> Markdown.make_filename_from_tag('some tag')
         'meta_some_tag.md'
         """
-        name = translate(tag, language=settings.LANGUAGE).replace(' ', '_')
+        name = transliterate(tag).replace(' ', '_')
         return f'meta_{name}.md'
+
+    @staticmethod
+    def local(path: str) -> str:
+        """Ensure path is pointing to a local file.
+        """
+        if not path.startswith('./'):
+            return './' + path
+        return path
 
     def parse(self, text: str) -> Document:
         """Extract features from raw text."""
@@ -83,9 +91,9 @@ class Markdown:
         tags = self.extract_tags(text)
 
         for tag in tags:
-            text_from = self.make_tag_patter(tag)
+            text_from = self.make_tag_pattern(tag)
             url = self.make_filename_from_tag(tag)
-            text_to = self.href(tag, './' + url)
+            text_to = self.href(tag, self.local(url))
             text = re.sub(text_from, text_to, text)
 
         return Document(
@@ -93,3 +101,51 @@ class Markdown:
             tags=tags,
             content=text,
         )
+
+    def render_metafile(self, tag: str,
+                        corresponding_files: List[Tuple[str, str]],
+                        associations: List[str]) -> Tuple[str, str]:
+        filename = self.make_filename_from_tag(tag)
+
+        # make them unique but preserve order
+        associations = [
+            x for x in dict.fromkeys(associations)
+            if x != tag
+        ]
+
+        lines = [
+            _('## All occurrences of the tag "{tag}"').format(tag=tag),
+            '\n'
+        ]
+        for number, (sub_filename, header) in numerate(corresponding_files):
+            href = self.href(header, self.local(sub_filename))
+            lines.append(f'{number}. {href}\n')
+
+        if associations:
+            lines.extend([
+                '\n',
+                _('### This tag occurs with'),
+                '\n'
+            ])
+            for number, association in numerate(sorted(associations)):
+                sub_filename = self.make_filename_from_tag(association)
+                href = self.href(association, self.local(sub_filename))
+                lines.append(f'{number}. {href}\n')
+
+        return filename, '\n'.join(lines)
+
+    def render_index(self, category_to_files) -> str:
+        lines = [
+            _('# All entries'),
+            '\n'
+        ]
+        for number, (cat, files) in numerate(category_to_files.items()):
+            filename = self.make_filename_from_tag(cat)
+            href = self.href(cat.title(), self.local(filename))
+            lines.append(f'{number}. {href}\n')
+
+            for sub_filename, header in files:
+                href = self.href(header, self.local(sub_filename))
+                lines.append(f'* {href}\n')
+
+        return '\n'.join(lines)

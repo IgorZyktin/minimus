@@ -14,6 +14,7 @@ class Document:
     tags: List[str]
     content: str
 
+    @property
     def category(self) -> str:
         """Return single tag or empty string if document has no tags.
         """

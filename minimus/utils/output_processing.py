@@ -38,12 +38,15 @@ def stdout(template: str, *args, callback: Optional[Callable] = None,
     announce(text, *args, callback=callback or print)
 
 
-def translate(template: str, language: str) -> str:
+def translate(template: str, language: str = '') -> str:
     """Translate text to a specific language.
 
     >>> translate('hello world', 'RU')
     'привет мир'
     """
+    if not language:
+        language = settings.LANGUAGE
+
     if language == 'EN' or language not in contants.VOCABULARY:
         return template
 

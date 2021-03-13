@@ -5,9 +5,13 @@
 import json
 from typing import Dict, Iterable
 
+from colorama import Fore
+
 from minimus.core.class_file_model import FileModel
 from minimus.core.class_filesystem_interactor import FilesystemInteractor
 from minimus.core.class_path_converter import PathConverter
+from minimus.utils.output_processing import stdout
+from minimus.utils.text_processing import numerate
 
 
 class FileRepository:
@@ -59,15 +63,22 @@ class FileRepository:
         generator = self.interactor.iterate_on_unique_filenames(folder)
 
         for directory, filename in generator:
+            filename = filename.lower()
+
+            if filename == 'meta.json':
+                continue
+
             path = self.interactor.join(directory, filename)
             actual_stats = self.interactor.get_stats_for_file(path)
+            is_markdown = filename.endswith('.md')
+            is_new = self._meta.get(filename) == actual_stats
 
             new_instance = FileModel(
                 directory=directory,
                 filename=filename,
                 content='',
-                is_markdown=filename.lower().endswith('.md'),
-                is_new=self._meta.get(filename) == actual_stats,
+                is_markdown=is_markdown,
+                is_new=is_new,
             )
             self._meta[filename] = actual_stats
 
@@ -76,45 +87,39 @@ class FileRepository:
 
             self._storage[filename] = new_instance
 
-    def update_files(self, stats, markdown):
+    def update_files(self, stats, parser):
         """Make output files from user created files."""
         for file in self:
             if file.is_markdown:
-                document = markdown.parse(file.content)
+                document = parser.parse(file.content)
                 stats.add_document(file.filename, document)
                 file.content = document.content
 
-    def save_files(self):
+    def save_files(self) -> None:
         """Save output files."""
         meta_content = json.dumps(self._meta, indent=4, ensure_ascii=False)
         self.interactor.write_file(self.get_meta_path(), meta_content)
 
-        # for file in self._storage.values():
-        #     # if not file.is_new:
-        #     #     continue
-        #     path1 = self.interactor.join(file.directory, file.filename)
-        #     print('path1 =', path1)
-        #     path2 = self.interactor.find_shortest_common_path(
-        #         self.converter.base_directory,
-        #         path1,
-        #     )
-        #     print('path2 =', path2)
-        # base_directory = self.interactor.find_shortest_common_path(
-        #     self.converter.target_directory,
-        #     self.converter.base_directory,
-        # )
-        #
-        # target_directory = self.interactor.find_shortest_common_path(
-        #     file.directory,
-        #     base_directory,
-        # )
-        #
-        # target_path = self.interactor.join(
-        #     target_directory, file.filename
-        # )
-        #
-        # print(file.directory, file.filename, '->>>', target_path)
-        # if file.is_markdown:
-        #     pass
-        # else:
-        #     pass
+        for number, file_model in numerate(self):
+            if not file_model.is_new:
+                stdout('\t{number}. No changes detected: {filename}',
+                       number=number, filename=file_model.filename)
+                continue
+
+            target_path = self.interactor.join(
+                self.converter.target_directory,
+                file_model.filename
+            )
+
+            if file_model.is_markdown:
+                self.interactor.write_file(target_path, file_model.content)
+                stdout('\t{number}. Saved changes: {filename}',
+                       number=number, filename=file_model.filename,
+                       color=Fore.YELLOW)
+            else:
+                source_path = self.interactor.join(file_model.directory,
+                                                   file_model.filename)
+                self.interactor.copy_file(source_path, target_path)
+                stdout('\t{number}. Copied file: {filename}',
+                       number=number, filename=file_model.filename,
+                       color=Fore.BLUE)

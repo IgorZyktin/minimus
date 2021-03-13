@@ -34,9 +34,30 @@ def show_separation_line() -> None:
     stdout(settings.LINE, color=Fore.LIGHTRED_EX)
 
 
+def show_user_files_rendering() -> None:
+    """Output message about the fact that we render user files.
+    """
+    stdout('Saving original files:', color=Fore.BLUE)
+
+
+def show_auto_files_rendering() -> None:
+    """Output message about the fact that we render auto created files.
+    """
+    stdout('')
+    stdout('Saving generated files:', color=Fore.BLUE)
+
+
+def show_index_files_rendering() -> None:
+    """Output message about the fact that we render index files.
+    """
+    stdout('')
+    stdout('Saving indexes:', color=Fore.BLUE)
+
+
 def show_final_message(seconds: float) -> None:
     """Вывести на экран сообщение об окончании работы программы.
     """
     _stdout = partial(stdout, color=Fore.LIGHTRED_EX)
+    _stdout(settings.LINE)
     _stdout('Processing complete in {seconds} sec.', seconds=f'{seconds:0.2f}')
     _stdout(settings.LINE)

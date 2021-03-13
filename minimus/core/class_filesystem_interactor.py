@@ -9,8 +9,7 @@ from typing import Generator, Tuple, Dict
 
 from colorama import Fore
 
-from minimus import settings
-from minimus.utils.output_processing import stdout, translate
+from minimus.utils.output_processing import stdout, translate as _
 
 
 class FilesystemInteractor:
@@ -95,13 +94,16 @@ class FilesystemInteractor:
         """Walk through folder and get unique filenames."""
         known_filenames = set()
 
-        for directory, _, filenames in os.walk(source_path):
+        for directory, directories, filenames in os.walk(source_path):
+            if directories:
+                message = _('Current version of Minimus does '
+                            'not support nested folders: {directories}')
+                raise FileExistsError(message.format(directories=directories))
+
             for filename in filenames:
                 if filename in known_filenames:
-                    message = translate(
-                        'Filenames are supposed to be unique: {filename}',
-                        settings.LANGUAGE
-                    )
+                    message = _('Filenames are supposed '
+                                'to be unique: {filename}')
                     raise FileExistsError(message.format(filenams=filename))
 
                 yield directory, filename
@@ -111,4 +113,3 @@ class FilesystemInteractor:
     def copy_file(source: str, target: str) -> None:
         """Copy file from source to target."""
         shutil.copy(source, target)
-

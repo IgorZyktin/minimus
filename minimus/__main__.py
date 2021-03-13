@@ -48,12 +48,17 @@ def main():
     output.show_separation_line()
 
     # 3. handle user files
+    output.show_user_files_rendering()
     repository.load_files()
     repository.update_files(stats, markdown)
     repository.save_files()
 
     # 4. handle automatically created files
+    output.show_auto_files_rendering()
     utils_auto.make_files_for_tags(converter, interactor, stats, markdown)
+
+    # 5. handle indexes
+    output.show_index_files_rendering()
     utils_auto.make_index_file(converter, interactor, stats, markdown)
     utils_auto.make_readme_file(converter, interactor, stats, markdown)
 
