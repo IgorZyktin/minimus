@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Инструменты разбора аргументов командной строки.
+"""Command line argument parsing machinery.
 """
 import argparse
 from typing import List, Any, Dict
@@ -9,8 +9,7 @@ from minimus import settings
 
 
 def parse_command_line_arguments(raw_arguments: List[str]) -> Dict[str, Any]:
-    """Return dictionary with parsed command line arguments.
-    """
+    """Return dictionary with parsed command line arguments."""
     parser = argparse.ArgumentParser(
         description='Minimus: zettelkasten catalogue on markdown files',
     )

@@ -2,7 +2,8 @@
 
 """Тесты.
 """
-from minimus.utils.text_processing import make_prefix, to_kv, numerate
+from minimus.utils.text_processing import make_prefix, numerate
+from minimus.utils.output_processing import to_kv
 
 
 def test_make_prefix():

@@ -5,7 +5,7 @@
 from re import Match
 from typing import Generator
 
-from minimus import regex_patterns
+from minimus.utils import regex_patterns
 
 
 def extract_title(content: str) -> str:

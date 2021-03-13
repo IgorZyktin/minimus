@@ -2,61 +2,26 @@
 
 """Special class that works with filesystem.
 """
-import json
 import os
+import shutil
+from pathlib import Path
 from typing import Generator, Tuple, Dict
+
+from colorama import Fore
+
+from minimus import settings
+from minimus.utils.output_processing import stdout, translate
 
 
 class FilesystemInteractor:
     """Special class that works with filesystem.
     """
 
-    @staticmethod
-    def iterate_on_unique_filenames(source_path: str) \
-            -> Generator[Tuple[str, str], None, None]:
-        """Walk through folder and get unique filenames."""
-        known_filenames = set()
-
-        for path, _, filenames in os.walk(source_path):
-            for filename in filenames:
-                if filename in known_filenames:
-                    raise FileExistsError(
-                        f'Filenames are supposed to be unique: {filename}'
-                    )
-
-                yield path, filename
-                known_filenames.add(filename)
-
-    @staticmethod
-    def join(*args) -> str:
-        """Join path for specific filesystem.
-        """
-        return os.path.join(*args)
-
     @classmethod
-    def get_existing_stats(cls, directory: str, filename: str):
-        full_path = cls.join(directory, filename)
+    def get_stats_for_file(cls, path: str) -> Dict[str, int]:
+        """Load actual meta information about file from disk."""
         try:
-            with open(full_path, mode='r', encoding='utf-8') as file:
-                stats = json.load(file)
-        except FileNotFoundError:
-            stats = {}
-        return stats
-
-    @staticmethod
-    def get_default_stats() -> Dict[str, int]:
-        return {
-            'created_at': -1,
-            'modified_at': -1,
-            'size': -1
-        }
-
-    @classmethod
-    def get_stats_for_file(cls, directory: str,
-                           filename: str) -> Dict[str, int]:
-        full_path = cls.join(directory, filename)
-        try:
-            raw_stats = os.stat(full_path)
+            raw_stats = os.stat(path)
             stats = {
                 'created_at': raw_stats.st_ctime_ns,
                 'modified_at': raw_stats.st_mtime_ns,
@@ -65,3 +30,85 @@ class FilesystemInteractor:
         except FileNotFoundError:
             stats = cls.get_default_stats()
         return stats
+
+    @staticmethod
+    def get_default_stats() -> Dict[str, int]:
+        """Get default metarecord statistics for non existent file."""
+        return {
+            'created_at': -1,
+            'modified_at': -1,
+            'size': -1
+        }
+
+    @staticmethod
+    def read_file(path: str) -> str:
+        """Read textual file from disk."""
+        try:
+            with open(path, mode='r', encoding='utf-8') as file:
+                content = file.read()
+        except FileNotFoundError:
+            content = ''
+
+        return content
+
+    @staticmethod
+    def write_file(path: str, content: str) -> None:
+        """Write textual file to disk."""
+        with open(path, mode='w', encoding='utf-8') as file:
+            file.write(content)
+
+    @staticmethod
+    def join(*args) -> str:
+        """Join path for specific filesystem.
+        """
+        return os.path.join(*args)
+
+    @classmethod
+    def ensure_folder_exists(cls, path: str) -> bool:
+        """Create all chain of folders at given path.
+
+        Return True if creation is successful.
+        Do not give path to files to this method!
+        """
+        path = Path(path)
+        parts = list(path.parts)
+        current_path = None
+        actually_created = False
+
+        for part in parts:
+            if current_path is None:
+                current_path = part
+            else:
+                current_path = cls.join(current_path, part)
+
+            if not os.path.exists(current_path):
+                os.mkdir(current_path)
+                stdout(' New folder created: {folder}',
+                       folder=current_path, color=Fore.MAGENTA)
+                actually_created = True
+
+        return actually_created
+
+    @staticmethod
+    def iterate_on_unique_filenames(source_path: str) \
+            -> Generator[Tuple[str, str], None, None]:
+        """Walk through folder and get unique filenames."""
+        known_filenames = set()
+
+        for directory, _, filenames in os.walk(source_path):
+            for filename in filenames:
+                if filename in known_filenames:
+                    message = translate(
+                        'Filenames are supposed to be unique: {filename}',
+                        settings.LANGUAGE
+                    )
+                    raise FileExistsError(message.format(filenams=filename))
+
+                yield directory, filename
+                known_filenames.add(filename)
+
+    @staticmethod
+    def copy_file(source: str, target: str) -> None:
+        """Copy file from source to target."""
+        shutil.copy(source, target)
+

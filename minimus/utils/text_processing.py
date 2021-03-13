@@ -2,21 +2,9 @@
 
 """Инструменты работы с текстом.
 """
-from typing import List, TypeVar, Iterable, Generator, Tuple, Optional
+from typing import TypeVar, Iterable, Generator, Tuple, Optional
 
 T = TypeVar('T')
-
-
-def to_kv(something: dict) -> List[str]:
-    """Разложить словарь в набор пар ключ=значение.
-
-    >>> to_kv(dict(a=1, b=2))
-    ['a=1', 'b=2']
-    """
-    return [
-        f'{key}={value}'
-        for key, value in something.items()
-    ]
 
 
 def make_prefix(total: int) -> str:
