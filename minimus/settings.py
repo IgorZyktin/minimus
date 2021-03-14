@@ -22,7 +22,6 @@ LINE = '-' * (max(len(x) for x in LOGO.split('\n')) + 2)
 LANGUAGE = 'RU'
 
 # paths to work with
-METAFILE_NAME = 'meta.json'
 BASE_PATH = os.path.abspath(os.getcwd())
 LAUNCH_DIRECTORY = BASE_PATH
 

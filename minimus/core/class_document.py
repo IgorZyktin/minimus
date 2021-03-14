@@ -13,9 +13,4 @@ class Document:
     header: str
     tags: List[str]
     content: str
-
-    @property
-    def category(self) -> str:
-        """Return single tag or empty string if document has no tags.
-        """
-        return self.tags[0] if self.tags else ''
+    category: str

@@ -100,6 +100,7 @@ class Markdown:
             header=header,
             tags=tags,
             content=text,
+            category=tags[0] if tags else '',
         )
 
     def render_metafile(self, tag: str,

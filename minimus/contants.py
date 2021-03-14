@@ -34,6 +34,9 @@ VOCABULARY = {
         '# All entries':
             '# Все записи',
 
+        '### This tag occurs with':
+            '### Этот тег встречается вместе с',
+
         'of': 'из',
 
         'Saving original files:':
@@ -44,6 +47,12 @@ VOCABULARY = {
 
         'Saving indexes:':
             'Сохраняем файлы оглавления:',
+
+        'Processing complete in {seconds} sec.':
+            'Обработка завершена за {seconds} сек.',
+
+        'Version: {version}':
+            'Версия: {version}',
 
         '\tFile created: {filename}':
             '\tСоздан файл: {filename}',
@@ -59,17 +68,9 @@ VOCABULARY = {
 
         '\t{number}. Copied file: {filename}':
             '\t{number}. Скопирован файл: {filename}',
-
-        'Processing complete in {seconds} sec.':
-            'Обработка завершена за {seconds} сек.',
-
-        'Version: {version}, last_update: {last_update}':
-            'Версия: {version}, последнее обновление: {last_update}',
-
-        '### This tag occurs with':
-            '### Этот тег встречается вместе с',
     }
 }
+
 SMALL_LETTERS = {
     'а': 'a',
     'б': 'b',
@@ -106,10 +107,12 @@ SMALL_LETTERS = {
     'я': 'ya',
     ' ': '_',
 }
+
 BIG_LETTERS = {
     key.upper(): value.upper()
     for key, value in SMALL_LETTERS.items()
 }
+
 TRANS_MAP = str.maketrans(
     {
         **SMALL_LETTERS,

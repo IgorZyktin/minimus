@@ -7,7 +7,7 @@ from typing import Optional
 
 
 @dataclass
-class FileModel:
+class File:
     """Representation of a single file on a disk.
     """
     directory: str

@@ -7,9 +7,8 @@ from typing import Dict, Iterable
 
 from colorama import Fore
 
-from minimus.core.class_file_model import FileModel
-from minimus.core.class_filesystem_interactor import FilesystemInteractor
-from minimus.core.class_path_converter import PathConverter
+from minimus.core.class_file import File
+from minimus.core.class_filesystem import Filesystem
 from minimus.utils.output_processing import stdout
 from minimus.utils.text_processing import numerate
 
@@ -18,12 +17,10 @@ class FileRepository:
     """Storage for files.
     """
 
-    def __init__(self, converter: PathConverter,
-                 interactor: FilesystemInteractor) -> None:
+    def __init__(self, filesystem: Filesystem) -> None:
         """Initialize instance."""
-        self.converter = converter
-        self.interactor = interactor
-        self._storage: Dict[str, FileModel] = {}
+        self._filesystem = filesystem
+        self._storage: Dict[str, File] = {}
         self._meta: Dict[str, dict] = {}
 
     def __len__(self) -> int:
@@ -31,21 +28,19 @@ class FileRepository:
         """
         return len(self._storage)
 
-    def __iter__(self) -> Iterable[FileModel]:
+    def __iter__(self) -> Iterable[File]:
         """Iterate on models in repository.
         """
         return iter(self._storage.values())
 
     def get_meta_path(self) -> str:
         """Return path to a metafile with previously saved files statistics."""
-        return self.interactor.join(
-            self.converter.source_directory, 'meta.json'
-        )
+        return self._filesystem.at_source('meta.json')
 
     def get_existing_meta(self) -> dict:
         """Load statistic for previously saved files.
         """
-        content = self.interactor.read_file(self.get_meta_path())
+        content = self._filesystem.read_file(self.get_meta_path())
 
         if content:
             meta = json.loads(content)
@@ -59,8 +54,8 @@ class FileRepository:
         meta = self.get_existing_meta()
         self._meta.update(meta)
 
-        folder = self.converter.source_directory
-        generator = self.interactor.iterate_on_unique_filenames(folder)
+        folder = self._filesystem.source_directory
+        generator = self._filesystem.iterate_on_unique_filenames(folder)
 
         for directory, filename in generator:
             filename = filename.lower()
@@ -68,12 +63,12 @@ class FileRepository:
             if filename == 'meta.json':
                 continue
 
-            path = self.interactor.join(directory, filename)
-            actual_stats = self.interactor.get_stats_for_file(path)
+            path = self._filesystem.join(directory, filename)
+            actual_stats = self._filesystem.get_stats_for_file(path)
             is_markdown = filename.endswith('.md')
             is_new = self._meta.get(filename) == actual_stats
 
-            new_instance = FileModel(
+            new_instance = File(
                 directory=directory,
                 filename=filename,
                 content='',
@@ -83,22 +78,22 @@ class FileRepository:
             self._meta[filename] = actual_stats
 
             if new_instance.is_markdown:
-                new_instance.content = self.interactor.read_file(path)
+                new_instance.content = self._filesystem.read_file(path)
 
             self._storage[filename] = new_instance
 
-    def update_files(self, stats, parser):
+    def update_files(self, stats, renderer):
         """Make output files from user created files."""
         for file in self:
             if file.is_markdown:
-                document = parser.parse(file.content)
+                document = renderer.parse(file.content)
                 stats.add_document(file.filename, document)
                 file.content = document.content
 
     def save_files(self) -> None:
         """Save output files."""
         meta_content = json.dumps(self._meta, indent=4, ensure_ascii=False)
-        self.interactor.write_file(self.get_meta_path(), meta_content)
+        self._filesystem.write_file(self.get_meta_path(), meta_content)
 
         for number, file_model in numerate(self):
             if not file_model.is_new:
@@ -106,20 +101,17 @@ class FileRepository:
                        number=number, filename=file_model.filename)
                 continue
 
-            target_path = self.interactor.join(
-                self.converter.target_directory,
-                file_model.filename
-            )
+            target_path = self._filesystem.at_target(file_model.filename)
 
             if file_model.is_markdown:
-                self.interactor.write_file(target_path, file_model.content)
+                self._filesystem.write_file(target_path, file_model.content)
                 stdout('\t{number}. Saved changes: {filename}',
                        number=number, filename=file_model.filename,
                        color=Fore.YELLOW)
             else:
-                source_path = self.interactor.join(file_model.directory,
-                                                   file_model.filename)
-                self.interactor.copy_file(source_path, target_path)
+                source_path = self._filesystem.join(file_model.directory,
+                                                    file_model.filename)
+                self._filesystem.copy_file(source_path, target_path)
                 stdout('\t{number}. Copied file: {filename}',
                        number=number, filename=file_model.filename,
                        color=Fore.BLUE)
