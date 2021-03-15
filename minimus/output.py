@@ -7,7 +7,7 @@ from functools import partial
 from colorama import Fore
 
 from minimus import settings
-from minimus.utils.output_processing import stdout
+from minimus.utils.utils_locale import stdout
 
 
 def show_greeting_message() -> None:

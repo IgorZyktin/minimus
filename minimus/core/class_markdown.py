@@ -5,9 +5,9 @@
 import re
 from typing import List, Tuple
 
-from minimus.core.class_document import Document
-from minimus.utils.output_processing import transliterate, translate as _
-from minimus.utils.text_processing import numerate
+from minimus.core.simple_structures import Document
+from minimus.utils.utils_locale import transliterate, translate as _
+from minimus.utils.utils_text import numerate
 
 
 class Markdown:
@@ -25,7 +25,7 @@ class Markdown:
 
     # pattern for tag (anywhere in the text)
     # example: '{{ something }}'
-    BASE_TAG_PATTERN = re.compile(r"""
+    TAG_PATTERN = re.compile(r"""
         (        # arbitrary amount of occurrence
         {{       # literally double curly brackets
         \s*?     # zero or more optional spaces
@@ -48,7 +48,7 @@ class Markdown:
         """
         all_tags = [
             tag.group().strip('{} ')
-            for tag in self.BASE_TAG_PATTERN.finditer(content)
+            for tag in self.TAG_PATTERN.finditer(content)
         ]
         unique_tags = list(dict.fromkeys(all_tags).keys())
         return unique_tags
@@ -96,12 +96,10 @@ class Markdown:
             text_to = self.href(tag, self.local(url))
             text = re.sub(text_from, text_to, text)
 
-        return Document(
-            header=header,
-            tags=tags,
-            content=text,
-            category=tags[0] if tags else '',
-        )
+        return Document(header=header,
+                        tags=tags,
+                        content=text,
+                        category=tags[0] if tags else '')
 
     def render_metafile(self, tag: str,
                         corresponding_files: List[Tuple[str, str]],

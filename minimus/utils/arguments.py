@@ -64,5 +64,6 @@ def apply_cli_args_to_settings(arguments: Dict[str, Any]) -> None:
     set_or_ignore('target_directory')
     set_or_ignore('readme_directory')
 
-    if 'target_directory' in arguments and 'readme_directory' not in arguments:
+    if arguments.get('target_directory') \
+            and not arguments.get('readme_directory'):
         settings.README_DIRECTORY = settings.TARGET_DIRECTORY

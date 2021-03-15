@@ -7,12 +7,12 @@ import time
 
 from colorama import init
 
-from minimus import settings
+from minimus import settings, output
 from minimus.core.class_file_repository import FileRepository
 from minimus.core.class_filesystem import Filesystem
 from minimus.core.class_markdown import Markdown
-from minimus.core.class_stats import Stats
-from minimus.utils import arguments, output, utils_auto
+from minimus.core.class_statistics import Statistics
+from minimus.utils import arguments, utils_auto
 
 init(autoreset=True)
 
@@ -33,7 +33,7 @@ def main():
                             settings.README_DIRECTORY)
     repository = FileRepository(filesystem)
     renderer = Markdown()
-    stats = Stats()
+    stats = Statistics()
 
     if any([filesystem.ensure_folder_exists(filesystem.source_directory),
             filesystem.ensure_folder_exists(filesystem.target_directory),

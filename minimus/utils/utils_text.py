@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-"""Инструменты работы с текстом.
+"""Utils for text processing.
 """
 from typing import TypeVar, Iterable, Generator, Tuple, Optional
 
-from minimus.utils.output_processing import translate as _
+from minimus.utils.utils_locale import translate as _
 
-T = TypeVar('T')
+T = TypeVar('T')  # pylint: disable=C0103
 
 
 def make_prefix(total: int, language: str = '') -> str:
-    """Собрать префикс для нумерации.
+    """Make prefix for enumeration.
 
     >>> make_prefix(75, 'EN')
     '{num:02} of {total:02d}'

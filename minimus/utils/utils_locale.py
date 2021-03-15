@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-"""Инструменты работы с текстовым выводом для пользователя.
+"""Translation/transliterations utils.
 """
 from typing import Callable, Optional, List
 
-from minimus import settings
-from minimus import contants
+from minimus import settings, constants
 
 
 def transliterate(something: str) -> str:
@@ -16,7 +15,7 @@ def transliterate(something: str) -> str:
     >>> transliterate('Два весёлых гуся')
     'dva_veselyh_gusya'
     """
-    return something.lower().translate(contants.TRANS_MAP)
+    return something.lower().translate(constants.TRANS_MAP)
 
 
 def announce(*args, callback: Callable, **kwargs) -> None:
@@ -47,10 +46,10 @@ def translate(template: str, language: str = '') -> str:
     if not language:
         language = settings.LANGUAGE
 
-    if language == 'EN' or language not in contants.VOCABULARY:
+    if language == 'EN' or language not in constants.VOCABULARY:
         return template
 
-    return contants.VOCABULARY[language].get(template, template)
+    return constants.VOCABULARY[language].get(template, template)
 
 
 def to_kv(something: dict) -> List[str]:

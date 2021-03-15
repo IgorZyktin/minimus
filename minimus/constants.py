@@ -54,6 +54,9 @@ VOCABULARY = {
         'Version: {version}':
             'Версия: {version}',
 
+        'Filenames are supposed to be unique: {filename}':
+            'Имена исходных файлов должны быть уникальны: {filename}',
+
         '\tFile created: {filename}':
             '\tСоздан файл: {filename}',
 

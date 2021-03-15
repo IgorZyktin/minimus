@@ -9,7 +9,7 @@ from typing import Generator, Tuple, Dict
 
 from colorama import Fore
 
-from minimus.utils.output_processing import stdout, translate as _
+from minimus.utils.utils_locale import stdout, translate as _
 
 
 class Filesystem:
@@ -110,7 +110,7 @@ class Filesystem:
                 if filename in known_filenames:
                     message = _('Filenames are supposed '
                                 'to be unique: {filename}')
-                    raise FileExistsError(message.format(filenams=filename))
+                    raise FileExistsError(message.format(filename=filename))
 
                 yield directory, filename
                 known_filenames.add(filename)
@@ -121,15 +121,15 @@ class Filesystem:
         shutil.copy(source, target)
 
     def at_source(self, *args: str) -> str:
-        # FIXME
+        """Return path as objects are in source directory."""
         return self.join(self.source_directory, *args)
 
     def at_target(self, *args: str) -> str:
-        # FIXME
+        """Return path as objects are in target directory."""
         return self.join(self.target_directory, *args)
 
     def at_readme(self, *args: str) -> str:
-        # FIXME
+        """Return path as objects are in the readme directory."""
         return self.join(self.readme_directory, *args)
 
     @classmethod

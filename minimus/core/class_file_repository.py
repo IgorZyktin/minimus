@@ -7,15 +7,16 @@ from typing import Dict, Iterable
 
 from colorama import Fore
 
-from minimus.core.class_file import File
 from minimus.core.class_filesystem import Filesystem
-from minimus.utils.output_processing import stdout
-from minimus.utils.text_processing import numerate
+from minimus.core.simple_structures import File
+from minimus.utils.utils_locale import stdout
+from minimus.utils.utils_text import numerate
 
 
 class FileRepository:
     """Storage for files.
     """
+    metafile_name = 'meta.json'
 
     def __init__(self, filesystem: Filesystem) -> None:
         """Initialize instance."""
@@ -35,52 +36,48 @@ class FileRepository:
 
     def get_meta_path(self) -> str:
         """Return path to a metafile with previously saved files statistics."""
-        return self._filesystem.at_source('meta.json')
+        return self._filesystem.at_source(self.metafile_name)
 
     def get_existing_meta(self) -> dict:
         """Load statistic for previously saved files.
         """
         content = self._filesystem.read_file(self.get_meta_path())
-
-        if content:
-            meta = json.loads(content)
-        else:
-            meta = {}
-
-        return meta
+        return json.loads(content) if content else {}
 
     def load_files(self):
         """Load all user created files."""
-        meta = self.get_existing_meta()
-        self._meta.update(meta)
+        existing_meta = self.get_existing_meta()
+        self._meta.update(existing_meta)
 
         folder = self._filesystem.source_directory
         generator = self._filesystem.iterate_on_unique_filenames(folder)
 
         for directory, filename in generator:
             filename = filename.lower()
+            self._process_single_file(directory, filename.lower())
 
-            if filename == 'meta.json':
-                continue
+    def _process_single_file(self, directory: str, filename: str) -> None:
+        """Process single file during file loading stage.
+        """
+        if filename == self.metafile_name:
+            return
 
-            path = self._filesystem.join(directory, filename)
-            actual_stats = self._filesystem.get_stats_for_file(path)
-            is_markdown = filename.endswith('.md')
-            is_new = self._meta.get(filename) == actual_stats
+        path = self._filesystem.join(directory, filename)
+        actual_stats = self._filesystem.get_stats_for_file(path)
+        is_markdown = filename.endswith('.md')
+        is_new = self._meta.get(filename) == actual_stats
 
-            new_instance = File(
-                directory=directory,
-                filename=filename,
-                content='',
-                is_markdown=is_markdown,
-                is_new=is_new,
-            )
-            self._meta[filename] = actual_stats
+        new_instance = File(directory=directory,
+                            filename=filename,
+                            content='',
+                            is_markdown=is_markdown,
+                            is_new=is_new)
+        self._meta[filename] = actual_stats
 
-            if new_instance.is_markdown:
-                new_instance.content = self._filesystem.read_file(path)
+        if new_instance.is_markdown:
+            new_instance.content = self._filesystem.read_file(path)
 
-            self._storage[filename] = new_instance
+        self._storage[filename] = new_instance
 
     def update_files(self, stats, renderer):
         """Make output files from user created files."""
