@@ -37,21 +37,21 @@ def show_separation_line() -> None:
 def show_user_files_rendering() -> None:
     """Output message about the fact that we render user files.
     """
-    stdout('Saving original files:', color=Fore.BLUE)
+    stdout('Saving original files:', color=Fore.CYAN)
 
 
 def show_auto_files_rendering() -> None:
     """Output message about the fact that we render auto created files.
     """
     stdout('')
-    stdout('Saving generated files:', color=Fore.BLUE)
+    stdout('Saving generated files:', color=Fore.CYAN)
 
 
 def show_index_files_rendering() -> None:
     """Output message about the fact that we render index files.
     """
     stdout('')
-    stdout('Saving indexes:', color=Fore.BLUE)
+    stdout('Saving indexes:', color=Fore.CYAN)
 
 
 def show_final_message(seconds: float) -> None:
