@@ -15,3 +15,4 @@
 2 из 3. [машина](./meta_mashina.md)
 
 3 из 3. [серый](./meta_seryy.md)
+

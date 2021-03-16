@@ -132,6 +132,7 @@ class Markdown:
                 href = self.href(association, self.local(sub_filename))
                 lines.append(f'{number}. {href}\n')
 
+        lines.append('')
         return filename, '\n'.join(lines)
 
     def render_index(self, category_to_files: Dict[str, List[str]],
@@ -157,4 +158,5 @@ class Markdown:
                 href = self.href(header, root + sub_filename)
                 lines.append(f'* {href}\n')
 
+        lines.append('')
         return '\n'.join(lines)
