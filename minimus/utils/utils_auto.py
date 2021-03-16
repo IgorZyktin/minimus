@@ -13,7 +13,7 @@ def make_files_for_tags(filesystem, statistics, renderer):
     associated_tags = statistics.get_associated_tags()
     generator = numerate(statistics.get_tags_to_files().items())
     for number, (tag, corresponding_files) in generator:
-        associations = associated_tags.get(tag)
+        associations = sorted(associated_tags.get(tag, []))
         filename, body = renderer.render_metafile(tag,
                                                   corresponding_files,
                                                   associations)
@@ -25,19 +25,24 @@ def make_files_for_tags(filesystem, statistics, renderer):
 
 def make_index_file(filesystem, statistics, renderer):
     """Generate file for index.md."""
-    make_index_base(filesystem, statistics, renderer, 'index.md')
+    path = filesystem.at_target('index.md')
+    make_index_base(filesystem, statistics, renderer, path)
 
 
 def make_readme_file(filesystem, statistics, renderer):
     """Generate file for README.md."""
-    make_index_base(filesystem, statistics, renderer, 'README.md')
+    path = filesystem.at_readme('README.md')
+    root = filesystem.find_shortest_common_path(filesystem.readme_directory,
+                                                filesystem.target_directory)
+    root = root.replace('\\', '/')
+    make_index_base(filesystem, statistics, renderer, path, root)
 
 
-def make_index_base(filesystem, statistics, renderer, filename: str) -> None:
+def make_index_base(filesystem, statistics, renderer,
+                    path: str, root: str = '') -> None:
     """Generate generic index file."""
-    path = filesystem.at_readme(filename)
     categories = statistics.get_categories_to_files()
-    body = renderer.render_index(categories)
+    body = renderer.render_index(categories, root)
 
     filesystem.write_file(path, body)
     stdout('\tFile created: {filename}',

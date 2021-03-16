@@ -1,18 +1,18 @@
 # Все записи
 
 
-1 из 4. [Хобот](./meta_hobot.md)
+1 из 4. [4 Лапы](./content/meta_4_lapy.md)
 
-* [Слон](./2020-07-06_elephant.md)
+* [Мышь](./content/2020-07-06_mouse.md)
 
-2 из 4. [4 Лапы](./meta_4_lapy.md)
+2 из 4. [Машина](./content/meta_mashina.md)
 
-* [Мышь](./2020-07-06_mouse.md)
+* [Пылесос воздушный, для уборки помещений](./content/2020-07-06_vacuum.md)
 
-3 из 4. [Хвост](./meta_hvost.md)
+3 из 4. [Хвост](./content/meta_hvost.md)
 
-* [Рекурсия](./2020-07-06_recursion.md)
+* [Рекурсия](./content/2020-07-06_recursion.md)
 
-4 из 4. [Машина](./meta_mashina.md)
+4 из 4. [Хобот](./content/meta_hobot.md)
 
-* [Пылесос воздушный, для уборки помещений](./2020-07-06_vacuum.md)
+* [Слон](./content/2020-07-06_elephant.md)

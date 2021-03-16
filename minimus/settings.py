@@ -5,7 +5,7 @@
 
 import os
 
-__version__ = '2021.03.15'
+__version__ = '2021.03.16'
 
 LOGO = """
   ███╗   ███╗  ██╗  ███╗   ██╗  ██╗  ███╗   ███╗  ██╗   ██╗  ███████╗
@@ -26,5 +26,5 @@ BASE_PATH = os.path.abspath(os.getcwd())
 LAUNCH_DIRECTORY = BASE_PATH
 
 SOURCE_DIRECTORY = os.path.join(BASE_PATH, 'source')
-TARGET_DIRECTORY = os.path.join(BASE_PATH, 'target')
-README_DIRECTORY = TARGET_DIRECTORY
+TARGET_DIRECTORY = os.path.join(BASE_PATH, 'target', 'content')
+README_DIRECTORY = os.path.join(BASE_PATH, 'target')

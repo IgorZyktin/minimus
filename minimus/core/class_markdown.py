@@ -3,7 +3,7 @@
 """Document rendering class.
 """
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from minimus.core.simple_structures import Document
 from minimus.utils.utils_locale import transliterate, translate as _
@@ -116,6 +116,7 @@ class Markdown:
             _('## All occurrences of the tag "{tag}"').format(tag=tag),
             '\n'
         ]
+        corresponding_files.sort(key=lambda pair: pair[1])
         for number, (sub_filename, header) in numerate(corresponding_files):
             href = self.href(header, self.local(sub_filename))
             lines.append(f'{number}. {href}\n')
@@ -133,18 +134,27 @@ class Markdown:
 
         return filename, '\n'.join(lines)
 
-    def render_index(self, category_to_files) -> str:
+    def render_index(self, category_to_files: Dict[str, List[str]],
+                     root: str = '') -> str:
         lines = [
             _('# All entries'),
             '\n'
         ]
-        for number, (cat, files) in numerate(category_to_files.items()):
+        collection = list(category_to_files.items())
+        collection.sort(key=lambda pair: pair[0])
+
+        if not root:
+            root = './'
+        else:
+            root += '/'
+
+        for number, (cat, files) in numerate(collection):
             filename = self.make_filename_from_tag(cat)
-            href = self.href(cat.title(), self.local(filename))
+            href = self.href(cat.title(), root + filename)
             lines.append(f'{number}. {href}\n')
 
             for sub_filename, header in files:
-                href = self.href(header, self.local(sub_filename))
+                href = self.href(header, root + sub_filename)
                 lines.append(f'* {href}\n')
 
         return '\n'.join(lines)
