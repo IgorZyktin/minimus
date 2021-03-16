@@ -174,7 +174,7 @@ def test_iterate_on_duplicate_filenames(inst):
     msg = translate('Filenames are supposed to be unique: {filename}').format(
         filename="0")
     with patch('minimus.core.class_filesystem.os') as fake_os:
-        fake_os.walk.return_value = (('wtf', [], [x, x]) for x in range(3))
+        fake_os.walk.return_value = [('wtf', [], [x, x]) for x in range(3)]
 
         with pytest.raises(FileExistsError, match=re.escape(msg)):
             list(inst.iterate_on_unique_filenames('path'))

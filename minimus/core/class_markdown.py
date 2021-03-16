@@ -83,7 +83,7 @@ class Markdown(AbstractRenderer):
         """Ensure path is pointing to a local file.
         """
         if not path.startswith('./'):
-            return './' + path
+            path = './' + path
         return path
 
     def extract_features(self, text: str) -> Document:
@@ -108,20 +108,16 @@ class Markdown(AbstractRenderer):
         """Render metainfo file."""
         filename = self.make_filename_from_tag(tag)
 
-        # make them unique but preserve order
-        associations = [
-            x for x in dict.fromkeys(associations)
-            if x != tag
-        ]
-
         lines = [
             _('## All occurrences of the tag "{tag}"').format(tag=tag),
             '\n'
         ]
-        corresponding_files.sort(key=lambda pair: pair[1])
+
         for number, (sub_filename, header) in numerate(corresponding_files):
             href = self.href(header, self.local(sub_filename))
             lines.append(f'{number}. {href}\n')
+
+        associations = [x for x in associations if x != tag]
 
         if associations:
             lines.extend([
@@ -144,15 +140,13 @@ class Markdown(AbstractRenderer):
             _('# All entries'),
             '\n'
         ]
-        collection = list(category_to_files.items())
-        collection.sort(key=lambda pair: pair[0])
 
         if not root:
             root = './'
         else:
             root = root.rstrip().rstrip('/') + '/'
 
-        for number, (cat, files) in numerate(collection):
+        for number, (cat, files) in numerate(category_to_files.items()):
             filename = self.make_filename_from_tag(cat)
             href = self.href(cat.title(), root + filename)
             lines.append(f'{number}. {href}\n')

@@ -87,8 +87,7 @@ def test_apply_cli_args_to_config_new(fix_use_english, fix_use_readme):
         apply_cli_args_to_settings(arguments)
 
     for key, value in arguments.items():
-        if value is not None:
-            assert getattr(fake_settings, key.upper()) == value
+        assert getattr(fake_settings, key.upper()) == value
 
 
 def test_apply_cli_args_readme(fix_default_arguments):

@@ -30,6 +30,24 @@ def test_make_prefix_ru():
         assert make_prefix(-1) == '{num:02} из {total:02d}'
 
 
+def test_numerate_iter_ru():
+    """Must make numeration for something without len."""
+    with patch('minimus.utils.utils_locale.settings') as fake_settings:
+        fake_settings.LANGUAGE = 'RU'
+        input_data = (chr(i) for i in range(97, 105))
+        reference_data = [
+            ('1 из 8', 'a'),
+            ('2 из 8', 'b'),
+            ('3 из 8', 'c'),
+            ('4 из 8', 'd'),
+            ('5 из 8', 'e'),
+            ('6 из 8', 'f'),
+            ('7 из 8', 'g'),
+            ('8 из 8', 'h')
+        ]
+        assert list(numerate(input_data)) == reference_data
+
+
 def test_numerate_small_ru():
     """Must make numeration with single digit."""
     with patch('minimus.utils.utils_locale.settings') as fake_settings:

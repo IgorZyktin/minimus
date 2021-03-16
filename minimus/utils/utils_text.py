@@ -26,17 +26,15 @@ def make_prefix(total: int, language: str = '') -> str:
     return prefix
 
 
-def numerate(collection: Iterable[T], total: Optional[int] = None,
+def numerate(collection: Iterable[T],
              language: str = '', ) -> Generator[Tuple[str, T], None, None]:
     """Same as enumerate, but with fancy numbers.
 
     >>> list(numerate(['a', 'b', 'c'], language='EN'))
     [('1 of 3', 'a'), ('2 of 3', 'b'), ('3 of 3', 'c')]
     """
-    if total is None:
-        collection = list(collection)
-        total = len(collection)
-
+    collection = list(collection)
+    total = len(collection)
     prefix = make_prefix(total, language)
 
     for i, each in enumerate(collection, start=1):

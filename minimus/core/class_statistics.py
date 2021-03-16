@@ -32,12 +32,21 @@ class Statistics:
 
     def get_tags_to_files(self) -> MapTuples:
         """Safely get attribute."""
-        return dict(self._tags_to_files)
+        return {
+            key: sorted(value, key=lambda x: x[1])
+            for key, value in self._tags_to_files.items()
+        }
 
     def get_categories_to_files(self) -> MapTuples:
         """Safely get attribute."""
-        return dict(self._category_to_files)
+        return {
+            key: sorted(value, key=lambda x: x[1])
+            for key, value in self._category_to_files.items()
+        }
 
     def get_associated_tags(self) -> Dict[str, List[str]]:
         """Safely get attribute."""
-        return dict(self._associated_tags)
+        return {
+            key: sorted(set(value))
+            for key, value in self._associated_tags.items()
+        }
