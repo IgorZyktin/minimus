@@ -2,7 +2,7 @@
 
 """Translation/transliterations utils.
 """
-from typing import Callable, Optional, List
+from typing import Callable, Optional, List, Any
 
 from minimus import settings, constants
 
@@ -18,14 +18,14 @@ def transliterate(something: str) -> str:
     return something.lower().translate(constants.TRANS_MAP)
 
 
-def announce(*args, callback: Callable, **kwargs) -> None:
+def announce(*args: Any, callback: Callable, **kwargs) -> None:
     """Print text but with fancy formatting.
 
     >>> announce(1, 2, 3, callback=print, z='test')
     1, 2, 3, z=test
     """
-    args = ', '.join(map(str, args))
-    text = ', '.join([args, *to_kv(kwargs)])
+    _args = ', '.join(str(x) for x in args)
+    text = ', '.join([_args, *to_kv(kwargs)])
     callback(text)
 
 

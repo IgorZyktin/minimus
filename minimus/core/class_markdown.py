@@ -5,12 +5,13 @@
 import re
 from typing import List, Tuple, Dict
 
+from minimus.core.class_abstract_renderer import AbstractRenderer
 from minimus.core.simple_structures import Document
 from minimus.utils.utils_locale import transliterate, translate as _
 from minimus.utils.utils_text import numerate
 
 
-class Markdown:
+class Markdown(AbstractRenderer):
     """Document rendering class.
     """
     # pattern for file header
@@ -85,7 +86,7 @@ class Markdown:
             return './' + path
         return path
 
-    def parse(self, text: str) -> Document:
+    def extract_features(self, text: str) -> Document:
         """Extract features from raw text."""
         header = self.extract_header(text)
         tags = self.extract_tags(text)
@@ -104,6 +105,7 @@ class Markdown:
     def render_metafile(self, tag: str,
                         corresponding_files: List[Tuple[str, str]],
                         associations: List[str]) -> Tuple[str, str]:
+        """Render metainfo file."""
         filename = self.make_filename_from_tag(tag)
 
         # make them unique but preserve order
@@ -135,8 +137,9 @@ class Markdown:
         lines.append('')
         return filename, '\n'.join(lines)
 
-    def render_index(self, category_to_files: Dict[str, List[str]],
+    def render_index(self, category_to_files: Dict[str, List[Tuple[str, str]]],
                      root: str = '') -> str:
+        """Render index file."""
         lines = [
             _('# All entries'),
             '\n'
@@ -147,7 +150,7 @@ class Markdown:
         if not root:
             root = './'
         else:
-            root += '/'
+            root = root.rstrip().rstrip('/') + '/'
 
         for number, (cat, files) in numerate(collection):
             filename = self.make_filename_from_tag(cat)

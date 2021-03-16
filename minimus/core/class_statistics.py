@@ -3,9 +3,11 @@
 """Statistics, that help tie files together.
 """
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from minimus.core.simple_structures import Document
+
+MapTuples = Dict[str, List[Tuple[str, str]]]
 
 
 class Statistics:
@@ -14,9 +16,9 @@ class Statistics:
 
     def __init__(self) -> None:
         """Initialize instance."""
-        self._category_to_files = defaultdict(list)
-        self._tags_to_files = defaultdict(list)
-        self._associated_tags = defaultdict(list)
+        self._category_to_files: MapTuples = defaultdict(list)
+        self._tags_to_files: MapTuples = defaultdict(list)
+        self._associated_tags: Dict[str, List[str]] = defaultdict(list)
 
     def add_document(self, filename: str, document: Document) -> None:
         """Analyze document components."""
@@ -28,11 +30,11 @@ class Statistics:
             element = (filename, document.header)
             self._category_to_files[document.category].append(element)
 
-    def get_tags_to_files(self) -> Dict[str, List[str]]:
+    def get_tags_to_files(self) -> MapTuples:
         """Safely get attribute."""
         return dict(self._tags_to_files)
 
-    def get_categories_to_files(self) -> Dict[str, List[str]]:
+    def get_categories_to_files(self) -> MapTuples:
         """Safely get attribute."""
         return dict(self._category_to_files)
 

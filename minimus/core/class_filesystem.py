@@ -75,8 +75,8 @@ class Filesystem:
         Return True if creation is successful.
         Do not give path to files to this method!
         """
-        path = Path(path)
-        parts = list(path.parts)
+        _path = Path(path)
+        parts = list(_path.parts)
         current_path = None
         actually_created = False
 

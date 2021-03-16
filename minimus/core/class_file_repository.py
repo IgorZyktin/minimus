@@ -3,11 +3,13 @@
 """Storage for files.
 """
 import json
-from typing import Dict, Iterable
+from typing import Dict, Iterator
 
 from colorama import Fore
 
+from minimus.core.class_abstract_renderer import AbstractRenderer
 from minimus.core.class_filesystem import Filesystem
+from minimus.core.class_statistics import Statistics
 from minimus.core.simple_structures import File
 from minimus.utils.utils_locale import stdout
 from minimus.utils.utils_text import numerate
@@ -29,7 +31,7 @@ class FileRepository:
         """
         return len(self._storage)
 
-    def __iter__(self) -> Iterable[File]:
+    def __iter__(self) -> Iterator[File]:
         """Iterate on models in repository.
         """
         return iter(self._storage.values())
@@ -79,12 +81,13 @@ class FileRepository:
 
         self._storage[filename] = new_instance
 
-    def update_files(self, stats, renderer):
+    def update_files(self, statistics: Statistics,
+                     renderer: AbstractRenderer) -> None:
         """Make output files from user created files."""
         for file in self:
-            if file.is_markdown:
-                document = renderer.parse(file.content)
-                stats.add_document(file.filename, document)
+            if file.is_markdown and file.content is not None:
+                document = renderer.extract_features(file.content)
+                statistics.add_document(file.filename, document)
                 file.content = document.content
 
     def save_files(self) -> None:
@@ -100,7 +103,7 @@ class FileRepository:
 
             target_path = self._filesystem.at_target(file_model.filename)
 
-            if file_model.is_markdown:
+            if file_model.is_markdown and file_model.content is not None:
                 self._filesystem.write_file(target_path, file_model.content)
                 stdout('\t{number}. Saved changes: {filename}',
                        number=number, filename=file_model.filename,
@@ -111,4 +114,4 @@ class FileRepository:
                 self._filesystem.copy_file(source_path, target_path)
                 stdout('\t{number}. Copied file: {filename}',
                        number=number, filename=file_model.filename,
-                       color=Fore.BLUE)
+                       color=Fore.MAGENTA)
