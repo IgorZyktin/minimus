@@ -34,19 +34,25 @@ class Statistics:
         """Safely get attribute."""
         return {
             key: sorted(value, key=lambda x: x[1])
-            for key, value in self._tags_to_files.items()
+            for key, value in sorted(
+                self._tags_to_files.items(), key=lambda x: x[0]
+            )
         }
 
     def get_categories_to_files(self) -> MapTuples:
         """Safely get attribute."""
         return {
             key: sorted(value, key=lambda x: x[1])
-            for key, value in self._category_to_files.items()
+            for key, value in sorted(
+                self._category_to_files.items(), key=lambda x: x[0]
+            )
         }
 
     def get_associated_tags(self) -> Dict[str, List[str]]:
         """Safely get attribute."""
         return {
             key: sorted(set(value))
-            for key, value in self._associated_tags.items()
+            for key, value in sorted(
+                self._associated_tags.items(), key=lambda x: x[0]
+            )
         }
