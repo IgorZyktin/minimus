@@ -68,11 +68,11 @@ def filesystem():
 def ref_files_in_repo():
     return [
         File(directory='folder1', filename='somefile1.md', content='{}',
-             is_markdown=True, is_new=False),
+             is_markdown=True, is_new=True),
         File(directory='folder1', filename='somefile2.md', content='{}',
-             is_markdown=True, is_new=False),
+             is_markdown=True, is_new=True),
         File(directory='folder1', filename='somefile3.md', content='{}',
-             is_markdown=True, is_new=False),
+             is_markdown=True, is_new=True),
     ]
 
 
@@ -80,11 +80,11 @@ def ref_files_in_repo():
 def ref_upd_files_in_repo():
     return [
         File(directory='folder1', filename='somefile1.md', content='wtf',
-             is_markdown=True, is_new=False),
+             is_markdown=True, is_new=True),
         File(directory='folder1', filename='somefile2.md', content='wtf',
-             is_markdown=True, is_new=False),
+             is_markdown=True, is_new=True),
         File(directory='folder1', filename='somefile3.md', content='wtf',
-             is_markdown=True, is_new=False)
+             is_markdown=True, is_new=True)
     ]
 
 
@@ -105,7 +105,6 @@ def repository():
         ('folder1', 'somefile1.md'),
         ('folder1', 'somefile2.md'),
         ('folder1', 'somefile3.md'),
-
     ]
     return FileRepository(fake_filesystem)
 

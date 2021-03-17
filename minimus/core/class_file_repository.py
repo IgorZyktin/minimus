@@ -67,7 +67,7 @@ class FileRepository:
         path = self._filesystem.join(directory, filename)
         actual_stats = self._filesystem.get_stats_for_file(path)
         is_markdown = filename.endswith('.md')
-        is_new = self._meta.get(filename) == actual_stats
+        is_new = self._meta.get(filename) != actual_stats
 
         new_instance = File(directory=directory,
                             filename=filename,
