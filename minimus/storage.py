@@ -195,8 +195,9 @@ def save_documents(target: str, documents: list[objects.Document],
 
 def save_tags(target: str, tags: list[objects.Tag]) -> None:
     """Сохранить документы для тегов."""
-    for number, tag in utils.numerate(tags):
-        print(Fore.YELLOW + f'\t{number}. Тег: {tag.title}')
+    for tag in tags:
         path = os.path.join(target, 'content', '_tags', tag.filename)
         with open(path, mode='w', encoding='utf-8') as file:
             file.write(tag.rendered)
+
+    print(Fore.YELLOW + f'\tСохранено {len(tags)} тегов')
