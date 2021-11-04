@@ -81,6 +81,10 @@ def _recursively_dig(path: str, pointers: list[objects.Pointer],
     entries = os.listdir(path)
 
     for entry in entries:
+        if entry.startswith('.'):
+            # .git попадает сюда
+            continue
+
         sub_path = os.path.join(path, entry)
         if os.path.isfile(sub_path):
             new_pointer = objects.Pointer(
