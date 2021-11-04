@@ -39,15 +39,20 @@ def split_text(text: str, filename: str) -> tuple[str, str, list[str], str]:
             f'текста, а у {filename} это не так'
         )
 
-    raw_header, raw_tags, body = segments
-    title, header = split_header(raw_header)
-    tags = split_tags(raw_tags)
+    try:
+        raw_header, raw_tags, body = segments
+        title, header = split_header(raw_header)
+        tags = split_tags(raw_tags)
+    except Exception:
+        raise ValueError(
+            f'Не удалось обработать документ {filename}')
+
     return title, header, tags, body
 
 
 def split_header(raw_header: str) -> tuple[str, str]:
     """Разделить сырую шапку на заголовок и собственно шапку."""
-    first, rest = [x.strip() for x in raw_header.split('\n', maxsplit=1)]
+    first, *rest = [x.strip() for x in raw_header.split('\n', maxsplit=1)]
     return first.strip('# '), ''.join(rest)
 
 
