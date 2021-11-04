@@ -1,63 +1,47 @@
 # -*- coding: utf-8 -*-
 
-"""Tools created to show something on screen.
+"""Модуль для вывода сообщений на экран.
 """
-from functools import partial
 
 from colorama import Fore
 
-from minimus import settings
-from minimus.utils.utils_locale import stdout
+from minimus import constants
 
 
-def show_greeting_message() -> None:
-    """Output greeting message on screen."""
-    _stdout = partial(stdout, color=Fore.LIGHTRED_EX)
-    _stdout(settings.LINE)
-    _stdout(settings.LOGO)
-    _stdout('Version: {version}', version=settings.__version__)
-    _stdout(settings.LINE)
+def greeting_message() -> None:
+    """Распечатать приветствие."""
+    separation_line()
+    print(Fore.LIGHTRED_EX + constants.LOGO)
+    print(Fore.LIGHTRED_EX + f'Version: {constants.__version__}')
+    separation_line()
 
 
-def show_resulting_settings() -> None:
-    """Output resulting settings on screen."""
-    _stdout = partial(stdout, color=Fore.CYAN)
-    _stdout('  Script started at: {folder}', folder=settings.LAUNCH_DIRECTORY)
-    _stdout('   Source directory: {folder}', folder=settings.SOURCE_DIRECTORY)
-    _stdout('   Output directory: {folder}', folder=settings.TARGET_DIRECTORY)
-    _stdout('README.md directory: {folder}', folder=settings.README_DIRECTORY)
+def setup(source: str, target: str) -> None:
+    """Вывести на экран стартовые настройки скрипта."""
+    print(f' Исходники: {source}')
+    print(f'Результаты: {target}')
 
 
-def show_separation_line() -> None:
-    """Output horizontal line on screen.
-    """
-    stdout(settings.LINE, color=Fore.LIGHTRED_EX)
+def separation_line() -> None:
+    """Вывести на экран горизонтальную линию."""
+    print(Fore.LIGHTRED_EX + constants.LINE)
 
 
-def show_user_files_rendering() -> None:
-    """Output message about the fact that we render user files.
-    """
-    stdout('Saving original files:', color=Fore.CYAN)
+def header(text: str) -> None:
+    """Вывести новый блок текста."""
+    print()
+    print(Fore.CYAN + text)
 
 
-def show_auto_files_rendering() -> None:
-    """Output message about the fact that we render auto created files.
-    """
-    stdout('')
-    stdout('Saving generated files:', color=Fore.CYAN)
+def final_message(seconds: float) -> None:
+    """Вывести на экран сообщение об окончании работы программы."""
+    separation_line()
+    print(Fore.LIGHTRED_EX + f'Обработка заняла {seconds:0.2f} сек.')
+    separation_line()
 
 
-def show_index_files_rendering() -> None:
-    """Output message about the fact that we render index files.
-    """
-    stdout('')
-    stdout('Saving indexes:', color=Fore.CYAN)
-
-
-def show_final_message(seconds: float) -> None:
-    """Вывести на экран сообщение об окончании работы программы.
-    """
-    _stdout = partial(stdout, color=Fore.LIGHTRED_EX)
-    _stdout(settings.LINE)
-    _stdout('Processing complete in {seconds} sec.', seconds=f'{seconds:0.2f}')
-    _stdout(settings.LINE)
+def warnings(lines: list[str]) -> None:
+    """Вывести на экран предупреждения."""
+    for line in lines:
+        print(f'\t{line}')
+    print()

@@ -1,13 +1,13 @@
 import setuptools
 
-from minimus import settings
+from minimus import constants
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='minimus',
-    version=settings.__version__,
+    version=constants.__version__,
     author='Igor Zyktin',
     author_email='nicord@yandex.ru',
     description='Small tool aiming to help making notes '
@@ -21,5 +21,5 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.10',
 )
