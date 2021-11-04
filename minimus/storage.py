@@ -151,7 +151,7 @@ def copy_media(target: str, media: list[objects.Pointer], cache: dict) -> None:
             shutil.copy(pointer.path, path)
         else:
             print(Fore.LIGHTWHITE_EX
-                  + f'\t{number}. Не менялся: {pointer.location}')
+                  + f'\t{number}. Не менялся: {pointer.location_url}')
 
 
 def is_changed(pointer: objects.Pointer, cache: dict) -> bool:
@@ -179,7 +179,7 @@ def save_documents(target: str, documents: list[objects.Document],
     for number, document in utils.numerate(documents):
         if is_changed(document.pointer, cache):
             print(Fore.YELLOW
-                  + f'\t{number}. Сохранён: {document.pointer.location}')
+                  + f'\t{number}. Сохранён: {document.pointer.location_url}')
             cache[document.pointer.location] = document.pointer.fingerprint
 
             create_folder(os.path.join(target, *document.pointer.steps))
@@ -189,7 +189,7 @@ def save_documents(target: str, documents: list[objects.Document],
         else:
             print(
                 Fore.LIGHTWHITE_EX
-                + f'\t{number}. Не менялся: {document.pointer.location}'
+                + f'\t{number}. Не менялся: {document.pointer.location_url}'
             )
 
 

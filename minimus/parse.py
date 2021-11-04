@@ -37,7 +37,7 @@ def split_text(text: str,
         raise ValueError(
             'Minimus предполагает, что документ будет '
             f'состоять из заголовка, тегов и собственно '
-            f'текста, а у {pointer.location} это не так'
+            f'текста, а у {pointer.location_url} это не так'
         )
 
     try:
@@ -46,7 +46,7 @@ def split_text(text: str,
         tags = split_tags(raw_tags)
     except Exception:
         raise ValueError(
-            f'Не удалось обработать документ {pointer.location}'
+            f'Не удалось обработать документ {pointer.location_url}'
         )
 
     return title, header, tags, body
@@ -76,7 +76,7 @@ def check_text(pointer: minimus.objects.Pointer, text: str) -> list[Warning]:
         if url != escaped_url:
             new_warning = objects.Warning([
                 f'Рекомендуемся изменить '
-                f'ссылку в документе {pointer.location}',
+                f'ссылку в документе {pointer.location_url}',
                 f'C варианта: {url}',
                 f'На вариант: {escaped_url}',
             ])

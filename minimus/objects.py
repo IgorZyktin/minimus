@@ -29,6 +29,11 @@ class Pointer:
         """Вернуть локальный путь."""
         return os.path.join(*self.steps, self.filename)
 
+    @cached_property
+    def location_url(self) -> str:
+        """Вернуть локальный путь(для гиперссылки)."""
+        return '/'.join([*self.steps, self.filename])
+
 
 @dataclass
 class Warning:
