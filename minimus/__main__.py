@@ -1,64 +1,64 @@
 # -*- coding: utf-8 -*-
 
-"""Starting file.
+"""Основной модуль.
 """
-import sys
+
 import time
 
+import click
 from colorama import init
 
-from minimus import settings, output
-from minimus.core.class_file_repository import FileRepository
-from minimus.core.class_filesystem import Filesystem
-from minimus.core.class_markdown import Markdown
-from minimus.core.class_statistics import Statistics
-from minimus.utils import arguments, utils_auto
+from minimus import output
+from minimus import render
+from minimus import storage
+from minimus import parse
 
 init(autoreset=True)
 
 
-def main():
-    """Entry point.
+@click.command()
+@click.option('--source',
+              required=True,
+              help='Каталог с исходными материалами')
+@click.option('--target',
+              required=True,
+              help='Каталог для сохранения обработанных материалов')
+def main(source: str, target: str):
+    """Точка входа.
     """
     start_time = time.monotonic()
-    output.show_greeting_message()
+    output.greeting_message()
 
-    # 1. initiate settings
-    given_arguments = arguments.parse_command_line_arguments(sys.argv)
-    arguments.apply_cli_args_to_settings(given_arguments)
+    source, target = storage.validate_setup(source, target)
+    output.setup(source, target)
 
-    # 2. create components
-    filesystem = Filesystem(settings.SOURCE_DIRECTORY,
-                            settings.TARGET_DIRECTORY,
-                            settings.README_DIRECTORY)
-    repository = FileRepository(filesystem)
-    renderer = Markdown()
-    stats = Statistics()
+    cache = storage.gather_cache(source)
 
-    if any([filesystem.ensure_folder_exists(filesystem.source_directory),
-            filesystem.ensure_folder_exists(filesystem.target_directory),
-            filesystem.ensure_folder_exists(filesystem.readme_directory)]):
-        output.show_separation_line()
+    pointers = storage.gather_pointers(source)
+    pointers = storage.skip_private_files(pointers)
+    notes, media = storage.split_pointers(pointers)
 
-    output.show_resulting_settings()
-    output.show_separation_line()
+    output.header('Сохранение заметок')
+    notes_with_text = storage.load_text(notes)
+    documents = parse.make_documents(notes_with_text)
+    correspondence = render.make_correspondence(documents)
+    render.update_all_documents(documents)
+    storage.save_documents(target, documents, cache)
 
-    # 3. handle user files
-    output.show_user_files_rendering()
-    repository.load_files()
-    repository.update_files(stats, renderer)
-    repository.save_files()
+    output.header('Генерация вспомогательных файлов')
+    tags = render.make_tags(correspondence)
+    storage.save_tags(target, tags)
 
-    # 4. handle automatically created files
-    output.show_auto_files_rendering()
-    utils_auto.make_files_for_tags(filesystem, stats, renderer)
+    output.header('Сохранение прочих файлов')
+    storage.copy_media(target, media, cache)
+    storage.save_cache(source, cache)
 
-    # 5. handle indexes
-    output.show_index_files_rendering()
-    utils_auto.make_index_file(filesystem, stats, renderer)
-    utils_auto.make_readme_file(filesystem, stats, renderer)
+    warnings = parse.extract_warnings(documents)
+    if warnings:
+        output.header('К исходникам есть замечания')
+        output.warnings(warnings)
 
-    output.show_final_message(time.monotonic() - start_time)
+    output.final_message(time.monotonic() - start_time)
 
 
 if __name__ == '__main__':
