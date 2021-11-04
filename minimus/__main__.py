@@ -48,6 +48,8 @@ def main(source: str, target: str):
     output.header('Генерация вспомогательных файлов')
     tags = render.make_tags(correspondence)
     storage.save_tags(target, tags)
+    readme = render.make_readme(documents)
+    storage.save_readme(target, readme)
 
     output.header('Сохранение прочих файлов')
     storage.copy_media(target, media, cache)

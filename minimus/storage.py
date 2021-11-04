@@ -200,4 +200,13 @@ def save_tags(target: str, tags: list[objects.Tag]) -> None:
         with open(path, mode='w', encoding='utf-8') as file:
             file.write(tag.rendered)
 
-    print(Fore.YELLOW + f'\tСохранено {len(tags)} тегов')
+    print(f'\tСохранено {len(tags)} тегов')
+
+
+def save_readme(target: str, readme: str) -> None:
+    """Сохранить README.md."""
+    path = os.path.join(target, 'README.md')
+    with open(path, mode='w', encoding='utf-8') as file:
+        file.write(readme)
+
+    print(f'\tСохранён {path}')

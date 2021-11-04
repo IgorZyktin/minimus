@@ -113,3 +113,53 @@ def link_for_tag(tag: str, steps: tuple[str, ...]) -> str:
     if up_text:
         return f'{up_text}/_tags/{tag}'
     return f'_tags/{tag}'
+
+
+def make_readme(documents: list[objects.Document]) -> str:
+    """Собрать содержимое головного файла README."""
+    lines = [f'# Всего записей: {len(documents)} шт.\n']
+
+    global_map = {}
+    for document in documents:
+        path = list(document.pointer.steps[1:])
+        insert_into_map(document, global_map, path)
+
+    render_global_map(global_map, lines)
+
+    return '\n'.join(lines) + '\n'
+
+
+def insert_into_map(document: objects.Document,
+                    global_map: dict, path: list[str]) -> None:
+    """Вставить документ в глобальную карту."""
+    if not path:
+        global_map[document.title] = document
+        return
+
+    if len(path) == 1:
+        category = path[0]
+        if category not in global_map:
+            global_map[category] = {}
+
+        global_map[category][document.title] = document
+        return
+
+    head, *tail = path
+    if head not in global_map:
+        global_map[head] = {}
+
+    insert_into_map(document, global_map[head], tail)
+
+
+def render_global_map(global_map: dict, lines: list[str],
+                      depth: int = 0) -> None:
+    """Преобразовать дерево документа в текст."""
+    prefix = '  ' * depth
+
+    for key, value in sorted(global_map.items(), key=lambda x: x[0]):
+        if isinstance(value, objects.Document):
+            link = escape(value.pointer.location_url)
+            lines.append(f'{prefix} - [{value.title}](./{link})\n')
+        else:
+            lines.append(f'{prefix} - {key}\n')
+            render_global_map(value, lines, depth + 1)

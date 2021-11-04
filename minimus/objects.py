@@ -51,6 +51,10 @@ class Document:
     warnings: list[Warning]
     rendered: str = ''
 
+    def __repr__(self) -> str:
+        """Вернуть текстовое представление."""
+        return f'<Document("{self.pointer.filename}")>'
+
 
 @dataclass
 class Tag:
