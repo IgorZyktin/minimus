@@ -14,7 +14,7 @@ def make_documents(notes_with_text: list[tuple[minimus.objects.Pointer, str]]
     documents = []
 
     for pointer, text in notes_with_text:
-        title, header, tags, body = split_text(text, pointer.filename)
+        title, header, tags, body = split_text(text, pointer)
         new_document = objects.Document(
             pointer=pointer,
             title=title,
@@ -28,7 +28,8 @@ def make_documents(notes_with_text: list[tuple[minimus.objects.Pointer, str]]
     return documents
 
 
-def split_text(text: str, filename: str) -> tuple[str, str, list[str], str]:
+def split_text(text: str,
+               pointer: objects.Pointer) -> tuple[str, str, list[str], str]:
     """Разделить исходный текст документа на секции."""
     segments = [x.strip() for x in text.split('---', maxsplit=2)]
 
@@ -36,7 +37,7 @@ def split_text(text: str, filename: str) -> tuple[str, str, list[str], str]:
         raise ValueError(
             'Minimus предполагает, что документ будет '
             f'состоять из заголовка, тегов и собственно '
-            f'текста, а у {filename} это не так'
+            f'текста, а у {pointer.location} это не так'
         )
 
     try:
@@ -45,7 +46,8 @@ def split_text(text: str, filename: str) -> tuple[str, str, list[str], str]:
         tags = split_tags(raw_tags)
     except Exception:
         raise ValueError(
-            f'Не удалось обработать документ {filename}')
+            f'Не удалось обработать документ {pointer.location}'
+        )
 
     return title, header, tags, body
 
