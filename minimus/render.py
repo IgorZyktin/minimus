@@ -96,8 +96,7 @@ def escape(link: str) -> str:
     """Заменить спецсимволы для гиперссылки."""
     return link \
         .replace(' ', '%20') \
-        .replace('+', '%2B') \
-        .replace(',', '%2C')
+        .replace('+', '%2B')
 
 
 def as_filename(title: str) -> str:
