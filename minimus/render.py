@@ -66,7 +66,7 @@ def render_tag_document(tag: str, documents: list[objects.Document],
 
         for number, tag in utils.numerate(tags):
             user_format = correspondence.casefold_to_normal[tag.casefold()]
-            link = escape(as_filename(user_format))
+            link = escape(as_filename(tag.casefold()))
             new_line = f'{number}. [{user_format}](./{link})\n'
             lines.append(new_line)
 
