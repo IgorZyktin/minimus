@@ -140,6 +140,8 @@ python -m minimus --source <папка заметок> --target <папка ре
 :--------------------------------------:|:-----------------------------------:
 --source "C:\my cool folder"  | Каталог исходных данных
 --target "C:\my cool folder"  | Каталог для сохранения
+--force-notes                 | Принудительно сохранить не менявшиеся файлы заметок
+--force-media                 | Принудительно сохранить не менявшиеся файлы данных
 
 ### Развёртывание
 
@@ -172,7 +174,8 @@ EXIT
 
 1. Подробнее про **python** (на этом языке написан линковщик):
     * https://pythonworld.ru/osnovy/skachat-python.html
-    * Скачать тут: https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe
+    * Скачать
+      тут: https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe
 
 1. Подробнее про **typora** (я применяю этот markdown редактор):
     * https://typora.io/

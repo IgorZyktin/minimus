@@ -16,10 +16,17 @@ def greeting_message() -> None:
     separation_line()
 
 
-def setup(source: str, target: str) -> None:
+def setup(source: str, target: str,
+          force_notes: bool, force_media: bool) -> None:
     """Вывести на экран стартовые настройки скрипта."""
     print(f' Исходники: {source}')
     print(f'Результаты: {target}')
+
+    if force_notes:
+        print(f'Включена принудительная перезапись файлов с заметками')
+
+    if force_media:
+        print(f'Включена принудительная перезапись вспомогательных файлов')
 
 
 def separation_line() -> None:

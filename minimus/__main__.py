@@ -23,14 +23,22 @@ init(autoreset=True)
 @click.option('--target',
               required=True,
               help='Каталог для сохранения обработанных материалов')
-def main(source: str, target: str):
+@click.option('--force-notes/--no-force-notes',
+              default=False,
+              help='Принудительно перезаписывать '
+                   'файлы заметок даже если они не обновлялись')
+@click.option('--force-media/--no-force-media',
+              default=False,
+              help='Принудительно перезаписывать '
+                   'файлы данных даже если они не обновлялись')
+def main(source: str, target: str, force_notes: bool, force_media: bool):
     """Точка входа.
     """
     start_time = time.monotonic()
     output.greeting_message()
 
     source, target = storage.validate_setup(source, target)
-    output.setup(source, target)
+    output.setup(source, target, force_notes, force_media)
 
     cache = storage.gather_cache(source)
 
@@ -43,7 +51,7 @@ def main(source: str, target: str):
     documents = parse.make_documents(notes_with_text)
     correspondence = render.make_correspondence(documents)
     render.update_all_documents(documents)
-    storage.save_documents(target, documents, cache)
+    storage.save_documents(target, documents, cache, force_notes)
 
     output.header('Генерация вспомогательных файлов')
     tags = render.make_tags(correspondence)
@@ -52,7 +60,7 @@ def main(source: str, target: str):
     storage.save_readme(target, readme)
 
     output.header('Сохранение прочих файлов')
-    storage.copy_media(target, media, cache)
+    storage.copy_media(target, media, cache, force_media)
     storage.save_cache(source, cache)
 
     warnings = parse.extract_warnings(documents)

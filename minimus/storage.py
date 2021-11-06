@@ -140,10 +140,11 @@ def split_pointers(pointers: list[objects.Pointer]
     return notes, media
 
 
-def copy_media(target: str, media: list[objects.Pointer], cache: dict) -> None:
+def copy_media(target: str, media: list[objects.Pointer],
+               cache: dict, force: bool) -> None:
     """Скопировать медиа файлы при необходимости."""
     for number, pointer in utils.numerate(media):
-        if is_changed(pointer, cache):
+        if is_changed(pointer, cache) or force:
             print(Fore.YELLOW
                   + f'\t{number}. Скопирован: {pointer.location}')
             cache[pointer.location] = pointer.fingerprint
@@ -172,12 +173,12 @@ def load_text(notes: list[objects.Pointer]
 
 
 def save_documents(target: str, documents: list[objects.Document],
-                   cache: dict) -> None:
+                   cache: dict, force: bool) -> None:
     """Сохранить все документы."""
     create_folder(os.path.join(target, 'content', '_tags'))
 
     for number, document in utils.numerate(documents):
-        if is_changed(document.pointer, cache):
+        if is_changed(document.pointer, cache) or force:
             print(Fore.YELLOW
                   + f'\t{number}. Сохранён: {document.pointer.location_url}')
             cache[document.pointer.location] = document.pointer.fingerprint
