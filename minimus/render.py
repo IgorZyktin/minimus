@@ -47,7 +47,8 @@ def make_correspondence(documents: list[objects.Document]
 def render_tag_document(tag: str, documents: list[objects.Document],
                         correspondence: objects.Correspondence) -> str:
     """Собрать документ для описания тега."""
-    lines = [f'## Тег "{tag}" применён в:\n']
+    user_format = correspondence.casefold_to_normal[tag.casefold()]
+    lines = [f'## Тег "{user_format}" применён в:\n']
 
     gen = sorted(documents, key=lambda x: x.title)
 
@@ -58,14 +59,15 @@ def render_tag_document(tag: str, documents: list[objects.Document],
         new_line = f'{number}. [{document.title}](../{link})\n'
         lines.append(new_line)
 
-    tags = correspondence.tags_to_tags.get((tag, tag.casefold()))
+    tags = correspondence.tags_to_tags.get(tag.casefold())
     if tags:
         lines.append('## Близкие теги:\n')
         tags = sorted(tags)
 
         for number, tag in utils.numerate(tags):
-            link = escape(as_filename(tag))
-            new_line = f'{number}. [{tag}](./{link})\n'
+            user_format = correspondence.casefold_to_normal[tag.casefold()]
+            link = escape(as_filename(user_format))
+            new_line = f'{number}. [{user_format}](./{link})\n'
             lines.append(new_line)
 
     return '\n'.join(lines) + '\n'
@@ -75,16 +77,13 @@ def make_tags(correspondence: objects.Correspondence) -> list[objects.Tag]:
     """Собрать экземпляр отрендеренных тегов."""
     tags = []
 
-    gen = [
-        (tag, documents)
-        for (tag, _), documents in correspondence.tags_to_documents.items()
-    ]
+    gen = list(correspondence.tags_to_documents.items())
     gen.sort(key=lambda x: x[0])
 
     for tag, documents in gen:
         new_tag = objects.Tag(
             title=tag,
-            filename=as_filename(tag),
+            filename=as_filename(tag.casefold()),
             rendered=render_tag_document(tag, documents, correspondence),
         )
         tags.append(new_tag)
@@ -108,7 +107,7 @@ def link_for_tag(tag: str, steps: tuple[str, ...]) -> str:
     """Сгенерировать безопасную ссылку для тега."""
     up = ['..'] * len(steps[1:])
     up_text = '/'.join(up)
-    tag = as_filename(escape(tag))
+    tag = as_filename(escape(tag.casefold()))
 
     if up_text:
         return f'{up_text}/_tags/{tag}'

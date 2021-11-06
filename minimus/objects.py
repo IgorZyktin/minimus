@@ -69,19 +69,41 @@ class Correspondence:
 
     def __init__(self):
         """Инициализировать экземпляр."""
-        self.tags_to_documents: dict[tuple[str, str], list[Document]] = {}
-        self.tags_to_tags: dict[tuple[str, str], set[str]] = {}
+        self.tags_to_documents: dict[str, list[Document]] = {}
+        self.tags_to_tags: dict[str, set[str]] = {}
+        self.casefold_to_normal: dict[str, str] = {}
 
     def add_tag(self, tag: str, document: Document) -> None:
         """Добавить тег в хранилище."""
-        pair = tag, tag.casefold()
+        key = self._add_tag_variant(tag)
 
-        if pair in self.tags_to_documents:
-            self.tags_to_documents[pair].append(document)
+        if key in self.tags_to_documents:
+            self.tags_to_documents[key].append(document)
         else:
-            self.tags_to_documents[pair] = [document]
+            self.tags_to_documents[key] = [document]
 
-        if pair in self.tags_to_tags:
-            self.tags_to_tags[pair].update(document.tags)
+        if key in self.tags_to_tags:
+            self.tags_to_tags[key].update(document.tags)
         else:
-            self.tags_to_tags[pair] = set(document.tags)
+            self.tags_to_tags[key] = set(document.tags)
+
+    def _add_tag_variant(self, tag: str) -> str:
+        """Сохранить не зависящий от регистра вариант тега.
+
+        С одной стороны не хочется менять форматирование пользователя,
+        с другой хотелось бы отдать предпочтение тегам с заглавной буквы.
+        Мы будем стараться хранить в качестве рабочей версии вариант
+        написания с первой заглавной буквой.
+        """
+        independent = tag.casefold()
+
+        saved = self.casefold_to_normal.get(independent)
+        if saved and tag:
+            first_letter_saved_is_not_upper = saved[0] != saved[0].upper()
+            first_letter_tag_is_upper = tag[0] == tag[0].upper()
+            if first_letter_saved_is_not_upper and first_letter_tag_is_upper:
+                self.casefold_to_normal[independent] = tag
+        else:
+            self.casefold_to_normal[independent] = tag
+
+        return independent
