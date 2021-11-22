@@ -37,6 +37,7 @@ class Pointer:
 
 @dataclass
 class Warning:
+    """Предупреждение с несколькими строчками описания проблемы."""
     lines: list[str]
 
 

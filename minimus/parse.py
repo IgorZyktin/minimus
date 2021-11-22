@@ -82,6 +82,11 @@ def check_text(pointer: minimus.objects.Pointer, text: str) -> list[Warning]:
             ])
             warnings.append(new_warning)
 
+    if 'TODO' in text:
+        warnings.append(objects.Warning([
+            f'TODO: {pointer.location}'
+        ]))
+
     return warnings
 
 
