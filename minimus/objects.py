@@ -22,9 +22,10 @@ class Fingerprint(typing.TypedDict):
 class File:
     """Пакет с метаинформацией о файле."""
     path: Path
+    content: str = ''
 
     @cached_property
-    def contents(self) -> str:
+    def original_content(self) -> str:
         """Вернуть содержимое файла."""
         with open(self.path, mode='r', encoding='utf-8') as file:
             contents = file.read()
@@ -65,14 +66,6 @@ class File:
 #         return f'<Document("{self.pointer.filename}")>'
 
 
-# @dataclass
-# class Tag:
-#     """Эквивалент одного тега."""
-#     title: str
-#     filename: str
-#     rendered: str = ''
-#
-#
 # class Correspondence:
 #     """Соответствие тегов и документов."""
 #

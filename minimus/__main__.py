@@ -4,8 +4,7 @@
 import time
 
 from minimus import output
-# from minimus import parse
-# from minimus import render
+from minimus import render
 from minimus import storage
 
 
@@ -22,19 +21,18 @@ def main() -> None:
     files = storage.get_files(path)
 
     output.header('Сохранение заметок')
-    # notes_with_text = storage.load_text(notes)
-    # documents = parse.make_documents(notes_with_text)
-    # correspondence = render.make_correspondence(documents)
-    # render.update_all_documents(documents)
-    # storage.save_documents(target, documents, cache, force_notes)
+    found_tags = {}
+    for file in files:
+        raw_tags = render.get_tags(file)
+        found_tags[file] = raw_tags
 
     output.header('Генерация вспомогательных файлов')
-    # tags = render.make_tags(correspondence)
-    # storage.save_tags(path, tags)
-    # readme = render.make_readme(documents)
+    tags = render.make_tags(found_tags)
+    storage.save_tags(path, tags)
 
-    # readme_path = storage.save_readme(path, readme)
-    # print(f'\tСохранён {readme_path.absolute()}')
+    readme = render.make_readme(documents)
+    readme_path = storage.save_readme(path, readme)
+    print(f'\tСохранён {readme_path.absolute()}')
 
     cache_path = storage.save_cache(path, cache)
     print(f'\tСохранён {cache_path.absolute()}')
