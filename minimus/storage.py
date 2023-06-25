@@ -1,11 +1,17 @@
 """Модуль по работе с файловой системой.
 """
-
+import json
 import os
 import sys
 from pathlib import Path
+from typing import Iterator
 
 from minimus import objects
+
+README_FILENAME = 'README.md'
+CACHE_FILENAME = '.minimus_cache.json'
+IGNORED_PREFIXES = ('~', '.', '_')
+SUPPORTED_EXTENSIONS = ('.md',)
 
 
 def get_path() -> Path:
@@ -36,85 +42,72 @@ def get_path() -> Path:
     return path
 
 
-# def make_fingerprint(path: str) -> objects.Fingerprint:
-#     """Получить слепок файла."""
-#     try:
-#         stat = os.stat(path)
-#
-#         with open(path, 'rb') as f:
-#             file_hash = hashlib.md5()
-#             while chunk := f.read(8192):
-#                 file_hash.update(chunk)
-#     except FileNotFoundError:
-#         fingerprint = objects.Fingerprint(md5='',
-#                                           created=-1,
-#                                           modified=-1,
-#                                           size=-1)
-#     else:
-#         fingerprint = objects.Fingerprint(md5=str(file_hash.hexdigest()),
-#                                           created=int(stat.st_ctime),
-#                                           modified=int(stat.st_mtime),
-#                                           size=stat.st_size)
-#     return fingerprint
-#
-#
-# def gather_pointers(source: str) -> list[objects.Pointer]:
-#     """Собрать указатели на файлы."""
-#     pointers = []
-#     _recursively_dig(source, pointers, steps=[])
-#     return pointers
-#
-#
-# def _recursively_dig(path: str, pointers: list[objects.Pointer],
-#                      steps: list[str]) -> None:
-#     """Рекурсивно собрать данные по всем файлам в каталоге."""
-#     entries = os.listdir(path)
-#
-#     for entry in entries:
-#         if entry.startswith('.'):
-#             # .git попадает сюда
-#             continue
-#
-#         sub_path = os.path.join(path, entry)
-#         if os.path.isfile(sub_path):
-#             new_pointer = objects.Pointer(
-#                 path=sub_path,
-#                 filename=entry,
-#                 steps=tuple(steps),
-#                 fingerprint=make_fingerprint(sub_path),
-#             )
-#             pointers.append(new_pointer)
-#         else:
-#             _recursively_dig(sub_path, pointers, steps + [entry])
-#
-#
-# def gather_cache(source: str) -> dict:
-#     """Загрузить данные об уже обработанных файлах."""
-#     path = os.path.join(source, '~meta.json')
-#     try:
-#         with open(path, mode='r', encoding='utf-8') as file:
-#             contents = json.load(file)
-#     except FileNotFoundError:
-#         contents = {}
-#     return contents
-#
-#
-# def save_cache(source: str, cache: dict) -> None:
-#     """Сохранить данные об уже обработанных файлах."""
-#     path = os.path.join(source, '~meta.json')
-#     with open(path, mode='w', encoding='utf-8') as file:
-#         json.dump(cache, file, ensure_ascii=False, indent=4)
-#
-#
-# def skip_private_files(pointers: list[objects.Pointer]
-#                        ) -> list[objects.Pointer]:
-#     """Убрать файлы не предназначенные для обработки."""
-#     return [
-#         x for x in pointers
-#         if not x.filename.startswith(('~', '_'))
-#     ]
-#
-#
+def get_cache(path: Path) -> dict:
+    """Загрузить данные об уже обработанных файлах."""
+    full_path = path / CACHE_FILENAME
+
+    try:
+        with open(full_path, mode='r', encoding='utf-8') as file:
+            cache = json.load(file)
+    except FileNotFoundError:
+        cache = {}
+
+    return cache
+
+
+def save_readme(path: Path, readme: str) -> Path:
+    """Сохранить README.md."""
+    full_path = path / README_FILENAME
+
+    with open(full_path, mode='w', encoding='utf-8') as file:
+        file.write(readme)
+
+    return full_path
+
+
+def save_cache(path: Path, cache: dict) -> Path:
+    """Сохранить данные об уже обработанных файлах."""
+    full_path = path / CACHE_FILENAME
+
+    with open(full_path, mode='w', encoding='utf-8') as file:
+        json.dump(cache, file, ensure_ascii=False, indent=4)
+
+    return full_path
+
+
+def get_files(path: Path) -> list[objects.File]:
+    """Собрать файлы."""
+    files = []
+    _recursively_dig(path, files)
+    return files
+
+
+def _recursively_dig(path: Path, files: list[objects.File]) -> None:
+    """Рекурсивно собрать данные по всем файлам в каталоге."""
+    entries = os.listdir(path)
+
+    for filename in get_normal_filenames(entries):
+        sub_path = path / filename
+
+        if sub_path.is_file():
+            new_file = objects.File(path)
+            files.append(new_file)
+        else:
+            _recursively_dig(sub_path, files)
+
+
+def get_normal_filenames(entries: list[str]) -> Iterator[str]:
+    """Вернуть только имена, подходящие для обработки."""
+    for entry in entries:
+        if entry.lower().startswith(IGNORED_PREFIXES):
+            continue
+
+        if not entry.lower().endswith(SUPPORTED_EXTENSIONS):
+            continue
+
+        yield entry
+
+
 # def split_pointers(pointers: list[objects.Pointer]
 #                    ) -> tuple[list[objects.Pointer], list[objects.Pointer]]:
 #     """Разделить исходные файлы на текстовые заметки и всё остальное."""
@@ -184,20 +177,11 @@ def get_path() -> Path:
 #             )
 #
 #
-def save_tags(path: Path, tags: list[objects.Tag]) -> None:
-    """Сохранить документы для тегов."""
+# def save_tags(path: Path, tags: list[objects.Tag]) -> None:
+#     """Сохранить документы для тегов."""
 #     for tag in tags:
 #         path = os.path.join(target, 'content', '_tags', tag.filename)
 #         with open(path, mode='w', encoding='utf-8') as file:
 #             file.write(tag.rendered)
 #
 #     print(f'\tСохранено {len(tags)} тегов')
-
-
-def save_readme(path: Path, readme: str) -> None:
-    """Сохранить README.md."""
-    full_path = str((path / 'README.md').absolute())
-    with open(full_path, mode='w', encoding='utf-8') as file:
-        file.write(readme)
-
-    print(f'\tСохранён {path}')

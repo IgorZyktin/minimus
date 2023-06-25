@@ -4,8 +4,8 @@
 import time
 
 from minimus import output
-from minimus import parse
-from minimus import render
+# from minimus import parse
+# from minimus import render
 from minimus import storage
 
 
@@ -16,13 +16,10 @@ def main() -> None:
 
     output.greet()
     path = storage.get_path()
+    cache = storage.get_cache(path)
+
     output.print_path(path)
-
-    # cache = storage.gather_cache(source)
-
-    # pointers = storage.gather_pointers(source)
-    # pointers = storage.skip_private_files(pointers)
-    # notes, media = storage.split_pointers(pointers)
+    files = storage.get_files(path)
 
     output.header('Сохранение заметок')
     # notes_with_text = storage.load_text(notes)
@@ -32,10 +29,15 @@ def main() -> None:
     # storage.save_documents(target, documents, cache, force_notes)
 
     output.header('Генерация вспомогательных файлов')
-    tags = render.make_tags(correspondence)
-    storage.save_tags(path, tags)
-    readme = render.make_readme(documents)
-    storage.save_readme(path, readme)
+    # tags = render.make_tags(correspondence)
+    # storage.save_tags(path, tags)
+    # readme = render.make_readme(documents)
+
+    # readme_path = storage.save_readme(path, readme)
+    # print(f'\tСохранён {readme_path.absolute()}')
+
+    cache_path = storage.save_cache(path, cache)
+    print(f'\tСохранён {cache_path.absolute()}')
 
     output.complete(time.perf_counter() - start_time)
 
