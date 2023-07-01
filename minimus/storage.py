@@ -4,14 +4,9 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Iterator
 
+from minimus import constants
 from minimus import objects
-
-README_FILENAME = 'README.md'
-CACHE_FILENAME = '.minimus_cache.json'
-IGNORED_PREFIXES = ('~', '.', '_')
-SUPPORTED_EXTENSIONS = ('.md',)
 
 
 def get_path() -> Path:
@@ -44,7 +39,7 @@ def get_path() -> Path:
 
 def get_cache(path: Path) -> dict:
     """Загрузить данные об уже обработанных файлах."""
-    full_path = path / CACHE_FILENAME
+    full_path = path / constants.CACHE_FILENAME
 
     try:
         with open(full_path, mode='r', encoding='utf-8') as file:
@@ -57,7 +52,7 @@ def get_cache(path: Path) -> dict:
 
 def save_readme(path: Path, readme: str) -> Path:
     """Сохранить README.md."""
-    full_path = path / README_FILENAME
+    full_path = path / constants.README_FILENAME
 
     with open(full_path, mode='w', encoding='utf-8') as file:
         file.write(readme)
@@ -67,7 +62,7 @@ def save_readme(path: Path, readme: str) -> Path:
 
 def save_cache(path: Path, cache: dict) -> Path:
     """Сохранить данные об уже обработанных файлах."""
-    full_path = path / CACHE_FILENAME
+    full_path = path / constants.CACHE_FILENAME
 
     with open(full_path, mode='w', encoding='utf-8') as file:
         json.dump(cache, file, ensure_ascii=False, indent=4)
@@ -78,41 +73,54 @@ def save_cache(path: Path, cache: dict) -> Path:
 def get_files(path: Path) -> list[objects.File]:
     """Собрать файлы."""
     files = []
-    _recursively_dig(path, files)
+    _recursively_dig(path, path, files)
     return files
 
 
-def _recursively_dig(path: Path, files: list[objects.File]) -> None:
+def _recursively_dig(
+        root: Path,
+        path: Path,
+        files: list[objects.File],
+) -> None:
     """Рекурсивно собрать данные по всем файлам в каталоге."""
-    entries = os.listdir(path)
+    entries: list[str] = os.listdir(path)
 
-    for filename in get_normal_filenames(entries):
-        sub_path = path / filename
+    for name in entries:
+        sub_path = path / name
 
         if sub_path.is_file():
-            new_file = objects.File(path)
-            files.append(new_file)
+            if can_handle_this(name):
+                new_file = objects.File(root, sub_path)
+                files.append(new_file)
         else:
-            _recursively_dig(sub_path, files)
+            if name != constants.TAGS_FOLDER:
+                _recursively_dig(root, sub_path, files)
 
 
-def get_normal_filenames(entries: list[str]) -> Iterator[str]:
-    """Вернуть только имена, подходящие для обработки."""
-    for entry in entries:
-        if entry.lower().startswith(IGNORED_PREFIXES):
-            continue
+def can_handle_this(name: str) -> bool:
+    """Вернуть True если мы умеем обрабатывать такие файлы."""
+    if name.lower().startswith(constants.IGNORED_PREFIXES):
+        return False
 
-        if not entry.lower().endswith(SUPPORTED_EXTENSIONS):
-            continue
+    if not name.lower().endswith(constants.SUPPORTED_EXTENSIONS):
+        return False
 
-        yield entry
+    if name == constants.README_FILENAME:
+        return False
+
+    return True
 
 
-# def save_tags(path: Path, tags: list[objects.Tag]) -> None:
-#     """Сохранить документы для тегов."""
-#     for tag in tags:
-#         path = os.path.join(target, 'content', '_tags', tag.filename)
-#         with open(path, mode='w', encoding='utf-8') as file:
-#             file.write(tag.rendered)
-#
-#     print(f'\tСохранено {len(tags)} тегов')
+def ensure_folder_for_tags(path: Path) -> None:
+    """Создать каталог для тегов, если такового нет."""
+    (path / constants.TAGS_FOLDER).mkdir(exist_ok=True)
+
+
+def save_tag(path: Path, filename: str, content: str) -> Path:
+    """Сохранить документ для тега."""
+    full_path = path / constants.TAGS_FOLDER / filename
+
+    with open(full_path, mode='w', encoding='utf-8') as file:
+        file.write(content)
+
+    return full_path

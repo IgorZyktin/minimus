@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-
-"""Вспомогательные элементы.
+"""Утилиты.
 """
-from typing import Iterable, Generator, TypeVar
+from typing import Iterable
+from typing import Iterator
+from typing import TypeVar
 
-T = TypeVar('T')
+from minimus import constants
 
 
 def make_prefix(total: int) -> str:
@@ -18,7 +19,10 @@ def make_prefix(total: int) -> str:
     return prefix
 
 
-def numerate(collection: Iterable[T]) -> Generator[tuple[str, T], None, None]:
+T = TypeVar('T')
+
+
+def numerate(collection: Iterable[T]) -> Iterator[tuple[str, T]]:
     """Проставить номер позиции при перечислении.
 
     >>> list(numerate(['a', 'b', 'c']))
@@ -31,3 +35,14 @@ def numerate(collection: Iterable[T]) -> Generator[tuple[str, T], None, None]:
     for i, each in enumerate(collection, start=1):
         number = prefix.format(num=i, total=total)
         yield number, each
+
+
+def transliterate(something: str) -> str:
+    """Конвертировать киррилическое написание в латиницу.
+
+    >>> transliterate('Два весёлых гуся')
+    'dva_veselyh_gusya'
+    >>> transliterate('regnum dei')
+    'regnum_dei'
+    """
+    return something.lower().translate(constants.TRANS_MAP)

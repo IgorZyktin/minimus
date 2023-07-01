@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-
-"""Модуль c классами объектов.
+"""Модуль с классами объектов.
 """
 import hashlib
 import os
 import typing
-from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
+
+from minimus import constants
 
 
 class Fingerprint(typing.TypedDict):
@@ -18,19 +18,32 @@ class Fingerprint(typing.TypedDict):
     size: int
 
 
-@dataclass
 class File:
     """Пакет с метаинформацией о файле."""
-    path: Path
-    content: str = ''
+
+    def __init__(self, root: Path, path: Path, content: str = '') -> None:
+        """Инициализировать экземпляр."""
+        self.root = root
+        self.path = path
+        self._content: str | None = content or None
+        self.has_changes = False
+
+    def __eq__(self, other: 'File') -> bool:
+        """Вернуть True при равенстве."""
+        return self.path == other.path
+
+    def __hash__(self):
+        """Вернуть хэш пути."""
+        return hash(self.path.absolute())
 
     @cached_property
-    def original_content(self) -> str:
+    def content(self) -> str:
         """Вернуть содержимое файла."""
-        with open(self.path, mode='r', encoding='utf-8') as file:
-            contents = file.read()
+        if self._content is None:
+            with open(self.path, mode='r', encoding='utf-8') as file:
+                self._content = file.read()
 
-        return contents
+        return self._content
 
     @cached_property
     def fingerprint(self) -> Fingerprint:
@@ -49,63 +62,17 @@ class File:
             size=stat.st_size,
         )
 
+    @cached_property
+    def title(self) -> str:
+        """Вернуть заголовок файла."""
+        match = constants.TITLE_PATTERN.search(self.content)
+        if match is None:
+            return constants.UNKNOWN
+        return match.groups()[0]
 
-# @dataclass
-# class Document:
-#     """Эквивалент одной заметки."""
-#     pointer: Pointer
-#     title: str
-#     header: str
-#     tags: list[str]
-#     body: str
-#     warnings: list[Warning]
-#     rendered: str = ''
-#
-#     def __repr__(self) -> str:
-#         """Вернуть текстовое представление."""
-#         return f'<Document("{self.pointer.filename}")>'
-
-
-# class Correspondence:
-#     """Соответствие тегов и документов."""
-#
-#     def __init__(self):
-#         """Инициализировать экземпляр."""
-#         self.tags_to_documents: dict[str, list[Document]] = {}
-#         self.tags_to_tags: dict[str, set[str]] = {}
-#         self.casefold_to_normal: dict[str, str] = {}
-#
-#     def add_tag(self, tag: str, document: Document) -> None:
-#         """Добавить тег в хранилище."""
-#         key = self._add_tag_variant(tag)
-#
-#         if key in self.tags_to_documents:
-#             self.tags_to_documents[key].append(document)
-#         else:
-#             self.tags_to_documents[key] = [document]
-#
-#         if key in self.tags_to_tags:
-#             self.tags_to_tags[key].update(document.tags)
-#         else:
-#             self.tags_to_tags[key] = set(document.tags)
-#
-#     def _add_tag_variant(self, tag: str) -> str:
-#         """Сохранить не зависящий от регистра вариант тега.
-#
-#         С одной стороны не хочется менять форматирование пользователя,
-#         с другой хотелось бы отдать предпочтение тегам с заглавной буквы.
-#         Мы будем стараться хранить в качестве рабочей версии вариант
-#         написания с первой заглавной буквой.
-#         """
-#         independent = tag.casefold()
-#
-#         saved = self.casefold_to_normal.get(independent)
-#         if saved and tag:
-#             first_letter_saved_is_not_upper = saved[0] != saved[0].upper()
-#             first_letter_tag_is_upper = tag[0] == tag[0].upper()
-#             if first_letter_saved_is_not_upper and first_letter_tag_is_upper:
-#                 self.casefold_to_normal[independent] = tag
-#         else:
-#             self.casefold_to_normal[independent] = tag
-#
-#         return independent
+    @cached_property
+    def tags(self) -> list[str]:
+        """Вернуть все теги в файле."""
+        return sorted(
+            constants.BASIC_TAG_PATTERN.findall(self.content)
+        )
