@@ -2,9 +2,11 @@
 """
 import time
 
-from minimus import markup
-from minimus import output
-from minimus import storage
+from minimus.src import constants
+from minimus.src import markup
+from minimus.src import objects
+from minimus.src import output
+from minimus.src import storage
 
 
 def main() -> None:
@@ -12,38 +14,50 @@ def main() -> None:
     """
     start_time = time.perf_counter()
 
-    output.greet()
     path = storage.get_path()
-    cache = storage.get_cache(path)
-
+    output.greet()
     output.print_path(path)
+
+    cache = objects.Cache(path=path, contents={})
+    cache.load()
+
     files = storage.get_files(path)
-    files.sort(key=lambda file: file.path.name)
+    files.sort(key=lambda file: file.path)
 
     gathered_tags, neighbours = markup.gather_tags_from_files(files)
 
-    if gathered_tags:
-        output.header('Сохранение заметок')
-        for each_file in files:
-            cache[str(each_file.path)] = each_file.fingerprint
-            # TODO
+    if not gathered_tags:
+        output.header(f'В каталоге {path.absolute()} заметок не найдено')
+        return
 
-        output.header('Сохранение тегов')
-        storage.ensure_folder_for_tags(path)
-        for tag, sub_files in gathered_tags.items():
-            filename = markup.get_tag_filename(tag)
-            sub_files = sorted(sub_files, key=lambda file: file.path.name)
-            content = markup.render_tag(tag, sub_files, neighbours)
-            storage.save_tag(path, filename, content)
-        print(f'\tСохранено {len(gathered_tags)} шт. тегов')
+    output.header('Сохранение заметок')
+    for each_file in files:
+        if cache.has_no_changes(each_file):
+            print(f'\tБез изменений: {each_file.relative_path}')
+        else:
+            # TODO - тут мы меняем теги в файле
+            pass
 
-        output.header('Генерация вспомогательных файлов')
-        readme = markup.make_readme(files)
-        readme_path = storage.save_readme(path, readme)
-        print(f'\tСохранён {readme_path.absolute()}')
+        cache.store_file(each_file)
 
-        cache_path = storage.save_cache(path, cache)
-        print(f'\tСохранён кеш {cache_path.absolute()}')
+    output.header('Сохранение тегов')
+    storage.ensure_folder_for_tags(path)
+    for tag, sub_files in gathered_tags.items():
+        filename = markup.get_tag_filename(tag)
+        sub_files = sorted(sub_files, key=lambda file: file.path.name)
+        content = markup.render_tag(tag, sub_files, neighbours)
+        storage.save_tag(path, filename, content)
+    print(f'\tСохранено тегов: {len(gathered_tags)} шт. ')
+
+    output.header('Генерация вспомогательных файлов')
+    readme_content = markup.make_readme(files)
+    readme_path = path / constants.README_FILENAME
+    readme = objects.File(path=readme_path, content=readme_content)
+    readme.save()
+    print(f'\tСохранён: {readme_path.absolute()}')
+
+    cache_path = cache.save()
+    print(f'\tСохранён: {cache_path.absolute()}')
 
     output.complete(time.perf_counter() - start_time)
 

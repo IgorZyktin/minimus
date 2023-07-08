@@ -5,7 +5,7 @@ from typing import Iterable
 from typing import Iterator
 from typing import TypeVar
 
-from minimus import constants
+from minimus.src import constants
 
 
 def make_prefix(total: int) -> str:

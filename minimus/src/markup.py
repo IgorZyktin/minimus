@@ -3,9 +3,9 @@
 from collections import defaultdict
 from pathlib import Path
 
-from minimus import constants
-from minimus import objects
-from minimus import utils
+from minimus.src import constants
+from minimus.src import objects
+from minimus.src import utils
 
 
 def get_tag_filename(text: str) -> str:

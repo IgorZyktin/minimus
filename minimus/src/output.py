@@ -2,7 +2,7 @@
 """
 from pathlib import Path
 
-from minimus import constants
+from minimus.src import constants
 
 
 def greet() -> None:

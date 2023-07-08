@@ -1,19 +1,18 @@
 """Модуль по работе с файловой системой.
 """
-import json
 import os
 import sys
 from pathlib import Path
 
-from minimus import constants
-from minimus import objects
+from minimus.src import constants
+from minimus.src import objects
 
 
 def get_path() -> Path:
     """Верни корневой каталог, в котором хранятся заметки."""
     match sys.argv:
         case [_]:
-            raw_path = '.'
+            raw_path = '..'
         case [_, raw_path]:
             pass
         case _:
@@ -37,39 +36,6 @@ def get_path() -> Path:
     return path
 
 
-def get_cache(path: Path) -> dict:
-    """Загрузить данные об уже обработанных файлах."""
-    full_path = path / constants.CACHE_FILENAME
-
-    try:
-        with open(full_path, mode='r', encoding='utf-8') as file:
-            cache = json.load(file)
-    except FileNotFoundError:
-        cache = {}
-
-    return cache
-
-
-def save_readme(path: Path, readme: str) -> Path:
-    """Сохранить README.md."""
-    full_path = path / constants.README_FILENAME
-
-    with open(full_path, mode='w', encoding='utf-8') as file:
-        file.write(readme)
-
-    return full_path
-
-
-def save_cache(path: Path, cache: dict) -> Path:
-    """Сохранить данные об уже обработанных файлах."""
-    full_path = path / constants.CACHE_FILENAME
-
-    with open(full_path, mode='w', encoding='utf-8') as file:
-        json.dump(cache, file, ensure_ascii=False, indent=4)
-
-    return full_path
-
-
 def get_files(path: Path) -> list[objects.File]:
     """Собрать файлы."""
     files = []
@@ -90,7 +56,10 @@ def _recursively_dig(
 
         if sub_path.is_file():
             if can_handle_this(name):
-                new_file = objects.File(root, sub_path)
+                new_file = objects.File(
+                    path=sub_path,
+                    root=root,
+                )
                 files.append(new_file)
         else:
             if name != constants.TAGS_FOLDER:
