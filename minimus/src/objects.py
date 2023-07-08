@@ -62,6 +62,11 @@ class File:
             self.load()
         return self._content
 
+    @content.setter
+    def content(self, new_content: str) -> None:
+        """Установить новое содержимое файла."""
+        self._content = new_content
+
     @cached_property
     def relative_path(self) -> Path:
         """Вернуть путь относительно корня."""

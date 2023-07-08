@@ -83,13 +83,3 @@ def can_handle_this(name: str) -> bool:
 def ensure_folder_for_tags(path: Path) -> None:
     """Создать каталог для тегов, если такового нет."""
     (path / constants.TAGS_FOLDER).mkdir(exist_ok=True)
-
-
-def save_tag(path: Path, filename: str, content: str) -> Path:
-    """Сохранить документ для тега."""
-    full_path = path / constants.TAGS_FOLDER / filename
-
-    with open(full_path, mode='w', encoding='utf-8') as file:
-        file.write(content)
-
-    return full_path

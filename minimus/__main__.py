@@ -33,10 +33,16 @@ def main() -> None:
     output.header('Сохранение заметок')
     for each_file in files:
         if cache.has_no_changes(each_file):
-            print(f'\tБез изменений: {each_file.relative_path}')
+            print(f'\tТеги не менялись: {each_file.relative_path}')
         else:
-            # TODO - тут мы меняем теги в файле
-            pass
+            new_content = markup.replace_bare_tags(each_file.content)
+
+            if new_content != each_file.content:
+                each_file.content = new_content
+                each_file.save()
+                print(f'\t+++ Сохранён: {each_file.relative_path}')
+            else:
+                print(f'\tТеги не менялись: {each_file.relative_path}')
 
         cache.store_file(each_file)
 
@@ -45,12 +51,14 @@ def main() -> None:
     for tag, sub_files in gathered_tags.items():
         filename = markup.get_tag_filename(tag)
         sub_files = sorted(sub_files, key=lambda file: file.path.name)
-        content = markup.render_tag(tag, sub_files, neighbours)
-        storage.save_tag(path, filename, content)
+        tag_content = markup.make_tag_content(tag, sub_files, neighbours)
+        tag_path = path / constants.TAGS_FOLDER / filename
+        tag = objects.File(path=tag_path, content=tag_content)
+        tag.save()
     print(f'\tСохранено тегов: {len(gathered_tags)} шт. ')
 
     output.header('Генерация вспомогательных файлов')
-    readme_content = markup.make_readme(files)
+    readme_content = markup.make_readme_content(files)
     readme_path = path / constants.README_FILENAME
     readme = objects.File(path=readme_path, content=readme_content)
     readme.save()

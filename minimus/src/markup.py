@@ -31,7 +31,7 @@ def gather_tags_from_files(
     return found_tags, neighbours
 
 
-def render_tag(
+def make_tag_content(
         tag: str,
         files: list[objects.File],
         neighbours: dict[str, set[str]],
@@ -83,10 +83,11 @@ def as_href(title: str, link: str) -> str:
     return f'[{title}](../{link})'
 
 
-def make_readme(files: list[objects.File]) -> str:
+def make_readme_content(files: list[objects.File]) -> str:
     """Собрать содержимое головного файла README."""
     lines = [f'# Всего записей: {len(files)} шт.\n']
 
+    # FIXME - добавить разделение по категориям
     for number, file in utils.numerate(files):
         path = file.path.relative_to(file.root.parent)
         link = as_href(
@@ -96,3 +97,12 @@ def make_readme(files: list[objects.File]) -> str:
         lines.append(f'{number}. {link}\n')
 
     return '\n'.join(lines) + '\n'
+
+
+def replace_bare_tags(content: str) -> str:
+    """Заменить теги на ссылки.
+
+    Работает только для тех тегов, которые оформлены как простой текст.
+    """
+    # FIXME - заменить текст
+    return content
