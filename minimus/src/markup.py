@@ -46,7 +46,7 @@ def make_tag_content(
         file_path = file.path.relative_to(file.root)
         link = as_href(
             title=file.title,
-            link=escape(str(file_path)),
+            link=escape(f'../{file_path}'),
         )
         lines.append(f'{number}. {link}\n')
 
@@ -61,7 +61,7 @@ def make_tag_content(
             full_path = Path(constants.TAGS_FOLDER) / filename
             link = as_href(
                 title=tag,
-                link=escape(str(full_path)),
+                link=escape(f'../{full_path}'),
             )
             lines.append(f'{number}. {link}\n')
 
@@ -80,7 +80,7 @@ def as_filename(title: str) -> str:
 
 def as_href(title: str, link: str) -> str:
     """Сгенерировать гиперссылку."""
-    return f'[{title}](../{link})'
+    return f'[{title}]({link})'
 
 
 def make_readme_content(files: list[objects.File]) -> str:
@@ -99,10 +99,53 @@ def make_readme_content(files: list[objects.File]) -> str:
     return '\n'.join(lines) + '\n'
 
 
-def replace_bare_tags(content: str) -> str:
+def replace_bare_tags(file: objects.File) -> str:
     """Заменить теги на ссылки.
 
     Работает только для тех тегов, которые оформлены как простой текст.
+    Есть риск, что replace очень медленный, но пока предполагаем,
+    что файлы у нас не очень большие.
     """
-    # FIXME - заменить текст
+    content = file.content
+    already_replaced: set[str] = set()
+
+    for tag in constants.BARE_TAG_PATTERN.finditer(file.content):
+        prefix = tag.groups()[0]
+        text = tag.groups()[1]
+        suffix = tag.groups()[2]
+
+        if text in already_replaced:
+            continue
+
+        text_before = prefix + text + suffix
+        tag_filename = get_tag_filename(text)
+        link = get_relative_path_for_tag(file.root, file.path, tag_filename)
+        text_after = as_href(
+            title=f'{{{{ {text} }}}}',
+            link=link,
+        )
+        content = content.replace(text_before, text_after)
+        already_replaced.add(text)
+
     return content
+
+
+def get_relative_path_for_tag(
+        root: Path,
+        file_path: Path,
+        tag_filename: str,
+) -> str:
+    """Вернуть относительный путь от файла до указанного тега."""
+    from_root = file_path.parent.relative_to(root)
+    hops = len(from_root.parts)
+
+    path = f'{constants.TAGS_FOLDER}/{tag_filename}'
+
+    if hops == 0:
+        path = f'./{path}'
+
+    else:
+        for _ in range(hops):
+            path = f'../{path}'
+
+    return path

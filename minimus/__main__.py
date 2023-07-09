@@ -35,7 +35,7 @@ def main() -> None:
         if cache.has_no_changes(each_file):
             print(f'\tТеги не менялись: {each_file.relative_path}')
         else:
-            new_content = markup.replace_bare_tags(each_file.content)
+            new_content = markup.replace_bare_tags(each_file)
 
             if new_content != each_file.content:
                 each_file.content = new_content

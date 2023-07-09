@@ -124,7 +124,7 @@ class Cache:
         try:
             with open(full_path, mode='r', encoding='utf-8') as file:
                 self.contents = json.load(file)
-        except FileNotFoundError:
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
             self.contents = {}
 
         return full_path
