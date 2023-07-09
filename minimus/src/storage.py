@@ -12,7 +12,7 @@ def get_path() -> Path:
     """Верни корневой каталог, в котором хранятся заметки."""
     match sys.argv:
         case [_]:
-            raw_path = '..'
+            raw_path = '.'
         case [_, raw_path]:
             pass
         case _:
