@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Утилиты.
 """
 from typing import Iterable
