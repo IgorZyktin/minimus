@@ -22,7 +22,7 @@ def main() -> None:
     cache.load()
 
     files = storage.get_files(path)
-    files.sort(key=lambda file: file.path)
+    files.sort(key=lambda file: file.sort_key)
 
     gathered_tags, neighbours = markup.gather_tags_from_files(files)
 

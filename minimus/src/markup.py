@@ -87,14 +87,25 @@ def make_readme_content(files: list[objects.File]) -> str:
     """Собрать содержимое головного файла README."""
     lines = [f'# Всего записей: {len(files)} шт.\n']
 
-    # FIXME - добавить разделение по категориям
-    for number, file in utils.numerate(files):
-        path = file.path.relative_to(file.root.parent)
+    category = []
+
+    for file in files:
+        folder = file.path.parent.relative_to(file.root)
+        file_path = file.path.relative_to(file.root)
+
+        parts = list(list(folder.parts))
+        if category != parts:
+            for part in parts:
+                prefix = '\t' * len(category)
+                lines.append(f'{prefix}- {part}\n')
+                category.append(part)
+
         link = as_href(
             title=file.title,
-            link=escape(str(path)),
+            link=escape(f'./{file_path}'),
         )
-        lines.append(f'{number}. {link}\n')
+        prefix = '\t' * len(category)
+        lines.append(f'{prefix}- {link}\n')
 
     return '\n'.join(lines) + '\n'
 

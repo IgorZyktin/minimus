@@ -72,6 +72,11 @@ class File:
         return self.path.relative_to(self.root)
 
     @cached_property
+    def sort_key(self) -> list[str]:
+        """Специальный параметр для сортировки."""
+        return list(self.relative_path.parts) + [self.title]
+
+    @cached_property
     def fingerprint(self) -> Fingerprint:
         """Вернуть слепок файла."""
         stat = os.stat(self.path)
