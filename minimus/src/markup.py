@@ -39,7 +39,7 @@ def make_tag_content(
     """Собрать документ для описания тега."""
     lines = [
         f'# {tag}\n',
-        f'### Встречается в:\n',
+        '### Встречается в:\n',
     ]
 
     for number, file in utils.numerate(files):
