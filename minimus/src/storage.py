@@ -1,8 +1,8 @@
 """Модуль по работе с файловой системой.
 """
 import os
-import sys
 from pathlib import Path
+import sys
 
 from minimus.src import constants
 from minimus.src import objects
@@ -44,9 +44,9 @@ def get_files(path: Path) -> list[objects.File]:
 
 
 def _recursively_dig(
-        root: Path,
-        path: Path,
-        files: list[objects.File],
+    root: Path,
+    path: Path,
+    files: list[objects.File],
 ) -> None:
     """Рекурсивно собрать данные по всем файлам в каталоге."""
     entries: list[str] = os.listdir(path)
@@ -54,19 +54,17 @@ def _recursively_dig(
     for name in entries:
         sub_path = path / name
 
-        if sub_path.is_file():
-            if can_handle_this(name):
-                new_file = objects.File(
-                    path=sub_path,
-                    root=root,
-                )
-                files.append(new_file)
-        else:
-            if name != constants.TAGS_FOLDER:
-                _recursively_dig(root, sub_path, files)
+        if sub_path.is_file() and can_handle_this_file(name):
+            new_file = objects.File(
+                path=sub_path,
+                root=root,
+            )
+            files.append(new_file)
+        elif can_handle_this_folder(name):
+            _recursively_dig(root, sub_path, files)
 
 
-def can_handle_this(name: str) -> bool:
+def can_handle_this_file(name: str) -> bool:
     """Вернуть True если мы умеем обрабатывать такие файлы."""
     if name.lower().startswith(constants.IGNORED_PREFIXES):
         return False
@@ -75,6 +73,17 @@ def can_handle_this(name: str) -> bool:
         return False
 
     if name == constants.README_FILENAME:
+        return False
+
+    return True
+
+
+def can_handle_this_folder(name: str) -> bool:
+    """Вернуть True если мы умеем обрабатывать такие каталоги."""
+    if name.lower().startswith(constants.IGNORED_PREFIXES):
+        return False
+
+    if name == constants.TAGS_FOLDER:
         return False
 
     return True

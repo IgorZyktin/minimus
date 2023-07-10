@@ -1,11 +1,11 @@
 """Модуль с классами объектов.
 """
+from functools import cached_property
 import hashlib
 import json
 import os
-import typing
-from functools import cached_property
 from pathlib import Path
+import typing
 from typing import Any
 
 from minimus.src import constants
@@ -23,10 +23,10 @@ class File:
     """Пакет с метаинформацией о файле."""
 
     def __init__(
-            self,
-            path: Path,
-            root: Path | None = None,
-            content: str | None = None,
+        self,
+        path: Path,
+        root: Path | None = None,
+        content: str | None = None,
     ) -> None:
         """Инициализировать экземпляр."""
         self.root = root or path

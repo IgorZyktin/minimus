@@ -14,7 +14,7 @@ def get_tag_filename(text: str) -> str:
 
 
 def gather_tags_from_files(
-        files: list[objects.File],
+    files: list[objects.File],
 ) -> tuple[
     dict[str, set[objects.File]],
     dict[str, set[str]],
@@ -32,9 +32,9 @@ def gather_tags_from_files(
 
 
 def make_tag_content(
-        tag: str,
-        files: list[objects.File],
-        neighbours: dict[str, set[str]],
+    tag: str,
+    files: list[objects.File],
+    neighbours: dict[str, set[str]],
 ) -> str:
     """Собрать документ для описания тега."""
     lines = [
@@ -142,9 +142,9 @@ def replace_bare_tags(file: objects.File) -> str:
 
 
 def get_relative_path_for_tag(
-        root: Path,
-        file_path: Path,
-        tag_filename: str,
+    root: Path,
+    file_path: Path,
+    tag_filename: str,
 ) -> str:
     """Вернуть относительный путь от файла до указанного тега."""
     from_root = file_path.parent.relative_to(root)
