@@ -54,12 +54,13 @@ def _recursively_dig(
     for name in entries:
         sub_path = path / name
 
-        if sub_path.is_file() and can_handle_this_file(name):
-            new_file = objects.File(
-                path=sub_path,
-                root=root,
-            )
-            files.append(new_file)
+        if sub_path.is_file():
+            if can_handle_this_file(name):
+                new_file = objects.File(
+                    path=sub_path,
+                    root=root,
+                )
+                files.append(new_file)
         elif can_handle_this_folder(name):
             _recursively_dig(root, sub_path, files)
 
