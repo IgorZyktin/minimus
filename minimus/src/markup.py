@@ -67,7 +67,7 @@ def make_tag_content(
 
 def escape(link: str) -> str:
     """Заменить спецсимволы для гиперссылки."""
-    return link.replace(' ', '%20').replace('+', '%2B')
+    return link.replace(' ', '%20').replace('+', '%2B').replace('\\', '/')
 
 
 def as_filename(title: str) -> str:
@@ -89,13 +89,6 @@ def make_readme_content(files: list[objects.File]) -> str:
     for file in files:
         folder = file.path.parent.relative_to(file.root)
         file_path = file.path.relative_to(file.root)
-
-        parts = list(list(folder.parts))
-        if category != parts:
-            for part in parts:
-                prefix = '\t' * len(category)
-                lines.append(f'{prefix}- {part}\n')
-                category.append(part)
 
         link = as_href(
             title=file.title,
