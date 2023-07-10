@@ -38,7 +38,7 @@ def get_path() -> Path:
 
 def get_files(path: Path) -> list[objects.File]:
     """Собрать файлы."""
-    files = []
+    files: list[objects.File] = []
     _recursively_dig(path, path, files)
     return files
 

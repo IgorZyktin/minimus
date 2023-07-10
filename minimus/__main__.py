@@ -50,11 +50,15 @@ def main() -> None:
     storage.ensure_folder_for_tags(path)
     for tag, sub_files in gathered_tags.items():
         filename = markup.get_tag_filename(tag)
-        sub_files = sorted(sub_files, key=lambda file: file.path.name)
-        tag_content = markup.make_tag_content(tag, sub_files, neighbours)
+        sorted_sub_files = sorted(sub_files, key=lambda file: file.sort_key)
+        tag_content = markup.make_tag_content(
+            tag=tag,
+            files=sorted_sub_files,
+            neighbours=neighbours,
+        )
         tag_path = path / constants.TAGS_FOLDER / filename
-        tag = objects.File(path=tag_path, content=tag_content)
-        tag.save()
+        tag_object = objects.File(path=tag_path, content=tag_content)
+        tag_object.save()
     print(f'\tСохранено тегов: {len(gathered_tags)} шт. ')
 
     output.header('Генерация вспомогательных файлов')

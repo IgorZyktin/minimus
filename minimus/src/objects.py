@@ -5,13 +5,14 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import typing
 from typing import Any
+from typing import TypedDict
+from typing import cast
 
 from minimus.src import constants
 
 
-class Fingerprint(typing.TypedDict):
+class Fingerprint(TypedDict):
     """Слепок файловой системы, позволяющий определять изменения файлов."""
     md5: str
     created: int
@@ -34,8 +35,10 @@ class File:
         self._content = content
         self.has_changes = False
 
-    def __eq__(self, other: 'File') -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Вернуть True при равенстве."""
+        if not isinstance(other, File):
+            return NotImplemented
         return self.path == other.path
 
     def __hash__(self):
@@ -59,7 +62,7 @@ class File:
         """Вернуть содержимое файла."""
         if self._content is None:
             self.load()
-        return self._content
+        return cast(str, self._content)
 
     @content.setter
     def content(self, new_content: str) -> None:

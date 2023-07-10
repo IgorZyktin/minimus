@@ -87,7 +87,7 @@ def make_readme_content(files: list[objects.File]) -> str:
     """Собрать содержимое головного файла README."""
     lines = [f'# Всего записей: {len(files)} шт.\n']
 
-    category = []
+    category: list[str] = []
 
     for file in files:
         folder = file.path.parent.relative_to(file.root)
