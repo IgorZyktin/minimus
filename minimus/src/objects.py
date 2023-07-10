@@ -14,6 +14,7 @@ from minimus.src import constants
 
 class Fingerprint(TypedDict):
     """Слепок файловой системы, позволяющий определять изменения файлов."""
+
     md5: str
     created: int
     modified: int
@@ -107,9 +108,7 @@ class File:
     @cached_property
     def tags(self) -> list[str]:
         """Вернуть все теги в файле."""
-        return sorted(
-            constants.BASIC_TAG_PATTERN.findall(self.content)
-        )
+        return sorted(constants.BASIC_TAG_PATTERN.findall(self.content))
 
 
 class Cache:

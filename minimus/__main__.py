@@ -10,8 +10,7 @@ from minimus.src import storage
 
 
 def main() -> None:
-    """Точка входа.
-    """
+    """Точка входа."""
     start_time = time.perf_counter()
 
     path = storage.get_path()

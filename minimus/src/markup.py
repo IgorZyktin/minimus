@@ -15,10 +15,7 @@ def get_tag_filename(text: str) -> str:
 
 def gather_tags_from_files(
     files: list[objects.File],
-) -> tuple[
-    dict[str, set[objects.File]],
-    dict[str, set[str]],
-]:
+) -> tuple[dict[str, set[objects.File]], dict[str, set[str]]]:
     """Собрать словарь из соответствия тег-файлы."""
     found_tags: dict[str, set[objects.File]] = defaultdict(set)
     neighbours: dict[str, set[str]] = defaultdict(set)

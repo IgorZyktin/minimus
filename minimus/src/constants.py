@@ -24,46 +24,80 @@ IGNORED_PREFIXES = (
     '_',
 )
 
-SUPPORTED_EXTENSIONS = (
-    '.md',
-)
+SUPPORTED_EXTENSIONS = ('.md',)
 
-SMALL_LETTERS = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e',
-                 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k',
-                 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-                 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts',
-                 'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
-                 'э': 'e', 'ю': 'y', 'я': 'ya', ' ': '_', }
+SMALL_LETTERS = {
+    'а': 'a',
+    'б': 'b',
+    'в': 'v',
+    'г': 'g',
+    'д': 'd',
+    'е': 'e',
+    'ё': 'e',
+    'ж': 'zh',
+    'з': 'z',
+    'и': 'i',
+    'й': 'y',
+    'к': 'k',
+    'л': 'l',
+    'м': 'm',
+    'н': 'n',
+    'о': 'o',
+    'п': 'p',
+    'р': 'r',
+    'с': 's',
+    'т': 't',
+    'у': 'u',
+    'ф': 'f',
+    'х': 'h',
+    'ц': 'ts',
+    'ч': 'ch',
+    'ш': 'sh',
+    'щ': 'sch',
+    'ъ': '',
+    'ы': 'y',
+    'ь': '',
+    'э': 'e',
+    'ю': 'y',
+    'я': 'ya',
+    ' ': '_',
+}
 
 BIG_LETTERS = {
-    key.upper(): value.upper()
-    for key, value in SMALL_LETTERS.items()
+    key.upper(): value.upper() for key, value in SMALL_LETTERS.items()
 }
 
 TRANS_MAP = str.maketrans({**SMALL_LETTERS, **BIG_LETTERS})
 
 # Базовый шаблон для тега, любые включения в документ
 # Примеры: '{{ something }}', '[{{ tag }}](./tag.md)'
-BASIC_TAG_PATTERN = re.compile(r"""
+BASIC_TAG_PATTERN = re.compile(
+    r"""
     {{       # две открывающие фигурные скобки
     \s+?     # ноль или более пробелов
     (.+?)    # произвольный текст
     \s+?     # ноль или более пробелов
     }}       # две закрывающие фигурные скобки
-""", flags=re.VERBOSE)
+""",
+    flags=re.VERBOSE,
+)
 
 # Шаблон заголовка файла
 # Примеры: '# something'
-TITLE_PATTERN = re.compile(r"""
+TITLE_PATTERN = re.compile(
+    r"""
     ^        # начало строки
     \#       # октоторп        
     \s+?     # ноль или более пробелов
     (.+)    # произвольный текст
-""", flags=re.VERBOSE)
+""",
+    flags=re.VERBOSE,
+)
 
 # Шаблон для голого тега, не оформленного как гиперссылка
 # Примеры: '{{ something }}'
-BARE_TAG_PATTERN = re.compile(r"""
+BARE_TAG_PATTERN = re.compile(
+    r"""
     (?<!\[)   # не должно быть квадратной скобки в начале
     ({{       # две открывающие фигурные скобки
     \s+?)     # ноль или более пробелов
@@ -71,4 +105,6 @@ BARE_TAG_PATTERN = re.compile(r"""
     (\s+?     # ноль или более пробелов
     }})       # две закрывающие фигурные скобки
     (?!])     # не должно быть квадратной скобки в конце
-""", flags=re.VERBOSE)
+""",
+    flags=re.VERBOSE,
+)
