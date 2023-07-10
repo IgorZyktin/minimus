@@ -6,3 +6,5 @@
 *.spec
 .mypy_cache/
 *.json
+.ruff_cache.
+minimus.egg-info
